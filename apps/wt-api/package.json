@@ -1,0 +1,8 @@
+{
+  "name": "wt-api",
+  "version": "1.0.0",
+  "scripts": {
+    "py:install": "python -m venv ./venv && venv\\Scripts\\activate && python -m pip install -r requirements.txt && prisma generate && prisma db push --force-reset",
+    "dev": "venv\\Scripts\\activate && python -m main"
+  }
+}
