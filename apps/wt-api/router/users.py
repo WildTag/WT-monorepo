@@ -9,7 +9,6 @@ from helpers.password import has_numbers, has_lowercase, has_uppercase, has_spec
 
 router = APIRouter()
 
-
 @router.get("/users", tags=["users"])
 async def user_list():
     users = await prisma.account.find_many()
