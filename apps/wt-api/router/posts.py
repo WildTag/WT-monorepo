@@ -20,7 +20,7 @@ async def user_list(post_id: int):
     picture = await prisma.picture.find_first(where={"pictureId": post_id})
     return picture
 
-class Image(BaseModel):
+class Imagetest(BaseModel):
     path: str
 
 class CreatePostData(BaseModel):
@@ -30,7 +30,7 @@ class CreatePostData(BaseModel):
     description: str
     gps_long: float
     gps_lat: float
-    images: List[Image]
+    images: List[Imagetest]
     
 @router.post("/posts/create", tags=["users"])
 async def create_user(user_payload: CreatePostData):
@@ -56,9 +56,9 @@ async def create_upload_file(file: UploadFile = File(...)):
     image_type = file.content_type
     image = Image.open(BytesIO(image_bytes))
 
-    status_code, data = get_exif(image, image_type)
+    status_code, data, image = get_exif(image, image_type)
     
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)
     
-    return {"filename": file.filename, "metadata": data}
+    return {"filename": file.filename, "metadata": data, "image": image}
