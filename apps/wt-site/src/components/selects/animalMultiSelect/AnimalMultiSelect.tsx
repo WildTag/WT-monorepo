@@ -26,7 +26,11 @@ const flags = {
   other: "/lowPolyOther.png",
 };
 
-const AnimalMultiSelect = () => {
+interface AnimalMultiSelectProps {
+  form: any;
+}
+
+const AnimalMultiSelect = ({ form }: AnimalMultiSelectProps) => {
   function Value({
     value,
     label,
@@ -86,6 +90,7 @@ const AnimalMultiSelect = () => {
       defaultValue={undefined}
       placeholder="Select an animal..."
       label="Choose an animal"
+      {...form.getInputProps("animals")}
     />
   );
 };
