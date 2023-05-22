@@ -20,18 +20,12 @@ export default function Popup({ latitude, longitude }: PopupProps) {
       >
         <div
           style={{
-            borderColor: theme.colors.dark["9"],
+            backgroundColor: theme.colors.dark["7"],
+            padding: theme.spacing.md,
+            borderRadius: theme.radius.md,
           }}
         >
-          <div
-            style={{
-              backgroundColor: theme.colors.dark["7"],
-              padding: theme.spacing.xl,
-              borderRadius: theme.radius.md,
-            }}
-          >
-            <h1>hey sisters</h1>
-          </div>
+          <h1>hey sisters</h1>
         </div>
       </OverlayView>
     </>

@@ -25,7 +25,7 @@ export default function Map() {
             onClick={() => {
               setOpen(!open);
             }}
-          ></Marker>
+          />
           {open && <Popup latitude={center.lat} longitude={center.lng} />}
         </GoogleMap>
       </LoadScript>
