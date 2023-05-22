@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { Trash } from "tabler-icons-react";
 import AnimalMultiSelect from "../../components/selects/animalMultiSelect/AnimalMultiSelect";
 import { useForm } from "@mantine/form";
+import { Upload } from "tabler-icons-react";
 
 function Home() {
   const [opened, setOpened] = useState(false);
@@ -180,6 +181,34 @@ function Home() {
             <Button onClick={() => setOpened(!opened)}>Post..</Button>
           </Center>
         </div>
+    <div style={{ position: "relative" }}>
+      <Map />
+
+      <div
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+      >
+        <Button
+          style={{
+            padding: "0px",
+            position: "absolute",
+            bottom: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "50px",
+            height: "50px",
+            borderRadius: "50%",
+            backgroundColor: theme.colors.dark["4"],
+            opacity: "80%",
+            zIndex: 5, // Ensure the button appears above the overlay
+          }}
+        >
+          <Upload size={20} strokeWidth={3} />
+        </Button>
       </div>
     </>
   );
