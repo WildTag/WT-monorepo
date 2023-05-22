@@ -1,9 +1,12 @@
-
 from fastapi import APIRouter, UploadFile, File
+from io import BytesIO
+from fastapi import APIRouter, UploadFile, File, HTTPException
+
 from db import prisma
 from pydantic import BaseModel
+from PIL import Image
+from helpers.image_processing import get_exif
 from typing import List
-
 
 router = APIRouter()
 
@@ -21,7 +24,7 @@ class Image(BaseModel):
     path: str
 
 class CreatePostData(BaseModel):
-    account_id: int
+    session_token: str
     animals: List[str]
     title: str
     description: str
@@ -31,28 +34,31 @@ class CreatePostData(BaseModel):
     
 @router.post("/posts/create", tags=["users"])
 async def create_user(user_payload: CreatePostData):
-    picture = await prisma.picture.create(data={
-        "accountId": user_payload.account_id,
+    user = await prisma.account.find_first(where={"accessToken": user_payload.session_token})
+    if not user:
+        raise HTTPException(
+            status_code=401, detail="Invalid session token")
+    
+    await prisma.picture.create(data={
+        "accountId": user.accountId,
         "title": user_payload.title,
         "description": user_payload.description,
         "GPSLong": user_payload.gps_long,
         "GPSLat": user_payload.gps_lat
     })
 
-    return ({"detail": "Post Creation Confirmed",
-             "token": picture.title})
+    return ({"detail": "Post Creation Confirmed"})
 
 @router.post("/posts/upload_image")
 async def create_upload_file(file: UploadFile = File(...)):
     image_bytes = await file.read()
     
-    # image/type.. eg image/png, image/jpeg...
     image_type = file.content_type
+    image = Image.open(BytesIO(image_bytes))
+
+    status_code, data = get_exif(image, image_type)
     
-    # uncomment belowif you want to open the image (display it)
-    # image = Image.open(BytesIO(image_bytes))
-    # image.show()
+    if status_code != 200:
+        raise HTTPException(status_code=status_code, detail=data)
     
-    # TODO: peter add code to return meta data to client
-    
-    return {"filename": file.filename, "metadata": "..."}
+    return {"filename": file.filename, "metadata": data}

@@ -1,19 +1,25 @@
 import Map from "../../components/map/Map";
-import { useMantineTheme, Button, Group, Input } from "@mantine/core";
+import { useMantineTheme, Button, Group, Input, Menu, Flex} from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
-import { Upload, Filter, User } from "tabler-icons-react";
+import { Upload, Filter, User, Settings } from "tabler-icons-react";
+
 import CreatePostModal from "../../components/modals/CreatePostModal";
+import { Loading } from "../../components/loading/Loading";
 
 function Home() {
   const [postModalOpened, setPostModalOpened] = useState(false);
   const [files, setFiles] = useState<FileWithPath[]>([]);
+  const [accountInfo, setAccountInfo] = useState<any>(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const sessionToken = sessionStorage.getItem("sessionToken");
+
   const theme = useMantineTheme();
 
   const form = useForm({
     initialValues: {
-      account_id: 1,
+      session_token: sessionToken,
       animals: [],
       title: "",
       description: [],
@@ -27,10 +33,29 @@ function Home() {
     form.setFieldValue("images", files);
   }, [files]);
 
+  useEffect(() => {
+    async function getAccountInfo() {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/account/${sessionToken}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      setAccountInfo(data);
+      setIsFetching(false);
+    }
+    setIsFetching(true);
+    getAccountInfo();
+  }, []);
+
   const handleUploadImage = async (files: any) => {
     const formData = new FormData();
 
-    files.forEach((file: any, index: number) => {
+    files.forEach((file: any) => {
       formData.append("file", file);
     });
 
@@ -57,6 +82,8 @@ function Home() {
 
     const data = await response.json();
   };
+
+  if (isFetching) return <Loading />;
 
   return (
     <>
@@ -92,32 +119,60 @@ function Home() {
           }}
         >
           <Group position="center">
-            <Button
+            {accountInfo && (
+              <>
+             <Button
               leftIcon={<Filter size="1rem" strokeWidth={2} />}
               style={{ backgroundColor: theme.colors.dark[3] }}
             >
               Filter
             </Button>
-            <Button
-              style={{
-                padding: "0px",
-                width: "50px",
-                height: "50px",
-                borderRadius: "50%",
-                backgroundColor: theme.colors.dark[4],
-                zIndex: 5,
-              }}
-              onClick={() => setPostModalOpened(!postModalOpened)}
-            >
-              <Upload size={20} strokeWidth={3} />
-            </Button>
-            <Button
-              rightIcon={<User size="1rem" strokeWidth={2} />}
+                <Button
+                  style={{
+                    padding: "0px",
+                    width: "50px",
+                    height: "50px",
+                    borderRadius: "50%",
+                    backgroundColor: theme.colors.dark[4],
+                    zIndex: 5,
+                  }}
+                  onClick={() => setPostModalOpened(!postModalOpened)}
+                >
+                  <Upload size={20} strokeWidth={3} />
+                </Button>
+              </>
+            )}
+            <Menu shadow="md" width={200}>
+              <Menu.Target>
+                <Button
+                              rightIcon={<User size="1rem" strokeWidth={2} />}
               style={{ backgroundColor: theme.colors.dark[3] }}
-              onClick={() => {}}
-            >
-              Account
-            </Button>
+                  onClick={() => {
+                    if (accountInfo) return;
+                    window.location.href = "/login";
+                  }}
+                >
+                  {accountInfo ? "Profile" : "Login"}
+                </Button>
+              </Menu.Target>
+
+              {accountInfo ? (
+                <>
+                  <Menu.Dropdown>
+                    <Menu.Label>Options</Menu.Label>
+                    <Menu.Item icon={<Settings size={14} />}>Profile</Menu.Item>
+                    <Menu.Item icon={<Settings size={14} />}>Settings</Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Label>Danger zone</Menu.Label>
+                    <Menu.Item color="red" icon={<Logout size={14} />}>
+                      Logout
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </>
+              ) : (
+                <></>
+              )}
+            </Menu>
           </Group>
         </div>
       </div>
