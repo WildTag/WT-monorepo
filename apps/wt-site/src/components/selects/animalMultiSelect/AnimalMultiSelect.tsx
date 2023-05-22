@@ -6,24 +6,27 @@ import {
   MultiSelectValueProps,
   SelectItemProps,
   rem,
-  useMantineTheme,
+  Image,
 } from "@mantine/core";
 import { forwardRef } from "react";
-import { Flag } from "tabler-icons-react";
 
 const categoriesData = [
   { label: "Duck", value: "duck" },
   { label: "Swan", value: "swan" },
   { label: "Heron", value: "heron" },
+  { label: "Pidgeon", value: "pidgeon" },
+  { label: "other", value: "other" },
 ];
 
 const flags = {
-  US: Flag,
-  GB: Flag,
+  swan: "/lowPolySwan.png",
+  heron: "/lowPolyHeron.png",
+  pidgeon: "/lowPolyPidgeon.png",
+  duck: "/lowPolyDuck.png",
+  other: "/lowPolyOther.png",
 };
 
 const AnimalMultiSelect = () => {
-  const theme = useMantineTheme();
   function Value({
     value,
     label,
@@ -31,7 +34,6 @@ const AnimalMultiSelect = () => {
     classNames,
     ...others
   }: MultiSelectValueProps & { value: string }) {
-    const Flag = flags["GB"];
     return (
       <div {...others}>
         <Box
@@ -45,7 +47,7 @@ const AnimalMultiSelect = () => {
           })}
         >
           <Box mr={10}>
-            <Flag />
+            <Image src={flags[value]} width={24} height={24} />
           </Box>
           <Box sx={{ lineHeight: 1, fontSize: rem(12) }}>{label}</Box>
           <CloseButton
@@ -61,12 +63,11 @@ const AnimalMultiSelect = () => {
   }
 
   const Item = forwardRef<HTMLDivElement, SelectItemProps>(({ label, value, ...others }, ref) => {
-    const Flag = flags["US"];
     return (
       <div ref={ref} {...others}>
         <Flex align="center">
           <Box mr={10}>
-            <Flag />
+            <Image src={flags[value]} width={24} height={24} />
           </Box>
           <div>{label}</div>
         </Flex>
@@ -83,7 +84,7 @@ const AnimalMultiSelect = () => {
       itemComponent={Item}
       searchable
       defaultValue={undefined}
-      placeholder=""
+      placeholder="Select an animal..."
       label="Choose an animal"
     />
   );

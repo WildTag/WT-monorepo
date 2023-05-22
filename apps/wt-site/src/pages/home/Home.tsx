@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import Map from "../../components/map/Map";
 
 function Home() {
