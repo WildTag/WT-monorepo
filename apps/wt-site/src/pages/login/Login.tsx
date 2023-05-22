@@ -42,7 +42,8 @@ const Login = () => {
       color: "green",
     });
 
-    sessionStorage.setItem("sessionToken", data.access_token);
+    sessionStorage.setItem("sessionToken", data.session_token);
+    window.location.href = "/";
   };
 
   return (

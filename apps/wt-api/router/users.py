@@ -13,13 +13,13 @@ async def user_list():
 
 @router.get("/users/{user_id}", tags=["users"])
 async def get_user(user_id: int):
-    print(1)
     user = await prisma.account.find_first(where={"accountId": user_id})
     return user
 
-@router.get("/users/{session_token}", tags=["users"])
+@router.get("/users/account/{session_token}", tags=["users"])
 async def get_account_info(session_token: str):
-    print(session_token)
+    user = await prisma.account.find_first(where={"accessToken": session_token})
+    return user
     
 
 class RegisterUserData(BaseModel):
@@ -78,4 +78,4 @@ async def create_user(login_payload: LoginUserData):
         raise HTTPException(
             status_code=401, detail="Invalid login credentials")
     
-    return {"detail": "Login successful", "session_token": user.access_token}
+    return {"detail": "Login successful", "session_token": user.accessToken}

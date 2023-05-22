@@ -5,15 +5,20 @@ import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
 import { Logout, Settings, Upload } from "tabler-icons-react";
 import CreatePostModal from "../../components/modals/CreatePostModal";
+import { Loading } from "../../components/loading/Loading";
 
 function Home() {
   const [postModalOpened, setPostModalOpened] = useState(false);
   const [files, setFiles] = useState<FileWithPath[]>([]);
+  const [accountInfo, setAccountInfo] = useState<any>(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const sessionToken = sessionStorage.getItem("sessionToken");
+
   const theme = useMantineTheme();
 
   const form = useForm({
     initialValues: {
-      account_id: 1,
+      session_token: sessionToken,
       animals: [],
       title: "",
       description: [],
@@ -29,15 +34,20 @@ function Home() {
 
   useEffect(() => {
     async function getAccountInfo() {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/create`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/account/${sessionToken}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await response.json();
-      console.log(data);
+      setAccountInfo(data);
+      setIsFetching(false);
     }
+    setIsFetching(true);
     getAccountInfo();
   }, []);
 
@@ -72,6 +82,8 @@ function Home() {
     const data = await response.json();
   };
 
+  if (isFetching) return <Loading />;
+
   return (
     <>
       <CreatePostModal
@@ -95,35 +107,52 @@ function Home() {
           }}
         >
           <Flex align={"center"} gap={5}>
-            <Button>filters</Button>
-            <Button
-              style={{
-                padding: "0px",
-                width: "50px",
-                height: "50px",
-                borderRadius: "50%",
-                backgroundColor: theme.colors.dark[4],
-                zIndex: 5,
-              }}
-              onClick={() => setPostModalOpened(!postModalOpened)}
-            >
-              <Upload size={20} strokeWidth={3} />
-            </Button>
+            {accountInfo && (
+              <>
+                <Button>filters</Button>
+                <Button
+                  style={{
+                    padding: "0px",
+                    width: "50px",
+                    height: "50px",
+                    borderRadius: "50%",
+                    backgroundColor: theme.colors.dark[4],
+                    zIndex: 5,
+                  }}
+                  onClick={() => setPostModalOpened(!postModalOpened)}
+                >
+                  <Upload size={20} strokeWidth={3} />
+                </Button>
+              </>
+            )}
             <Menu shadow="md" width={200}>
               <Menu.Target>
-                <Button>Toggle menu</Button>
+                <Button
+                  onClick={() => {
+                    if (accountInfo) return;
+                    window.location.href = "/login";
+                  }}
+                >
+                  {accountInfo ? "Profile" : "Login"}
+                </Button>
               </Menu.Target>
 
-              <Menu.Dropdown>
-                <Menu.Label>Options</Menu.Label>
-                <Menu.Item icon={<Settings size={14} />}>Profile</Menu.Item>
-                <Menu.Item icon={<Settings size={14} />}>Settings</Menu.Item>
-                <Menu.Divider />
-                <Menu.Label>Danger zone</Menu.Label>
-                <Menu.Item color="red" icon={<Logout size={14} />}>
-                  Logout
-                </Menu.Item>
-              </Menu.Dropdown>
+              {accountInfo ? (
+                <>
+                  <Menu.Dropdown>
+                    <Menu.Label>Options</Menu.Label>
+                    <Menu.Item icon={<Settings size={14} />}>Profile</Menu.Item>
+                    <Menu.Item icon={<Settings size={14} />}>Settings</Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Label>Danger zone</Menu.Label>
+                    <Menu.Item color="red" icon={<Logout size={14} />}>
+                      Logout
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </>
+              ) : (
+                <></>
+              )}
             </Menu>
           </Flex>
         </div>
