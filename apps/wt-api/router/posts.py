@@ -1,10 +1,10 @@
 
 from io import BytesIO
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from db import prisma
 from pydantic import BaseModel
 from PIL import Image
-
+from helpers.image_processing import get_exif
 
 router = APIRouter()
 
@@ -31,13 +31,12 @@ class CreatePostData(BaseModel):
 async def create_upload_file(file: UploadFile = File(...)):
     image_bytes = await file.read()
     
-    # image/type.. eg image/png, image/jpeg...
     image_type = file.content_type
+    image = Image.open(BytesIO(image_bytes))
+
+    status_code, data = get_exif(image, image_type)
     
-    # uncomment belowif you want to open the image (display it)
-    # image = Image.open(BytesIO(image_bytes))
-    # image.show()
+    if status_code != 200:
+        raise HTTPException(status_code=status_code, detail=data)
     
-    # TODO: peter add code to return meta data to client
-    
-    return {"filename": file.filename, "metadata": "..."}
+    return {"filename": file.filename, "metadata": data}

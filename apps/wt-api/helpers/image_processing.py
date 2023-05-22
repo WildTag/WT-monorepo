@@ -4,29 +4,38 @@ from pillow_heif import register_heif_opener    # HEIF support
 
 register_heif_opener()                          # HEIF support
 
-def print_exif(fname: str):
-    img = Image.open(fname)
+def dms_to_dd(dms):
+    degrees, minutes, seconds = dms
+    dd = float(degrees) + float(minutes)/60 + float(seconds)/(60*60)
+    return dd
+
+def get_exif(img, image_type):
+
+    if image_type == "image/heic":
+        pass
+    elif image_type == "image/jpeg":
+        pass
+    elif image_type == "image/png":
+        pass
+    else:
+        return (400, "Filetype not supported.") #400 Bad Request
+            
+    
     exif = img.getexif()
-
-    print('>>>>>>>>>>>>>>>>>>', 'Base tags', '<<<<<<<<<<<<<<<<<<<<')
-    for k, v in exif.items():
-        tag = TAGS.get(k, k)
-        print(tag, v)
-
-    for ifd_id in IFD:
-        print('>>>>>>>>>', ifd_id.name, '<<<<<<<<<<')
-        try:
-            ifd = exif.get_ifd(ifd_id)
-
-            if ifd_id == IFD.GPSInfo:
-                resolve = GPSTAGS
-            else:
-                resolve = TAGS
-
-            for k, v in ifd.items():
-                tag = resolve.get(k, k)
-                print(tag, v)
-        except KeyError:
-            pass
-        
-print_exif("test.heif")
+    exif_gps = exif.get_ifd(IFD.GPSInfo)
+    exif_basic = exif.get_ifd(IFD.Exif)
+    
+    try:
+        gps_latitude = dms_to_dd(exif_gps[2])
+        gps_longitude = dms_to_dd(exif_gps[4])
+        date_time_original = exif_basic[36867]
+    except KeyError:
+            return (404, "No GPS Data Found.")
+    
+    result = {
+        "GPSLatitude": gps_latitude,
+        "GPSLongitude": gps_longitude,
+        "DateTimeOriginal": date_time_original
+        }
+    
+    return (200, result)
