@@ -22,7 +22,7 @@ export default function Map() {
           mapContainerStyle={containerStyle}
           center={center}
           zoom={8}
-          options={{ maxZoom: 8 }}
+          options={{ minZoom: 6, maxZoom: 12, fullscreenControl: false }}
         >
           <Marker
             position={center}
