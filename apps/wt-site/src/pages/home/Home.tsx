@@ -1,5 +1,5 @@
 import Map from "../../components/map/Map";
-import { useMantineTheme, Button, Stack, Group, Text } from "@mantine/core";
+import { useMantineTheme, Button, Group, Input } from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
@@ -72,6 +72,17 @@ function Home() {
       />
       <div style={{ position: "relative" }}>
         <Map />
+        <div
+          style={{
+            position: "absolute",
+            top: "5%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 10,
+          }}
+        >
+          <Input placeholder="Search?" radius="xl" />
+        </div>
         <div
           style={{
             position: "absolute",
