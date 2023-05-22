@@ -1,9 +1,10 @@
 import Map from "../../components/map/Map";
-import { useMantineTheme, Button, Flex, Menu } from "@mantine/core";
+import { useMantineTheme, Button, Group, Input, Menu, Flex} from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
-import { Logout, Settings, Upload } from "tabler-icons-react";
+import { Upload, Filter, User, Settings } from "tabler-icons-react";
+
 import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Loading } from "../../components/loading/Loading";
 
@@ -101,15 +102,31 @@ function Home() {
         <div
           style={{
             position: "absolute",
+            top: "5%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 10,
+          }}
+        >
+          <Input placeholder="Search?" radius="xl" />
+        </div>
+        <div
+          style={{
+            position: "absolute",
             bottom: "20px",
             left: "50%",
             transform: "translateX(-50%)",
           }}
         >
-          <Flex align={"center"} gap={5}>
+          <Group position="center">
             {accountInfo && (
               <>
-                <Button>filters</Button>
+             <Button
+              leftIcon={<Filter size="1rem" strokeWidth={2} />}
+              style={{ backgroundColor: theme.colors.dark[3] }}
+            >
+              Filter
+            </Button>
                 <Button
                   style={{
                     padding: "0px",
@@ -128,6 +145,8 @@ function Home() {
             <Menu shadow="md" width={200}>
               <Menu.Target>
                 <Button
+                              rightIcon={<User size="1rem" strokeWidth={2} />}
+              style={{ backgroundColor: theme.colors.dark[3] }}
                   onClick={() => {
                     if (accountInfo) return;
                     window.location.href = "/login";
@@ -154,7 +173,7 @@ function Home() {
                 <></>
               )}
             </Menu>
-          </Flex>
+          </Group>
         </div>
       </div>
     </>
