@@ -1,9 +1,9 @@
 import Map from "../../components/map/Map";
-import { useMantineTheme, Button, Flex } from "@mantine/core";
+import { useMantineTheme, Button, Flex, Menu } from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
-import { Upload } from "tabler-icons-react";
+import { Logout, Settings, Upload } from "tabler-icons-react";
 import CreatePostModal from "../../components/modals/CreatePostModal";
 
 function Home() {
@@ -27,10 +27,24 @@ function Home() {
     form.setFieldValue("images", files);
   }, [files]);
 
+  useEffect(() => {
+    async function getAccountInfo() {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/create`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      console.log(data);
+    }
+    getAccountInfo();
+  }, []);
+
   const handleUploadImage = async (files: any) => {
     const formData = new FormData();
 
-    files.forEach((file: any, index: number) => {
+    files.forEach((file: any) => {
       formData.append("file", file);
     });
 
@@ -95,7 +109,22 @@ function Home() {
             >
               <Upload size={20} strokeWidth={3} />
             </Button>
-            <Button onClick={() => {}}>profile</Button>
+            <Menu shadow="md" width={200}>
+              <Menu.Target>
+                <Button>Toggle menu</Button>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Label>Options</Menu.Label>
+                <Menu.Item icon={<Settings size={14} />}>Profile</Menu.Item>
+                <Menu.Item icon={<Settings size={14} />}>Settings</Menu.Item>
+                <Menu.Divider />
+                <Menu.Label>Danger zone</Menu.Label>
+                <Menu.Item color="red" icon={<Logout size={14} />}>
+                  Logout
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </Flex>
         </div>
       </div>

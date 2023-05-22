@@ -70,7 +70,7 @@ const CreatePostModal = ({
             }}
             openRef={dropzoneRef}
             activateOnClick={false}
-            accept={[MIME_TYPES.png, MIME_TYPES.jpeg, MIME_TYPES.webp]}
+            accept={[MIME_TYPES.png, MIME_TYPES.jpeg, MIME_TYPES.webp, "image/heic", "image/heif"]}
             onDrop={(files) => {
               handleUploadFiles(files)
                 .then((data) => {

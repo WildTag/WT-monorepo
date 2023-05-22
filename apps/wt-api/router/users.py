@@ -12,9 +12,15 @@ async def user_list():
     return users
 
 @router.get("/users/{user_id}", tags=["users"])
-async def user_list(user_id: int):
+async def get_user(user_id: int):
+    print(1)
     user = await prisma.account.find_first(where={"accountId": user_id})
     return user
+
+@router.get("/users/{session_token}", tags=["users"])
+async def get_account_info(session_token: str):
+    print(session_token)
+    
 
 class RegisterUserData(BaseModel):
     username: str
