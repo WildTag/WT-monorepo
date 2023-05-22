@@ -186,6 +186,7 @@ function Home() {
               backgroundColor: theme.colors.dark[4],
               zIndex: 5,
             }}
+            onClick={() => setOpened(!opened)}
           >
             <Upload size={20} strokeWidth={3} />
           </Button>
