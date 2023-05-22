@@ -1,7 +1,10 @@
 
-from fastapi import APIRouter
+from io import BytesIO
+from fastapi import APIRouter, UploadFile, File
 from db import prisma
 from pydantic import BaseModel
+from PIL import Image
+
 
 router = APIRouter()
 
@@ -21,17 +24,19 @@ class CreatePostData(BaseModel):
     description: str
     gps_long : float
     gps_lat : float
+    
 
-@router.post("/posts/create", tags=["users"])
-async def create_user(user_payload: CreatePostData):
+@router.post("/posts/upload_image")
+async def create_upload_file(file: UploadFile = File(...)):
+    image_bytes = await file.read()
+    
+    # image/type.. eg image/png, image/jpeg...
+    image_type = file.content_type
+    
+    # uncomment belowif you want to open the image (display it)
+    # image = Image.open(BytesIO(image_bytes))
+    # image.show()
+    
+    # TODO: peter add code to return meta data to client
 
-    picture = await prisma.picture.create(data={
-        "accountId": user_payload.account_id,
-        "title": user_payload.title,
-        "description": user_payload.description,
-        "GPSLong": user_payload.gps_long,
-        "GPSLat": user_payload.gps_lat
-    })
-
-    return ({"detail": "Post Creation Confirmed",
-             "token": picture.title})
+    return {"filename": file.filename}
