@@ -18,7 +18,12 @@ export default function Map() {
   return (
     <>
       <LoadScript googleMapsApiKey={import.meta.env.VITE_API_GOOGLEMAP}>
-        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={8}>
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={center}
+          zoom={8}
+          options={{ minZoom: 6, maxZoom: 12, fullscreenControl: false }}
+        >
           <Marker
             position={center}
             icon={""}
