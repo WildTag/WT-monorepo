@@ -1,9 +1,9 @@
 import Map from "../../components/map/Map";
-import { useMantineTheme, Button, Group, Input, Menu, Flex} from "@mantine/core";
+import { useMantineTheme, Button, Group, Input, Menu, Flex } from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
-import { Upload, Filter, User, Settings } from "tabler-icons-react";
+import { Upload, Filter, User, Settings, Logout } from "tabler-icons-react";
 
 import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Loading } from "../../components/loading/Loading";
@@ -121,12 +121,12 @@ function Home() {
           <Group position="center">
             {accountInfo && (
               <>
-             <Button
-              leftIcon={<Filter size="1rem" strokeWidth={2} />}
-              style={{ backgroundColor: theme.colors.dark[3] }}
-            >
-              Filter
-            </Button>
+                <Button
+                  leftIcon={<Filter size="1rem" strokeWidth={2} />}
+                  style={{ backgroundColor: theme.colors.dark[3] }}
+                >
+                  Filter
+                </Button>
                 <Button
                   style={{
                     padding: "0px",
@@ -145,8 +145,8 @@ function Home() {
             <Menu shadow="md" width={200}>
               <Menu.Target>
                 <Button
-                              rightIcon={<User size="1rem" strokeWidth={2} />}
-              style={{ backgroundColor: theme.colors.dark[3] }}
+                  rightIcon={<User size="1rem" strokeWidth={2} />}
+                  style={{ backgroundColor: theme.colors.dark[3] }}
                   onClick={() => {
                     if (accountInfo) return;
                     window.location.href = "/login";
