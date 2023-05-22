@@ -8,13 +8,16 @@ import {
   Flex,
   TextInput,
   Textarea,
+  Image,
 } from "@mantine/core";
-import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
+import { Dropzone, FileWithPath, IMAGE_MIME_TYPE, MIME_TYPES } from "@mantine/dropzone";
 import { useState } from "react";
 import { Photo, Upload, X } from "tabler-icons-react";
+import AnimalMultiSelect from "../../components/selects/animalMultiSelect/AnimalMultiSelect";
 
 const UploadPage = () => {
   const [opened, setOpened] = useState(false);
+  const [files, setFiles] = useState<FileWithPath[]>([]);
   const theme = useMantineTheme();
 
   const uploadFiles = async (files: any) => {
@@ -35,6 +38,17 @@ const UploadPage = () => {
     return data;
   };
 
+  const previews = files.map((file, index) => {
+    const imageUrl = URL.createObjectURL(file);
+    return (
+      <Image
+        key={index}
+        src={imageUrl}
+        imageProps={{ onLoad: () => URL.revokeObjectURL(imageUrl) }}
+      />
+    );
+  });
+
   return (
     <>
       <Modal title={"Upload"} opened={opened} onClose={() => setOpened(!opened)} size={"xl"}>
@@ -53,7 +67,7 @@ const UploadPage = () => {
               label={"Post description"}
               placeholder={"I found this pigeon at Darley bank, it was incredible!"}
             />
-            <TextInput label={"Image tags"} placeholder={"bird"} />
+            <AnimalMultiSelect />
           </div>
           <div
             style={{
@@ -64,52 +78,24 @@ const UploadPage = () => {
             }}
           >
             <Dropzone
+              accept={[MIME_TYPES.png, MIME_TYPES.jpeg, MIME_TYPES.webp]}
               onDrop={(files) => {
                 uploadFiles(files)
                   .then((data) => {
                     console.log("Upload successful:", data);
+                    setFiles(files);
                   })
                   .catch((error) => {
                     console.log("Upload failed:", error);
                   });
               }}
-              onReject={(files) => console.log("rejected files", files)}
-              maxSize={3 * 1024 ** 2}
-              accept={[MIME_TYPES.png, MIME_TYPES.jpeg, MIME_TYPES.webp]}
             >
-              <Group
-                position="center"
-                spacing="xl"
-                style={{ minHeight: rem(220), pointerEvents: "none" }}
-              >
-                <Dropzone.Accept>
-                  <Upload
-                    size="3.2rem"
-                    stroke={"1.5"}
-                    color={theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6]}
-                  />
-                </Dropzone.Accept>
-                <Dropzone.Reject>
-                  <X
-                    size="3.2rem"
-                    stroke={"1.5"}
-                    color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
-                  />
-                </Dropzone.Reject>
-                <Dropzone.Idle>
-                  <Photo size="3.2rem" stroke={"1.5"} />
-                </Dropzone.Idle>
-
-                <div>
-                  <Text size="xl" inline>
-                    Upload an image, max file size 5mb
-                  </Text>
-                </div>
-                <Button fullWidth>Upload image...</Button>
-              </Group>
+              <Text align="center">Drop images here</Text>
+              {previews}
             </Dropzone>
           </div>
         </Flex>
+        <Button mt={10}>Post</Button>
       </Modal>
       <Button onClick={() => setOpened(!opened)}>Post..</Button>
     </>
