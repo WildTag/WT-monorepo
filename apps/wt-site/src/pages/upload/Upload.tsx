@@ -9,15 +9,18 @@ import {
   TextInput,
   Textarea,
   Image,
+  Box,
 } from "@mantine/core";
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE, MIME_TYPES } from "@mantine/dropzone";
-import { useState } from "react";
-import { Photo, Upload, X } from "tabler-icons-react";
+import { useRef, useState } from "react";
+import { Photo, Trash, Upload, X } from "tabler-icons-react";
 import AnimalMultiSelect from "../../components/selects/animalMultiSelect/AnimalMultiSelect";
+import { useForm } from "@mantine/form";
 
 const UploadPage = () => {
   const [opened, setOpened] = useState(false);
   const [files, setFiles] = useState<FileWithPath[]>([]);
+  const dropzoneRef = useRef<() => void>(null);
   const theme = useMantineTheme();
 
   const uploadFiles = async (files: any) => {
@@ -38,15 +41,13 @@ const UploadPage = () => {
     return data;
   };
 
-  const previews = files.map((file, index) => {
-    const imageUrl = URL.createObjectURL(file);
-    return (
-      <Image
-        key={index}
-        src={imageUrl}
-        imageProps={{ onLoad: () => URL.revokeObjectURL(imageUrl) }}
-      />
-    );
+  const form = useForm({
+    initialValues: {
+      title: "",
+      description: "",
+      animals: [],
+      images: [],
+    },
   });
 
   return (
@@ -78,6 +79,15 @@ const UploadPage = () => {
             }}
           >
             <Dropzone
+              style={{
+                cursor: "default",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+              openRef={dropzoneRef}
+              activateOnClick={false}
               accept={[MIME_TYPES.png, MIME_TYPES.jpeg, MIME_TYPES.webp]}
               onDrop={(files) => {
                 uploadFiles(files)
@@ -89,9 +99,41 @@ const UploadPage = () => {
                     console.log("Upload failed:", error);
                   });
               }}
+              styles={{ inner: { pointerEvents: "all" } }}
             >
               <Text align="center">Drop images here</Text>
-              {previews}
+              {files.length === 0 ? (
+                <Button
+                  fullWidth
+                  onClick={() => (dropzoneRef?.current ? dropzoneRef.current() : null)}
+                >
+                  Select files
+                </Button>
+              ) : null}
+              {files.map((file, index) => {
+                const imageUrl = URL.createObjectURL(file);
+                return (
+                  <>
+                    <Flex mb={5}>
+                      <Trash
+                        style={{
+                          cursor: "pointer",
+                        }}
+                        color="red"
+                        onClick={() => {
+                          setFiles(files.filter((_, i) => i !== index));
+                        }}
+                      />
+                      <Text>{file.name}</Text>
+                    </Flex>
+                    <Image
+                      key={index}
+                      src={imageUrl}
+                      imageProps={{ onLoad: () => URL.revokeObjectURL(imageUrl) }}
+                    />
+                  </>
+                );
+              })}
             </Dropzone>
           </div>
         </Flex>

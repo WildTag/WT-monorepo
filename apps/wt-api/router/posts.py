@@ -24,7 +24,8 @@ class CreatePostData(BaseModel):
     description: str
     gps_long : float
     gps_lat : float
-    
+
+# post/create
 
 @router.post("/posts/upload_image")
 async def create_upload_file(file: UploadFile = File(...)):
@@ -38,5 +39,5 @@ async def create_upload_file(file: UploadFile = File(...)):
     # image.show()
     
     # TODO: peter add code to return meta data to client
-
-    return {"filename": file.filename}
+    
+    return {"filename": file.filename, "metadata": "..."}
