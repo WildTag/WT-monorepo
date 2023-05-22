@@ -1,9 +1,9 @@
 import Map from "../../components/map/Map";
-import { useMantineTheme, Button, Flex } from "@mantine/core";
+import { useMantineTheme, Button, Stack, Group, Text } from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
-import { Upload } from "tabler-icons-react";
+import { Upload, Filter, User } from "tabler-icons-react";
 import CreatePostModal from "../../components/modals/CreatePostModal";
 
 function Home() {
@@ -80,8 +80,13 @@ function Home() {
             transform: "translateX(-50%)",
           }}
         >
-          <Flex align={"center"} gap={5}>
-            <Button>filters</Button>
+          <Group position="center">
+            <Button
+              leftIcon={<Filter size="1rem" strokeWidth={2} />}
+              style={{ backgroundColor: theme.colors.dark[3] }}
+            >
+              Filter
+            </Button>
             <Button
               style={{
                 padding: "0px",
@@ -95,8 +100,14 @@ function Home() {
             >
               <Upload size={20} strokeWidth={3} />
             </Button>
-            <Button onClick={() => {}}>profile</Button>
-          </Flex>
+            <Button
+              rightIcon={<User size="1rem" strokeWidth={2} />}
+              style={{ backgroundColor: theme.colors.dark[3] }}
+              onClick={() => {}}
+            >
+              Account
+            </Button>
+          </Group>
         </div>
       </div>
     </>

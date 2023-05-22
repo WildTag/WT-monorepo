@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { Filter } from "tabler-icons-react";
 import Popup from "../popup/Popup";
 
 export default function Map() {
@@ -22,7 +23,7 @@ export default function Map() {
           mapContainerStyle={containerStyle}
           center={center}
           zoom={8}
-          options={{ minZoom: 6, maxZoom: 12, fullscreenControl: false }}
+          options={{ minZoom: 6, maxZoom: 16, fullscreenControl: false }}
         >
           <Marker
             position={center}
