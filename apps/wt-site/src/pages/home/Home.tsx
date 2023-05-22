@@ -1,9 +1,10 @@
 import { useEffect } from "react";
+import Map from "../../components/map/Map";
 
 function Home() {
   return (
     <div>
-      <h1>Hello world</h1>
+      <Map />
     </div>
   );
 }

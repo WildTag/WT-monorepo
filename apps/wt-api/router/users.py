@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 router = APIRouter()
 
-
 @router.get("/users", tags=["users"])
 async def user_list():
     users = await prisma.account.find_many()
