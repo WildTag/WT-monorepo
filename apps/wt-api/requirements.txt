@@ -16,6 +16,7 @@ Jinja2==3.1.2
 MarkupSafe==2.1.2
 nodeenv==1.7.0
 orjson==3.8.6
+Pillow==9.5.0
 prisma==0.8.1
 pycodestyle==2.10.0
 pydantic==1.10.5

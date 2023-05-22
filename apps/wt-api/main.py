@@ -1,7 +1,8 @@
+import json
 import os
 import uvicorn
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from helpers.try_int import try_int
 from router import test, users, posts
@@ -22,7 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.on_event("startup")
 async def startup():
