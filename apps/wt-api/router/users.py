@@ -1,11 +1,8 @@
 import uuid
 
-from helpers.try_int import try_int
-from fastapi import APIRouter, HTTPException, Request
-from typing import Annotated
+from fastapi import APIRouter, HTTPException
 from db import prisma
 from pydantic import BaseModel
-from helpers.password import has_numbers, has_lowercase, has_uppercase, has_specialchar
 
 router = APIRouter()
 
@@ -20,31 +17,19 @@ async def user_list(user_id: int):
     user = await prisma.account.find_first(where={"accountId": user_id})
     return user
 
-class CreateUserData(BaseModel):
+class RegisterUserData(BaseModel):
     username: str
     password: str
     email: str
 
-@router.post("/users/create", tags=["users"])
-async def create_user(user_payload: CreateUserData):
+@router.post("/users/register", tags=["users"])
+async def create_user(user_payload: RegisterUserData):
     if len(user_payload.username) < 1:
         raise HTTPException(
             status_code=400, detail="Username Length must be at least 1 character")
     if len(user_payload.password) < 6:
         raise HTTPException(
             status_code=400, detail="Password length has to be >= 6")
-    elif has_numbers(user_payload.password) == False:
-        raise HTTPException(
-            status_code=400, detail="Password doesn't contain a numeric value")
-    elif has_lowercase(user_payload.password) == False:
-        raise HTTPException(
-            status_code=400, detail="Password doesn't contain a lowercase value")
-    elif has_uppercase(user_payload.password) == False:
-        raise HTTPException(
-            status_code=400, detail="Password doesn't contain a uppercase value")
-    elif has_specialchar(user_payload.password) == False:
-        raise HTTPException(
-            status_code=400, detail="Password doesn't contain a special character")
 
     check_user = await prisma.account.find_first(
         where={
@@ -67,8 +52,25 @@ async def create_user(user_payload: CreateUserData):
     user = await prisma.account.create(data={
         "username": user_payload.username,
         "email": user_payload.email,
-        "passwordHash": user_payload.password
+        "passwordHash": user_payload.password,
+        "accessToken": str(uuid.uuid4())
     })
 
     return ({"detail": "Registration Confirmed",
-             "token": user.username})
+             "access_token": user.accessToken})
+    
+class LoginUserData(BaseModel):
+    username: str
+    password: str
+
+@router.post("/users/login", tags=["users"])
+async def create_user(login_payload: LoginUserData):
+    user = await prisma.account.find_first(where={
+        "username": login_payload.username,
+        "passwordHash": login_payload.password
+    })
+    if not user:
+        raise HTTPException(
+            status_code=401, detail="Invalid login credentials")
+    
+    return {"detail": "Login successful", "session_token": user.access_token}

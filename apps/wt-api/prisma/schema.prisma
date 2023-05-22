@@ -8,59 +8,60 @@ datasource db {
 }
 
 model Account {
-  accountId     Int       @id @default(autoincrement())
-  created       DateTime  @default(now())
-  permission    Role      @default(User)
-  username      String
-  email         String    @unique
-  passwordHash  String
-  banned        Boolean   @default(false)
-  pictures      Picture[]
-  comments      Comment[]
-  adminLogs     AdminLog[] @relation("PerformedBy")
-  bannedLogs    AdminLog[] @relation("BannedAccount")
+  accountId    Int        @id @default(autoincrement())
+  created      DateTime   @default(now())
+  permission   Role       @default(User)
+  username     String     @unique
+  email        String     @unique
+  passwordHash String
+  accessToken  String
+  banned       Boolean    @default(false)
+  pictures     Picture[]
+  comments     Comment[]
+  adminLogs    AdminLog[] @relation("PerformedBy")
+  bannedLogs   AdminLog[] @relation("BannedAccount")
 
   @@map(name: "accounts")
 }
 
 model Picture {
-  pictureId     Int       @id @default(autoincrement())
-  accountId     Int
-  uploader      Account   @relation(fields: [accountId], references: [accountId])
-  created       DateTime  @default(now())
-  title         String
-  description   String
-  GPSLong       Float
-  GPSLat        Float
-  deleted       Boolean   @default(false)
-  comments      Comment[]
-  deletedLogs   AdminLog[] @relation("DeletedPicture")
+  pictureId   Int        @id @default(autoincrement())
+  accountId   Int
+  uploader    Account    @relation(fields: [accountId], references: [accountId])
+  created     DateTime   @default(now())
+  title       String
+  description String
+  GPSLong     Float
+  GPSLat      Float
+  deleted     Boolean    @default(false)
+  comments    Comment[]
+  deletedLogs AdminLog[] @relation("DeletedPicture")
 
   @@map(name: "pictures")
 }
 
 model Comment {
-  commentId         Int      @id @default(autoincrement())
-  pictureId         Int
-  commentedPicture  Picture  @relation(fields: [pictureId], references: [pictureId])
+  commentId          Int      @id @default(autoincrement())
+  pictureId          Int
+  commentedPicture   Picture  @relation(fields: [pictureId], references: [pictureId])
   commenterAccountId Int
-  commenter         Account  @relation(fields: [commenterAccountId], references: [accountId])
-  created           DateTime @default(now())
-  commentText       String
-  likes             Int      @default(0)
+  commenter          Account  @relation(fields: [commenterAccountId], references: [accountId])
+  created            DateTime @default(now())
+  commentText        String
+  likes              Int      @default(0)
 
   @@map(name: "comments")
 }
 
 model AdminLog {
-  id                 Int      @id @default(autoincrement())
-  performedByUserId  Int
-  performer          Account  @relation("PerformedBy", fields: [performedByUserId], references: [accountId])
-  type               LogType
-  pictureId          Int?
-  picture            Picture? @relation("DeletedPicture", fields: [pictureId], references: [pictureId])
-  accountId          Int?
-  account            Account? @relation("BannedAccount", fields: [accountId], references: [accountId])
+  id                Int      @id @default(autoincrement())
+  performedByUserId Int
+  performer         Account  @relation("PerformedBy", fields: [performedByUserId], references: [accountId])
+  type              LogType
+  pictureId         Int?
+  picture           Picture? @relation("DeletedPicture", fields: [pictureId], references: [pictureId])
+  accountId         Int?
+  account           Account? @relation("BannedAccount", fields: [accountId], references: [accountId])
 
   @@map(name: "admin_logs")
 }

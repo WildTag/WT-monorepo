@@ -39,7 +39,7 @@ const CustomAppShell = ({ children, selected }: Props) => {
                 color={theme.colors.gray[6]}
                 mr="xl"
               />
-              <Text>Montior lizard</Text>
+              <Text>WildTag</Text>
             </div>
           </Header>
         </MediaQuery>
