@@ -3,6 +3,7 @@ import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import AdminHomePage from "./pages/admin";
+import UserManagement from "./pages/admin/UserManagement";
 
 function App() {
   return (
@@ -12,6 +13,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<AdminHomePage />} />
+        <Route path="/admin/user_management" element={<UserManagement />} />
+        <Route path="/admin/post_management" element={<UserManagement />} />
       </Routes>
     </BrowserRouter>
   );

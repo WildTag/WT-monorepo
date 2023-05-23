@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
-import { Upload, Filter, User, Settings, Logout, Crown, Hammer, Man } from "tabler-icons-react";
+import { Upload, Filter, User, Settings, Logout, Hammer } from "tabler-icons-react";
 
 import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Loading } from "../../components/loading/Loading";

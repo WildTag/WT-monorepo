@@ -1,9 +1,8 @@
-import { Group, Navbar, Flex, Code, Title, Image } from "@mantine/core";
+import { Group, Navbar, Title, Image } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { Dashboard, Icon, Man, Users } from "tabler-icons-react";
+import { Dashboard, Icon } from "tabler-icons-react";
 import { useStyles } from "./dashboardNavbar.styles";
 import { Loading } from "../loading/Loading";
-import { useSessionStorage } from "@mantine/hooks";
 
 export interface NavBarLinks {
   link: string;
@@ -12,7 +11,11 @@ export interface NavBarLinks {
   adminOnly?: boolean;
 }
 
-const data: NavBarLinks[] = [{ link: "/dashboard", label: "Dashboard", icon: Dashboard }];
+const data: NavBarLinks[] = [
+  { link: "/admin", label: "admin", icon: Dashboard },
+  { link: "/admin/user_management", label: "User management", icon: Dashboard },
+  { link: "/admin/post_management", label: "Post management", icon: Dashboard },
+];
 
 interface Props {
   opened: boolean;
@@ -47,6 +50,7 @@ export function DashboardNavbar({ opened, selected }: Props) {
   }, []);
 
   if (!sessionToken) return <h1>No permissions</h1>;
+  if (!fetched) return <Loading />;
 
   const links = data.map((item, index) => {
     return (
@@ -83,7 +87,6 @@ export function DashboardNavbar({ opened, selected }: Props) {
           <div style={{ paddingTop: "10px", paddingBottom: "10px" }}></div>
           {links}
         </Navbar.Section>
-        <Navbar.Section>user.username</Navbar.Section>
       </Navbar>
     </>
   );
