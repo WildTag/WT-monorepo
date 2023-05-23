@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Marker, MarkerClusterer } from "@react-google-maps/api";
 import { Filter } from "tabler-icons-react";
 import Popup from "../popup/Popup";
 
@@ -20,33 +20,37 @@ export default function Map({ posts }: MapProps) {
   };
 
   return (
-    <>
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_API_GOOGLEMAP}>
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={position}
-          zoom={8}
-          options={{ minZoom: 2, maxZoom: 16, fullscreenControl: false }}
+    <LoadScript googleMapsApiKey={import.meta.env.VITE_API_GOOGLEMAP}>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={position}
+        zoom={8}
+        options={{ minZoom: 2, maxZoom: 16, fullscreenControl: false }}
+      >
+        <MarkerClusterer
+          options={{
+            gridSize: 50,
+            maxZoom: 15,
+          }}
         >
-          {posts?.map((post: any) => {
-            console.log(post);
-            return (
+          {(clusterer) =>
+            posts?.map((post: any) => (
               <Marker
                 position={{ lat: post.GPSLat, lng: post.GPSLong }}
-                icon={""}
                 onClick={() => {
                   setSelectedPost(post);
                   setPosition({ lat: post.GPSLat, lng: post.GPSLong });
                 }}
+                clusterer={clusterer}
               >
                 {selectedPost?.pictureId === post?.pictureId && (
                   <Popup latitude={post.GPSLat} longitude={post.GPSLong} post={post} />
                 )}
               </Marker>
-            );
-          })}
-        </GoogleMap>
-      </LoadScript>
-    </>
+            ))
+          }
+        </MarkerClusterer>
+      </GoogleMap>
+    </LoadScript>
   );
 }
