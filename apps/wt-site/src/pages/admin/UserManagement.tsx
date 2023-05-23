@@ -2,12 +2,14 @@ import { Title, useMantineTheme, Text, Avatar, Button, Flex, TextInput } from "@
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { useEffect, useMemo, useState } from "react";
 import { Account } from "../../types/Account";
+import { Loading } from "../../components/loading/Loading";
 
 const UserManagement = () => {
   const theme = useMantineTheme();
   const [users, setUsers] = useState<Account[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [usersFiltered, setUsersFiltered] = useState<Account[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<Account[]>([]);
+  const [isFetched, setIsFetched] = useState(false);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -21,11 +23,14 @@ const UserManagement = () => {
       const data = await response.json();
 
       setUsers(data);
+      setIsFetched(true);
     }
+    setIsFetched(false);
     fetchUsers();
   }, []);
 
   useMemo(() => {
+    if (!searchQuery) setFilteredUsers(users);
     const tmpUsers = users.filter((user) => {
       return (
         user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -33,8 +38,11 @@ const UserManagement = () => {
       );
     });
 
-    setUsersFiltered(tmpUsers);
-  }, [searchQuery]);
+    setFilteredUsers(tmpUsers);
+  }, [searchQuery, isFetched]);
+
+  if (!isFetched) return <Loading />;
+  console.log(filteredUsers);
 
   return (
     <CustomAppShell selected={1}>
@@ -45,9 +53,10 @@ const UserManagement = () => {
           setSearchQuery(element.target.value);
         }}
       />
-      {usersFiltered.map((user) => {
+      {filteredUsers.map((user) => {
         return (
           <div
+            key={user.accountId}
             style={{
               display: "flex",
               marginTop: theme.spacing.md,
