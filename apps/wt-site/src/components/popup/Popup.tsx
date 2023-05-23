@@ -1,4 +1,4 @@
-import { Title, useMantineTheme, Text, Image } from "@mantine/core";
+import { Title, useMantineTheme, Text, Image, Stack } from "@mantine/core";
 import { OverlayView } from "@react-google-maps/api";
 import { X } from "tabler-icons-react";
 import { Post } from "../../types/Post";
@@ -27,19 +27,35 @@ export default function Popup({ latitude, longitude, post, setSelectedPost }: Po
             style={{
               display: "flex",
               backgroundColor: theme.colors.dark["7"],
-              padding: theme.spacing.md,
-              borderRadius: theme.radius.md,
+              borderRadius: theme.radius.lg,
+              padding: theme.radius.md,
               cursor: "default",
-              gap: "10px",
+              maxWidth: "50%", // Limit the maximum width if needed
             }}
           >
-            <div>
-              <Title>{post.title}</Title>
-              <Text>{post.description}</Text>
-              <Text>Uploaded by: {post.uploader?.username}</Text>
-              <Image src={`data:image/jpeg;base64,${post.image}`} width={256} height={256} />
+            <div style={{ display: "flex", paddingRight: "100px", flex: 1 }}>
+              <Stack>
+                <Title style={{ width: theme.spacing.lg }}>{post.title}</Title>
+                <Text>{post.description}</Text>
+                <Text
+                  style={{
+                    // backgroundColor: theme.colors.dark[3],
+                    position: "absolute",
+                  }}
+                >
+                  Uploaded by: {post.uploader?.username}
+                </Text>
+              </Stack>
             </div>
-            <X cursor="pointer" color="red" onClick={() => setSelectedPost(null)} />
+            <div style={{}}>
+              <Image
+                src={`data:image/jpeg;base64,${post.image}`}
+                width={"100%"}
+                height={"75%"}
+                fit="contain"
+                radius={10}
+              />
+            </div>
           </div>
         </>
       </OverlayView>
