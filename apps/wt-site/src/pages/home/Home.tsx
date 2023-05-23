@@ -47,6 +47,7 @@ function Home() {
       gps_lat: (value) => !value,
       gps_long: (value) => !value,
       animals: (value) => (value.length <= 0 ? "A post must have at least one animal tag" : null),
+      images: (value) => (value.length <= 0 ? "A post must have at least one image" : null),
     },
   });
 
@@ -123,7 +124,9 @@ function Home() {
 
     // Append all fields to formData
     formData.append("session_token", form.values.session_token);
-    formData.append("animals", JSON.stringify(form.values.animals));
+    form.values.animals.forEach((animal) => {
+      formData.append("animals", animal);
+    });
     formData.append("title", form.values.title || "null");
     formData.append("description", form.values.description);
     formData.append("gps_lat", form.values.gps_lat.toString());

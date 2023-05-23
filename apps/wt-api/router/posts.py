@@ -34,7 +34,7 @@ class CreatePostData(BaseModel):
     
 @router.post("/posts/create", tags=["users"])
 async def create_post(session_token: str = Form(...), 
-                      animals: str = Form(...), 
+                      animals: List[str] = Form(...), 
                       title: str = Form(...), 
                       description: str = Form(...), 
                       gps_lat: float = Form(...), 
@@ -51,14 +51,21 @@ async def create_post(session_token: str = Form(...),
     if not image_bytes: 
         raise HTTPException(
             status_code=400, detail="No image provided")
-        
+    
+    post_tags = []
+    for animal in animals:
+        post_tags.append({"tag": animal.upper(), "tagType": "ANIMAL"})
+    
     await prisma.picture.create(data={
         "image": base64.b64encode(image_bytes).decode(),
         "accountId": user.accountId,
         "title": title,
         "description": description,
         "GPSLong": gps_long,
-        "GPSLat": gps_lat
+        "GPSLat": gps_lat,
+        "postTags": {
+            "create": post_tags
+        }
     })
 
     return ({"detail": "Post Creation Confirmed"})

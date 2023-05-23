@@ -37,13 +37,17 @@ model Picture {
   deleted     Boolean    @default(false)
   comments    Comment[]
   deletedLogs AdminLog[] @relation("DeletedPicture")
+  postTags    PostTag[]
 
   @@map(name: "pictures")
 }
 
 model PostTag {
-  id      Int @id @default(autoincrement())
-  tagType Tag
+  id        Int     @id @default(autoincrement())
+  pictureId Int
+  picture   Picture @relation(fields: [pictureId], references: [pictureId])
+  tag       Tag
+  tagType   TagType
 }
 
 model Comment {
@@ -93,5 +97,12 @@ enum Tag {
   BADGER
   STOAT
   SQUIRREL
+  OTHER
+}
+
+enum TagType {
+  ANIMAL
+  LOCATION
+  CATEGORY
   OTHER
 }

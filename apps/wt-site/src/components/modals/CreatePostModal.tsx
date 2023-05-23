@@ -59,19 +59,28 @@ const CreatePostModal = ({
           </div>
           <div
             style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
               backgroundColor: theme.colors.dark[5],
               padding: theme.spacing.md,
               borderRadius: theme.radius.sm,
               width: "100%",
             }}
           >
+            <TextInput
+              readOnly
+              label="Images"
+              {...form.getInputProps("images")}
+              value={form.values.images[0]?.path}
+            />
             <Dropzone
               style={{
                 cursor: "default",
-                height: "100%",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
+                height: "100%",
               }}
               openRef={dropzoneRef}
               activateOnClick={false}
