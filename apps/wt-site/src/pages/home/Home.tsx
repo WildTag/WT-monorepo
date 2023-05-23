@@ -1,8 +1,17 @@
 import Map from "../../components/map/Map";
-import { useMantineTheme, Button, Group, Input, Menu, Drawer, ScrollArea } from "@mantine/core";
+import {
+  useMantineTheme,
+  Button,
+  Group,
+  Input,
+  Menu,
+  Drawer,
+  ScrollArea,
+  Anchor,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
-import { Upload, Filter, User, Settings, Logout } from "tabler-icons-react";
+import { Upload, Filter, User, Settings, Logout, Crown, Hammer, Man } from "tabler-icons-react";
 
 import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Loading } from "../../components/loading/Loading";
@@ -252,9 +261,13 @@ function Home() {
               {accountInfo ? (
                 <>
                   <Menu.Dropdown>
+                    <Menu.Label>Admin</Menu.Label>
+                    <Anchor underline={false} href="/admin">
+                      <Menu.Item icon={<Hammer size={20} />}>admin</Menu.Item>
+                    </Anchor>
                     <Menu.Label>Options</Menu.Label>
-                    <Menu.Item icon={<Settings size={14} />}>Profile</Menu.Item>
-                    <Menu.Item icon={<Settings size={14} />}>Settings</Menu.Item>
+                    <Menu.Item icon={<User size={20} />}>Profile</Menu.Item>
+                    <Menu.Item icon={<Settings size={20} />}>Settings</Menu.Item>
                     <Menu.Divider />
                     <Menu.Label>Danger zone</Menu.Label>
                     <Menu.Item
