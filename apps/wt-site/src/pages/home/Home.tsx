@@ -7,6 +7,7 @@ import { Upload, Filter, User, Settings, Logout } from "tabler-icons-react";
 
 import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Loading } from "../../components/loading/Loading";
+import { Post } from "../../types/Post";
 
 function Home() {
   const [postModalOpened, setPostModalOpened] = useState(false);
@@ -14,7 +15,7 @@ function Home() {
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<any>(null);
-  const [posts, setPosts] = useState<any>(null);
+  const [posts, setPosts] = useState<Post[] | null>(null);
   const sessionToken = sessionStorage.getItem("sessionToken");
 
   const theme = useMantineTheme();
@@ -103,7 +104,7 @@ function Home() {
     formData.append("gps_long", form.values.gps_long.toString());
 
     // If form.values.images is an array of File objects, append each to formData
-    form.values.images.forEach((image, index) => {
+    form.values.images.forEach((image) => {
       formData.append(`images`, image);
     });
 
@@ -116,9 +117,7 @@ function Home() {
     const data = await response.json();
   };
 
-  // if (isFetching) return <Loading />;
-
-  console.log(posts);
+  if (isFetching) return <Loading />;
 
   return (
     <>

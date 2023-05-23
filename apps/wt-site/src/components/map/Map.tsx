@@ -1,10 +1,16 @@
 import { useState } from "react";
-import { GoogleMap, LoadScript, Marker, MarkerClusterer } from "@react-google-maps/api";
-import { Filter } from "tabler-icons-react";
+import {
+  GoogleMap,
+  LoadScript,
+  Marker,
+  MarkerClusterer,
+  useJsApiLoader,
+} from "@react-google-maps/api";
 import Popup from "../popup/Popup";
+import { Post } from "../../types/Post";
 
 interface MapProps {
-  posts: any;
+  posts: Post[] | null;
 }
 
 export default function Map({ posts }: MapProps) {
@@ -19,38 +25,51 @@ export default function Map({ posts }: MapProps) {
     height: "100vh",
   };
 
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: import.meta.env.VITE_API_GOOGLEMAP,
+  });
+
   return (
-    <LoadScript googleMapsApiKey={import.meta.env.VITE_API_GOOGLEMAP}>
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={position}
-        zoom={8}
-        options={{ minZoom: 2, maxZoom: 16, fullscreenControl: false }}
-      >
-        <MarkerClusterer
-          options={{
-            gridSize: 50,
-            maxZoom: 15,
-          }}
+    <>
+      {isLoaded && (
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={position}
+          zoom={6}
+          options={{ minZoom: 2, maxZoom: 16, fullscreenControl: false }}
         >
-          {(clusterer) =>
-            posts?.map((post: any) => (
-              <Marker
-                position={{ lat: post.GPSLat, lng: post.GPSLong }}
-                onClick={() => {
-                  setSelectedPost(post);
-                  setPosition({ lat: post.GPSLat, lng: post.GPSLong });
-                }}
-                clusterer={clusterer}
-              >
-                {selectedPost?.pictureId === post?.pictureId && (
-                  <Popup latitude={post.GPSLat} longitude={post.GPSLong} post={post} />
-                )}
-              </Marker>
-            ))
-          }
-        </MarkerClusterer>
-      </GoogleMap>
-    </LoadScript>
+          <MarkerClusterer
+            options={{
+              gridSize: 50,
+              maxZoom: 15,
+            }}
+          >
+            {(clusterer) => (
+              <>
+                {posts?.map((post: Post) => (
+                  <Marker
+                    key={post.pictureId} // Don't forget to provide a key when mapping!
+                    position={{ lat: post.GPSLat, lng: post.GPSLong }}
+                    onClick={() => {
+                      if (selectedPost?.pictureId === post.pictureId) return setSelectedPost(null);
+                      setSelectedPost(post);
+                      setPosition({ lat: post.GPSLat, lng: post.GPSLong });
+                    }}
+                    clusterer={clusterer}
+                  >
+                    {selectedPost?.pictureId === post?.pictureId ? (
+                      <Popup latitude={post.GPSLat} longitude={post.GPSLong} post={post} />
+                    ) : (
+                      <></>
+                    )}
+                  </Marker>
+                ))}
+              </>
+            )}
+          </MarkerClusterer>
+        </GoogleMap>
+      )}
+    </>
   );
 }
