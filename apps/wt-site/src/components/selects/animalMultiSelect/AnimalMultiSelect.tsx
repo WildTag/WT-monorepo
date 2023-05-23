@@ -23,7 +23,7 @@ const categoriesData = [
   { label: "other", value: "other" },
 ];
 
-const flags = {
+const icons = {
   duck: "/lowPolyDuck.png",
   swan: "/lowPolySwan.png",
   heron: "/lowPolyHeron.png",
@@ -61,7 +61,7 @@ const AnimalMultiSelect = ({ form }: AnimalMultiSelectProps) => {
           })}
         >
           <Box mr={10}>
-            <Image src={flags[value]} width={24} height={24} />
+            <Image src={icons[value]} width={24} height={24} />
           </Box>
           <Box sx={{ lineHeight: 1, fontSize: rem(12) }}>{label}</Box>
           <CloseButton
@@ -81,7 +81,7 @@ const AnimalMultiSelect = ({ form }: AnimalMultiSelectProps) => {
       <div ref={ref} {...others}>
         <Flex align="center">
           <Box mr={10}>
-            <Image src={flags[value]} width={24} height={24} />
+            <Image src={icons[value]} width={24} height={24} />
           </Box>
           <div>{label}</div>
         </Flex>
