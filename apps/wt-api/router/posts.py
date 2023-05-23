@@ -1,6 +1,6 @@
-from fastapi import APIRouter, UploadFile, File
+import base64
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from io import BytesIO
-from fastapi import APIRouter, UploadFile, File, HTTPException
 
 from db import prisma
 from pydantic import BaseModel
@@ -12,8 +12,8 @@ router = APIRouter()
 
 @router.get("/posts", tags=["posts"])
 async def user_list():
-    picture = await prisma.picture.find_many()
-    return picture
+    posts = await prisma.picture.find_many()
+    return posts
 
 @router.get("/posts/{post_id}", tags=["posts"])
 async def user_list(post_id: int):
@@ -33,18 +33,32 @@ class CreatePostData(BaseModel):
     images: List[Imagetest]
     
 @router.post("/posts/create", tags=["users"])
-async def create_user(user_payload: CreatePostData):
-    user = await prisma.account.find_first(where={"accessToken": user_payload.session_token})
+async def create_post(session_token: str = Form(...), 
+                      animals: str = Form(...), 
+                      title: str = Form(...), 
+                      description: str = Form(...), 
+                      gps_lat: float = Form(...), 
+                      gps_long: float = Form(...), 
+                      images: List[UploadFile] = Form(...)):
+    user = await prisma.account.find_first(where={"accessToken": session_token})
     if not user:
         raise HTTPException(
             status_code=401, detail="Invalid session token")
     
+    image_bytes = None
+    for image in images:
+        image_bytes = await image.read()
+    if not image_bytes: 
+        raise HTTPException(
+            status_code=400, detail="No image provided")
+        
     await prisma.picture.create(data={
+        "image": base64.b64encode(image_bytes).decode(),
         "accountId": user.accountId,
-        "title": user_payload.title,
-        "description": user_payload.description,
-        "GPSLong": user_payload.gps_long,
-        "GPSLat": user_payload.gps_lat
+        "title": title,
+        "description": description,
+        "GPSLong": gps_long,
+        "GPSLat": gps_lat
     })
 
     return ({"detail": "Post Creation Confirmed"})
@@ -61,4 +75,4 @@ async def create_upload_file(file: UploadFile = File(...)):
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)
     
-    return {"filename": file.filename, "metadata": data, "image": image}
+    return {"filename": file.filename, "metadata": data, "image": str(image)}

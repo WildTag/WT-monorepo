@@ -32,6 +32,7 @@ model Picture {
   title       String
   description String
   GPSLong     Float
+  image       Bytes
   GPSLat      Float
   deleted     Boolean    @default(false)
   comments    Comment[]

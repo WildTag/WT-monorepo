@@ -13,6 +13,8 @@ function Home() {
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<any>(null);
+  const [posts, setPosts] = useState<any>(null);
   const sessionToken = sessionStorage.getItem("sessionToken");
 
   const theme = useMantineTheme();
@@ -23,8 +25,8 @@ function Home() {
       animals: [],
       title: "",
       description: [],
-      gps_lat: 51.232,
-      gps_long: -1.232,
+      gps_lat: 0,
+      gps_long: 0,
       images: files,
     },
   });
@@ -32,6 +34,20 @@ function Home() {
   useEffect(() => {
     form.setFieldValue("images", files);
   }, [files]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/posts`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      setPosts(data);
+    };
+    fetchPosts();
+  }, []);
 
   useEffect(() => {
     async function getAccountInfo() {
@@ -68,22 +84,41 @@ function Home() {
       throw new Error("File upload failed");
     }
     const data = await response.json();
+    setUploadedImage(data);
+    form.setFieldValue("gps_lat", data.metadata.GPSLatitude);
+    form.setFieldValue("gps_long", data.metadata.GPSLongitude);
     return data;
   };
 
   const handlePublishPost = async () => {
+    // Create a FormData instance
+    const formData = new FormData();
+
+    // Append all fields to formData
+    formData.append("session_token", form.values.session_token);
+    formData.append("animals", JSON.stringify(form.values.animals));
+    formData.append("title", form.values.title || "null");
+    formData.append("description", form.values.description);
+    formData.append("gps_lat", form.values.gps_lat.toString());
+    formData.append("gps_long", form.values.gps_long.toString());
+
+    // If form.values.images is an array of File objects, append each to formData
+    form.values.images.forEach((image, index) => {
+      formData.append(`images`, image);
+    });
+
+    // Send the POST request
     const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/create`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form.values),
+      body: formData,
     });
 
     const data = await response.json();
   };
 
-  if (isFetching) return <Loading />;
+  // if (isFetching) return <Loading />;
+
+  console.log(posts);
 
   return (
     <>
@@ -98,7 +133,7 @@ function Home() {
         setFiles={setFiles}
       />
       <div style={{ position: "relative" }}>
-        <Map />
+        <Map posts={posts} />
         <div
           style={{
             position: "absolute",

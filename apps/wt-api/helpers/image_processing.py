@@ -12,7 +12,7 @@ def dms_to_dd(dms):
 
 def get_exif(img, image_type):
     # TODO: Add support for HEIF images
-
+    
     if image_type == "application/octet-stream":
         pass    
     elif image_type == "image/jpeg":
@@ -25,10 +25,10 @@ def get_exif(img, image_type):
         returned_image = Image.open(BytesIO(byte_arr))  # Create a new BytesIO object with the byte array
     else:
         return (422, "Filetype not supported.", None)
-            
     
     exif = img.getexif()
     exif_gps = exif.get_ifd(IFD.GPSInfo)
+    print(exif_gps)
     exif_basic = exif.get_ifd(IFD.Exif)
     
     try:
@@ -44,6 +44,4 @@ def get_exif(img, image_type):
         "DateTimeOriginal": date_time_original
         }
     
-    returned_image.show()
-
     return (200, result, returned_image)

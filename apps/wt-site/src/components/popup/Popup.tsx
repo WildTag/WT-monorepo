@@ -1,12 +1,13 @@
-import { useMantineTheme } from "@mantine/core";
+import { Title, useMantineTheme, Text } from "@mantine/core";
 import { OverlayView } from "@react-google-maps/api";
 
 interface PopupProps {
   latitude: number;
   longitude: number;
+  post: any;
 }
 
-export default function Popup({ latitude, longitude }: PopupProps) {
+export default function Popup({ latitude, longitude, post }: PopupProps) {
   const theme = useMantineTheme();
   return (
     <>
@@ -24,7 +25,8 @@ export default function Popup({ latitude, longitude }: PopupProps) {
             borderRadius: theme.radius.md,
           }}
         >
-          <h1>hey sisters</h1>
+          <Title>{post.title}</Title>
+          <Text>{post.description}</Text>
         </div>
       </OverlayView>
     </>
