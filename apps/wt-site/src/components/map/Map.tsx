@@ -8,8 +8,8 @@ interface MapProps {
 }
 
 export default function Map({ posts }: MapProps) {
-  const [open, setOpen] = useState(false);
-  const [s, ss] = useState<any>({
+  const [selectedPost, setSelectedPost] = useState<any | null>();
+  const [position, setPosition] = useState<any>({
     lat: 53.1047,
     lng: -1.5624,
   });
@@ -24,7 +24,7 @@ export default function Map({ posts }: MapProps) {
       <LoadScript googleMapsApiKey={import.meta.env.VITE_API_GOOGLEMAP}>
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={s}
+          center={position}
           zoom={8}
           options={{ minZoom: 2, maxZoom: 16, fullscreenControl: false }}
         >
@@ -35,11 +35,13 @@ export default function Map({ posts }: MapProps) {
                 position={{ lat: post.GPSLat, lng: post.GPSLong }}
                 icon={""}
                 onClick={() => {
-                  setOpen(!open);
-                  ss({ lat: post.GPSLat, lng: post.GPSLong });
+                  setSelectedPost(post);
+                  setPosition({ lat: post.GPSLat, lng: post.GPSLong });
                 }}
               >
-                {open && <Popup latitude={post.GPSLat} longitude={post.GPSLong} post={post} />}
+                {selectedPost?.pictureId === post?.pictureId && (
+                  <Popup latitude={post.GPSLat} longitude={post.GPSLong} post={post} />
+                )}
               </Marker>
             );
           })}
