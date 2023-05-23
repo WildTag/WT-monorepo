@@ -20,7 +20,7 @@ const categoriesData = [
   { label: "Badger", value: "badger" },
   { label: "Stoat", value: "stoat" },
   { label: "Squirrel", value: "squirrel" },
-  { label: "other", value: "other" },
+  { label: "Other", value: "other" },
 ];
 
 const icons = {
@@ -33,7 +33,7 @@ const icons = {
   badger: "/animalImages/lowPolyBadger.png",
   stoat: "/animalImages/lowPolyStoat.png",
   squirrel: "/animalImages/lowPolySquirrel.png",
-  other: "/animalImages/lowPolyOther.png",
+  other: "/animalImages/lowPolyQuestionmark.png",
 };
 
 interface AnimalMultiSelectProps {
