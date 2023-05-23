@@ -80,7 +80,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     register_heif_opener()
     image = Image.open(BytesIO(image_bytes))
 
-    status_code, data, image = get_exif(image, image_type, image_bytes)
+    status_code, data, image = get_exif(image, image_type)
     
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)

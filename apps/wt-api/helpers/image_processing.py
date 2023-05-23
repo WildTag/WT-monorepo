@@ -8,7 +8,7 @@ def dms_to_dd(dms):
     dd = float(degrees) + float(minutes)/60 + float(seconds)/(60*60)
     return dd
 
-def get_exif(img, image_type, image_bytes):    
+def get_exif(img, image_type):    
     supported_file_types = ["application/octet-stream", "image/jpeg", "image/png"]    
     if image_type not in supported_file_types:
         return (422, f"Filetype not supported {image_type}.", None)
