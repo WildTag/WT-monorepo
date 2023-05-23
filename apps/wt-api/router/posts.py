@@ -67,7 +67,7 @@ async def create_post(session_token: str = Form(...),
             "create": post_tags
         }
     },
-    include={"uploader": True, "comments": True})
+    include={"uploader": True, "comments": True, "postTags": True})
 
     return ({"detail": "Post has been created", "post": post})
 
