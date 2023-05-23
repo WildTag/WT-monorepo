@@ -41,6 +41,11 @@ model Picture {
   @@map(name: "pictures")
 }
 
+model PostTag {
+  id      Int @id @default(autoincrement())
+  tagType Tag
+}
+
 model Comment {
   commentId          Int      @id @default(autoincrement())
   pictureId          Int
@@ -76,4 +81,17 @@ enum Role {
 enum LogType {
   BAN
   DELETE_POST
+}
+
+enum Tag {
+  DUCK
+  SWAN
+  HERON
+  PIDGEON
+  MAGPIE
+  CHAFFINCH
+  BADGER
+  STOAT
+  SQUIRREL
+  OTHER
 }

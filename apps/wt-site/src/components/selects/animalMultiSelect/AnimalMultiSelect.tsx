@@ -15,14 +15,24 @@ const categoriesData = [
   { label: "Swan", value: "swan" },
   { label: "Heron", value: "heron" },
   { label: "Pidgeon", value: "pidgeon" },
+  { label: "Magpie", value: "magpie" },
+  { label: "Chaffinch", value: "chaffinch" },
+  { label: "Badger", value: "badger" },
+  { label: "Stoat", value: "stoat" },
+  { label: "Squirrel", value: "squirrel" },
   { label: "other", value: "other" },
 ];
 
 const flags = {
+  duck: "/lowPolyDuck.png",
   swan: "/lowPolySwan.png",
   heron: "/lowPolyHeron.png",
   pidgeon: "/lowPolyPidgeon.png",
-  duck: "/lowPolyDuck.png",
+  magpie: "/lowPolyMagpie.png",
+  chaffinch: "/lowPolyChaffinch.png",
+  badger: "/lowPolyBadger.png",
+  stoat: "/lowPolyStoat.png",
+  squirrel: "/lowPolySquirrel.png",
   other: "/lowPolyOther.png",
 };
 
