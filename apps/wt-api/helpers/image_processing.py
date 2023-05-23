@@ -1,3 +1,4 @@
+import base64
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS, IFD
 from pillow_heif import register_heif_opener    # HEIF support
@@ -19,16 +20,11 @@ def get_exif(img, image_type):
         returned_image = img
     elif image_type == "image/png":
         returned_image = img.convert("RGB")
-        with BytesIO() as f:
-            returned_image.save(f, format='JPEG')
-            byte_arr = f.getvalue()  # Get the byte array of the JPEG image
-        returned_image = Image.open(BytesIO(byte_arr))  # Create a new BytesIO object with the byte array
     else:
         return (422, "Filetype not supported.", None)
     
     exif = img.getexif()
     exif_gps = exif.get_ifd(IFD.GPSInfo)
-    print(exif_gps)
     exif_basic = exif.get_ifd(IFD.Exif)
     
     try:
@@ -39,9 +35,14 @@ def get_exif(img, image_type):
             return (404, "No GPS Data Found.", None)
     
     result = {
-        "GPSLatitude": gps_latitude,
-        "GPSLongitude": gps_longitude,
-        "DateTimeOriginal": date_time_original
+        "gps_latitude": gps_latitude,
+        "gps_longitude": gps_longitude,
+        "date_time_original": date_time_original
         }
+    
+    # convert image to jpeg
+    buffered = BytesIO()
+    returned_image.save(buffered, format="JPEG")
+    returned_image = base64.b64encode(buffered.getvalue())
     
     return (200, result, returned_image)

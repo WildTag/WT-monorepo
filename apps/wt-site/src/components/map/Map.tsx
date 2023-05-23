@@ -54,10 +54,8 @@ export default function Map({ posts }: MapProps) {
           >
             {(clusterer) => (
               <>
-                console.log()
                 {posts?.map((post: Post) => (
                   <>
-                    {console.log(post)}
                     <Marker
                       key={post.pictureId} // Don't forget to provide a key when mapping!
                       position={{ lat: post.GPSLat, lng: post.GPSLong }}

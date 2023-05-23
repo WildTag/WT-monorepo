@@ -82,5 +82,5 @@ async def create_upload_file(file: UploadFile = File(...)):
     
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)
-    
-    return {"filename": file.filename, "metadata": data, "image": str(image)}
+            
+    return [{"filename": file.filename, "metadata": data, "image": image}]

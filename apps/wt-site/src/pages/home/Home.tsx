@@ -1,14 +1,5 @@
 import Map from "../../components/map/Map";
-import {
-  useMantineTheme,
-  Button,
-  Group,
-  Input,
-  Menu,
-  Flex,
-  Drawer,
-  ScrollArea,
-} from "@mantine/core";
+import { useMantineTheme, Button, Group, Input, Menu, Drawer, ScrollArea } from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
@@ -18,13 +9,14 @@ import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Loading } from "../../components/loading/Loading";
 import { Post } from "../../types/Post";
 import { notifications } from "@mantine/notifications";
+import { UploadedImage } from "../../types/UploadedImage";
 
 function Home() {
   const [postModalOpened, setPostModalOpened] = useState(false);
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<any>(null);
+  const [uploadedImages, setUploadedImages] = useState<any>(null);
   const [posts, setPosts] = useState<Post[] | null>(null);
   const sessionToken = sessionStorage.getItem("sessionToken");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -102,13 +94,21 @@ function Home() {
       body: formData,
     });
 
-    if (!response.ok) {
-      throw new Error("File upload failed");
-    }
     const data = await response.json();
-    setUploadedImage(data);
-    form.setFieldValue("gps_lat", data.metadata.GPSLatitude);
-    form.setFieldValue("gps_long", data.metadata.GPSLongitude);
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    data.map((image: UploadedImage) => {
+      setUploadedImages(data);
+      form.setFieldValue("gps_lat", image.metadata.gps_latitude);
+      form.setFieldValue("gps_long", image.metadata.gps_longitude);
+      form.setFieldValue("images", [data.image]);
+      setFiles(data.image);
+    });
     return data;
   };
 
@@ -182,13 +182,15 @@ function Home() {
         handlePublishPost={handlePublishPost}
         files={files}
         setFiles={setFiles}
+        uploadedImages={uploadedImages}
+        setUploadedImages={setUploadedImages}
       />
       <div style={{ position: "relative" }}>
         <Map posts={posts} />
         <div
           style={{
             position: "absolute",
-            top: "5%",
+            top: "4%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             zIndex: 10,
@@ -202,16 +204,15 @@ function Home() {
             bottom: "20px",
             left: "50%",
             transform: "translateX(-50%)",
+            width: "100%",
           }}
         >
           <Drawer
             title="Filters"
             opened={drawerOpen}
-            onClose={() => {
-              setDrawerOpen(false);
-            }}
+            onClose={() => setDrawerOpen(false)}
             scrollAreaComponent={ScrollArea.Autosize}
-          ></Drawer>
+          />
           <Group position="center">
             {accountInfo && (
               <>

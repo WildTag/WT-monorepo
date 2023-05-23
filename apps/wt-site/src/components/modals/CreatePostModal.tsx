@@ -3,6 +3,7 @@ import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
 import { useRef } from "react";
 import { Trash } from "tabler-icons-react";
+import { UploadedImage } from "../../types/UploadedImage";
 
 interface CreatePostModalProps {
   theme: MantineTheme;
@@ -13,6 +14,8 @@ interface CreatePostModalProps {
   handlePublishPost: () => Promise<void>;
   files: any;
   setFiles: (files: any) => void;
+  uploadedImages: UploadedImage[] | null | undefined;
+  setUploadedImages: (UploadedImage: UploadedImage[] | null | undefined) => void;
 }
 
 const CreatePostModal = ({
@@ -24,6 +27,8 @@ const CreatePostModal = ({
   handlePublishPost,
   files,
   setFiles,
+  uploadedImages,
+  setUploadedImages,
 }: CreatePostModalProps) => {
   const dropzoneRef = useRef<() => void>(null);
 
@@ -94,7 +99,6 @@ const CreatePostModal = ({
               onDrop={(files) => {
                 handleUploadFiles(files)
                   .then((data) => {
-                    console.log("Upload successful:", data);
                     setFiles(files);
                   })
                   .catch((error) => {
@@ -113,8 +117,7 @@ const CreatePostModal = ({
                   Select files
                 </Button>
               ) : null}
-              {files.map((file: any, index: number) => {
-                const imageUrl = URL.createObjectURL(file);
+              {uploadedImages?.map((file: UploadedImage, index: number) => {
                 return (
                   <>
                     <Flex mb={5}>
@@ -125,15 +128,12 @@ const CreatePostModal = ({
                         color="red"
                         onClick={() => {
                           setFiles(files.filter((_: any, i: number) => i !== index));
+                          setUploadedImages(files.filter((_: any, i: number) => i !== index));
                         }}
                       />
-                      <Text>{file.name}</Text>
+                      <Text>{file.filename}</Text>
                     </Flex>
-                    <Image
-                      key={index}
-                      src={imageUrl}
-                      imageProps={{ onLoad: () => URL.revokeObjectURL(imageUrl) }}
-                    />
+                    <Image key={index} src={`data:image/jpeg;base64,${file.image}`} />
                   </>
                 );
               })}
