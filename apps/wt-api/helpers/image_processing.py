@@ -3,10 +3,15 @@ from PIL.ExifTags import IFD
 from io import BytesIO
 from PIL import Image
 
-def dms_to_dd(dms):
+def dms_to_dd(dms, direction):
     degrees, minutes, seconds = dms
-    dd = float(degrees) + float(minutes)/60 + float(seconds)/(60*60)
-    return dd
+
+    decimal_degrees = float(degrees) + float(minutes)/60 + float(seconds)/(60*60)
+
+    if direction in ['S','W']:
+        decimal_degrees *= -1
+        
+    return decimal_degrees
 
 def get_exif(img, image_type):    
     supported_file_types = ["application/octet-stream", "image/jpeg", "image/png"]    
@@ -25,8 +30,8 @@ def get_exif(img, image_type):
     date_time_original = None
 
     try:
-        gps_latitude = dms_to_dd(exif_gps[2])
-        gps_longitude = dms_to_dd(exif_gps[4])
+        gps_latitude = dms_to_dd(exif_gps[2], exif_gps[1])
+        gps_longitude = dms_to_dd(exif_gps[4], exif_gps[3])
     except KeyError:
         return (404, "No GPS Data Found.", None)
 
