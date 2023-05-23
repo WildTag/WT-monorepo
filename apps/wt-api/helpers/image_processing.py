@@ -1,27 +1,21 @@
 import base64
 from PIL.ExifTags import IFD
-from io import BytesIO                       # HEIF support
+from io import BytesIO
+from PIL import Image
 
 def dms_to_dd(dms):
     degrees, minutes, seconds = dms
     dd = float(degrees) + float(minutes)/60 + float(seconds)/(60*60)
     return dd
 
-def get_exif(img, image_type):
-    # TODO: Add support for HEIF images
-    
-    if image_type == "application/octet-stream":
-        returned_image = img   
-    elif image_type == "image/jpeg":
-        returned_image = img
-    elif image_type == "image/png":
-        returned_image = img
-    else:
-        print(image_type)
+def get_exif(img, image_type, image_bytes):    
+    supported_file_types = ["application/octet-strea", "image/jpeg", "image/png"]    
+    if image_type not in supported_file_types:
         return (422, f"Filetype not supported {image_type}.", None)
     
-
-    img.verify()
+    if image_type == "image/png":
+        img = img.convert('RGB')
+    
     exif = img.getexif()
     exif_gps = exif.get_ifd(IFD.GPSInfo)
     exif_basic = exif.get_ifd(IFD.Exif)
@@ -46,13 +40,9 @@ def get_exif(img, image_type):
         "gps_longitude": gps_longitude,
         "date_time_original": date_time_original
         }
-
-    # convert image to jpeg
+    
     buffered = BytesIO()
-    returned_image.save(buffered, format="JPEG")
+    img.save(buffered, format="JPEG")
     returned_image = base64.b64encode(buffered.getvalue())
-
-        
-    print(result)
-
+    
     return (200, result, returned_image)

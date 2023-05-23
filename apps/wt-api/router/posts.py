@@ -75,13 +75,12 @@ async def create_post(session_token: str = Form(...),
 @router.post("/posts/upload_image")
 async def create_upload_file(file: UploadFile = File(...)):
     image_bytes = await file.read()
-    
     image_type = file.content_type
     
     register_heif_opener()
     image = Image.open(BytesIO(image_bytes))
 
-    status_code, data, image = get_exif(image, image_type)
+    status_code, data, image = get_exif(image, image_type, image_bytes)
     
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)
