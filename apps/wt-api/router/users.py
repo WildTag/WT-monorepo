@@ -1,13 +1,22 @@
 import uuid
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from db import prisma
 from pydantic import BaseModel
+from prisma.enums import Role
+from typing import List
 
 router = APIRouter()
 
+async def verify_permission(authorization_token: str, required_permissions: List[Role]):
+    user = await prisma.account.find_first(where={"accessToken": authorization_token})
+    if user.permission not in required_permissions:
+        raise HTTPException(status_code=401, detail="Invalid session token")
+
 @router.get("/users", tags=["users"])
-async def user_list():
+async def user_list(request: Request):
+    await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+
     users = await prisma.account.find_many()
     return users
 
@@ -16,9 +25,23 @@ async def get_user(user_id: int):
     user = await prisma.account.find_first(where={"accountId": user_id})
     return user
 
-@router.get("/users/account/{session_token}", tags=["users"])
-async def get_account_info(session_token: str):
-    user = await prisma.account.find_first(where={"accessToken": session_token})
+@router.get("/users/{user_id}/ban", tags=["users"])
+async def get_user(user_id: int, request: Request):
+    await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+
+    user = await prisma.account.find_first(where={"accountId": user_id})
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    await prisma.account.update(where={"accountId": user_id}, data={"banned": True})
+
+    return user
+
+@router.get("/users/account", tags=["users"])
+async def get_account_info(request: Request):
+    authorization_token = request.headers.get("Authorization")
+    user = await prisma.account.find_first(where={"accessToken": authorization_token})
     return user
     
 
