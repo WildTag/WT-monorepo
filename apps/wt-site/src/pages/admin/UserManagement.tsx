@@ -11,18 +11,27 @@ const UserManagement = () => {
   const [filteredUsers, setFilteredUsers] = useState<Account[]>([]);
   const [isFetched, setIsFetched] = useState(false);
 
+  const sessionToken = sessionStorage.getItem("sessionToken");
+
+  console.log(sessionToken);
+
   useEffect(() => {
     async function fetchUsers() {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
+          Authorization: sessionToken || "",
         },
       });
       const data = await response.json();
 
+      if (response.status !== 200) {
+        return (window.location.href = "/login");
+      }
+
       setUsers(data);
+
       setIsFetched(true);
     }
     setIsFetched(false);
@@ -42,7 +51,6 @@ const UserManagement = () => {
   }, [searchQuery, isFetched]);
 
   if (!isFetched) return <Loading />;
-  console.log(filteredUsers);
 
   return (
     <CustomAppShell selected={1}>
