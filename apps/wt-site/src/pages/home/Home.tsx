@@ -8,6 +8,7 @@ import { Upload, Filter, User, Settings, Logout } from "tabler-icons-react";
 import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Loading } from "../../components/loading/Loading";
 import { Post } from "../../types/Post";
+import { notifications } from "@mantine/notifications";
 
 function Home() {
   const [postModalOpened, setPostModalOpened] = useState(false);
@@ -25,10 +26,17 @@ function Home() {
       session_token: sessionToken,
       animals: [],
       title: "",
-      description: [],
+      description: "",
       gps_lat: 0,
       gps_long: 0,
       images: files,
+    },
+    validate: {
+      title: (value) => (value.trim().length <= 0 ? "A post must have a title" : null),
+      description: (value) => (value.trim().length <= 0 ? "A post must have a description" : null),
+      gps_lat: (value) => !value,
+      gps_long: (value) => !value,
+      animals: (value) => (value.length <= 0 ? "A post must have at least one animal tag" : null),
     },
   });
 
@@ -95,6 +103,14 @@ function Home() {
     // Create a FormData instance
     const formData = new FormData();
 
+    if (!form.values.session_token) {
+      return notifications.show({
+        title: "Error",
+        message: "You must be logged in to post",
+        color: "red",
+      });
+    }
+
     // Append all fields to formData
     formData.append("session_token", form.values.session_token);
     formData.append("animals", JSON.stringify(form.values.animals));
@@ -115,6 +131,14 @@ function Home() {
     });
 
     const data = await response.json();
+
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.message,
+        color: "red",
+      });
+    }
   };
 
   if (isFetching) return <Loading />;
