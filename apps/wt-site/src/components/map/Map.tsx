@@ -14,7 +14,7 @@ interface MapProps {
 }
 
 export default function Map({ posts }: MapProps) {
-  const [selectedPost, setSelectedPost] = useState<any | null>();
+  const [selectedPost, setSelectedPost] = useState<Post | null>();
   const [position, setPosition] = useState<any>({
     lat: 53.1047,
     lng: -1.5624,
@@ -59,7 +59,12 @@ export default function Map({ posts }: MapProps) {
                     clusterer={clusterer}
                   >
                     {selectedPost?.pictureId === post?.pictureId ? (
-                      <Popup latitude={post.GPSLat} longitude={post.GPSLong} post={post} />
+                      <Popup
+                        latitude={post.GPSLat}
+                        longitude={post.GPSLong}
+                        post={post}
+                        setSelectedPost={setSelectedPost}
+                      />
                     ) : (
                       <></>
                     )}

@@ -7,9 +7,10 @@ interface PopupProps {
   latitude: number;
   longitude: number;
   post: Post;
+  setSelectedPost: (value: Post | null) => void;
 }
 
-export default function Popup({ latitude, longitude, post }: PopupProps) {
+export default function Popup({ latitude, longitude, post, setSelectedPost }: PopupProps) {
   const theme = useMantineTheme();
 
   console.log(post.image);
@@ -40,7 +41,7 @@ export default function Popup({ latitude, longitude, post }: PopupProps) {
               <Text>Uploaded by: {post.uploader?.username}</Text>
               <Image src={`data:image/jpeg;base64,${post.image}`} width={256} height={256} />
             </div>
-            <X cursor="pointer" color="red" />
+            <X cursor="pointer" color="red" onClick={() => setSelectedPost(null)} />
           </div>
         </>
       </OverlayView>
