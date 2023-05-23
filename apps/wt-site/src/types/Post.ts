@@ -1,3 +1,4 @@
+import { PostTags } from "./PostTags";
 import { Uploader } from "./Uploader";
 
 export interface Post {
@@ -13,4 +14,5 @@ export interface Post {
   uploader: Uploader | null;
   GPSLat: number;
   GPSLong: number;
+  postTags: PostTags[];
 }

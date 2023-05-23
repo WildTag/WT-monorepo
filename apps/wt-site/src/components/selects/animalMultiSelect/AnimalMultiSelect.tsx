@@ -24,16 +24,16 @@ const categoriesData = [
 ];
 
 const icons = {
-  duck: "/lowPolyDuck.png",
-  swan: "/lowPolySwan.png",
-  heron: "/lowPolyHeron.png",
-  pidgeon: "/lowPolyPidgeon.png",
-  magpie: "/lowPolyMagpie.png",
-  chaffinch: "/lowPolyChaffinch.png",
-  badger: "/lowPolyBadger.png",
-  stoat: "/lowPolyStoat.png",
-  squirrel: "/lowPolySquirrel.png",
-  other: "/lowPolyOther.png",
+  duck: "/animalImages/lowPolyDuck.png",
+  swan: "/animalImages/lowPolySwan.png",
+  heron: "/animalImages/lowPolyHeron.png",
+  pidgeon: "/animalImages/lowPolyPidgeon.png",
+  magpie: "/animalImages/lowPolyMagpie.png",
+  chaffinch: "/animalImages/lowPolyChaffinch.png",
+  badger: "/animalImages/lowPolyBadger.png",
+  stoat: "/animalImages/lowPolyStoat.png",
+  squirrel: "/animalImages/lowPolySquirrel.png",
+  other: "/animalImages/lowPolyOther.png",
 };
 
 interface AnimalMultiSelectProps {

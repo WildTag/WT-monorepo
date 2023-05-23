@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/posts", tags=["posts"])
 async def user_list():
-    posts = await prisma.picture.find_many(include={"uploader": True, "comments": True})
+    posts = await prisma.picture.find_many(include={"uploader": True, "comments": True, "postTags": True})
     return posts
 
 @router.get("/posts/{post_id}", tags=["posts"])
@@ -56,7 +56,7 @@ async def create_post(session_token: str = Form(...),
     for animal in animals:
         post_tags.append({"tag": animal.upper(), "tagType": "ANIMAL"})
     
-    await prisma.picture.create(data={
+    post = await prisma.picture.create(data={
         "image": base64.b64encode(image_bytes).decode(),
         "accountId": user.accountId,
         "title": title,
@@ -66,9 +66,10 @@ async def create_post(session_token: str = Form(...),
         "postTags": {
             "create": post_tags
         }
-    })
+    },
+    include={"uploader": True, "comments": True})
 
-    return ({"detail": "Post Creation Confirmed"})
+    return ({"detail": "Post has been created", "post": post})
 
 @router.post("/posts/upload_image")
 async def create_upload_file(file: UploadFile = File(...)):

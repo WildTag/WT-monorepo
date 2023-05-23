@@ -31,16 +31,18 @@ function Home() {
 
   const theme = useMantineTheme();
 
+  const initialValues = {
+    session_token: sessionToken,
+    animals: [],
+    title: "",
+    description: "",
+    gps_lat: 0,
+    gps_long: 0,
+    images: files,
+  };
+
   const form = useForm({
-    initialValues: {
-      session_token: sessionToken,
-      animals: [],
-      title: "",
-      description: "",
-      gps_lat: 0,
-      gps_long: 0,
-      images: files,
-    },
+    initialValues: initialValues,
     validate: {
       title: (value) => (value.trim().length <= 0 ? "A post must have a title" : null),
       description: (value) => (value.trim().length <= 0 ? "A post must have a description" : null),
@@ -152,6 +154,19 @@ function Home() {
         color: "red",
       });
     }
+
+    setPostModalOpened(!postModalOpened);
+
+    const tmpPosts = JSON.parse(JSON.stringify(posts));
+    tmpPosts.push(data.post);
+
+    setPosts(tmpPosts);
+    form.setValues(initialValues);
+    return notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
   };
 
   if (isFetching) return <Loading />;

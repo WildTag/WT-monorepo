@@ -13,8 +13,6 @@ interface PopupProps {
 export default function Popup({ latitude, longitude, post, setSelectedPost }: PopupProps) {
   const theme = useMantineTheme();
 
-  console.log(post.image);
-
   return (
     <>
       <OverlayView
