@@ -1,5 +1,14 @@
 import Map from "../../components/map/Map";
-import { useMantineTheme, Button, Group, Input, Menu, Flex } from "@mantine/core";
+import {
+  useMantineTheme,
+  Button,
+  Group,
+  Input,
+  Menu,
+  Flex,
+  Drawer,
+  ScrollArea,
+} from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
@@ -18,6 +27,7 @@ function Home() {
   const [uploadedImage, setUploadedImage] = useState<any>(null);
   const [posts, setPosts] = useState<Post[] | null>(null);
   const sessionToken = sessionStorage.getItem("sessionToken");
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const theme = useMantineTheme();
 
@@ -176,12 +186,23 @@ function Home() {
             transform: "translateX(-50%)",
           }}
         >
+          <Drawer
+            title="Filters"
+            opened={drawerOpen}
+            onClose={() => {
+              setDrawerOpen(false);
+            }}
+            scrollAreaComponent={ScrollArea.Autosize}
+          ></Drawer>
           <Group position="center">
             {accountInfo && (
               <>
                 <Button
                   leftIcon={<Filter size="1rem" strokeWidth={2} />}
                   style={{ backgroundColor: theme.colors.dark[3] }}
+                  onClick={() => {
+                    setDrawerOpen(true);
+                  }}
                 >
                   Filter
                 </Button>
@@ -200,7 +221,7 @@ function Home() {
                 </Button>
               </>
             )}
-            <Menu shadow="md" width={200}>
+            <Menu shadow="md" width={200} position="top-start">
               <Menu.Target>
                 <Button
                   rightIcon={<User size="1rem" strokeWidth={2} />}
