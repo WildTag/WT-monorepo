@@ -14,8 +14,6 @@ interface CreatePostModalProps {
   handlePublishPost: () => Promise<void>;
   files: any;
   setFiles: (files: any) => void;
-  uploadedImages: UploadedImage[] | null | undefined;
-  setUploadedImages: (UploadedImage: UploadedImage[] | null | undefined) => void;
 }
 
 const CreatePostModal = ({
@@ -27,8 +25,6 @@ const CreatePostModal = ({
   handlePublishPost,
   files,
   setFiles,
-  uploadedImages,
-  setUploadedImages,
 }: CreatePostModalProps) => {
   const dropzoneRef = useRef<() => void>(null);
 
@@ -77,7 +73,7 @@ const CreatePostModal = ({
               readOnly
               label="Images"
               {...form.getInputProps("images")}
-              value={form.values.images[0]?.path}
+              value={form.values.images?.length >= 1 ? form.values.images[0]?.filename : ""}
             />
             <Dropzone
               style={{
@@ -97,19 +93,15 @@ const CreatePostModal = ({
                 "image/heif",
               ]}
               onDrop={(files) => {
-                handleUploadFiles(files)
-                  .then((data) => {
-                    setFiles(files);
-                  })
-                  .catch((error) => {
-                    console.log("Upload failed:", error);
-                  });
+                handleUploadFiles(files).catch((error) => {
+                  console.log("Upload failed:", error);
+                });
               }}
               styles={{ inner: { pointerEvents: "all" } }}
               {...form.getInputProps("images")}
             >
               <Text align="center">Drop images here</Text>
-              {files.length === 0 ? (
+              {!files || files?.length === 0 ? (
                 <Button
                   fullWidth
                   onClick={() => (dropzoneRef?.current ? dropzoneRef.current() : null)}
@@ -117,7 +109,7 @@ const CreatePostModal = ({
                   Select files
                 </Button>
               ) : null}
-              {uploadedImages?.map((file: UploadedImage, index: number) => {
+              {form.values.images?.map((file: UploadedImage, index: number) => {
                 return (
                   <>
                     <Flex mb={5}>
@@ -127,8 +119,8 @@ const CreatePostModal = ({
                         }}
                         color="red"
                         onClick={() => {
+                          form.setFieldValue("images", []);
                           setFiles(files.filter((_: any, i: number) => i !== index));
-                          setUploadedImages(files.filter((_: any, i: number) => i !== index));
                         }}
                       />
                       <Text>{file.filename}</Text>

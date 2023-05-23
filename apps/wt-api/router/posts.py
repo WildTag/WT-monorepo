@@ -39,7 +39,7 @@ async def create_post(session_token: str = Form(...),
                       description: str = Form(...), 
                       gps_lat: float = Form(...), 
                       gps_long: float = Form(...), 
-                      images: List[UploadFile] = Form(...)):
+                      images: List[str] = Form(...)):
     user = await prisma.account.find_first(where={"accessToken": session_token})
     if not user:
         raise HTTPException(
@@ -47,7 +47,8 @@ async def create_post(session_token: str = Form(...),
     
     image_bytes = None
     for image in images:
-        image_bytes = await image.read()
+        image_bytes = base64.b64decode(image)
+        # image_bytes = await image.read()
     if not image_bytes: 
         raise HTTPException(
             status_code=400, detail="No image provided")
@@ -83,4 +84,4 @@ async def create_upload_file(file: UploadFile = File(...)):
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)
             
-    return [{"filename": file.filename, "metadata": data, "image": image}]
+    return {"detail": "Image uploaded", "image_data": {"filename": file.filename, "metadata": data, "image": image}}

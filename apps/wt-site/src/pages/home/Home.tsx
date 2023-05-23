@@ -1,6 +1,5 @@
 import Map from "../../components/map/Map";
 import { useMantineTheme, Button, Group, Input, Menu, Drawer, ScrollArea } from "@mantine/core";
-import { FileWithPath } from "@mantine/dropzone";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
 import { Upload, Filter, User, Settings, Logout } from "tabler-icons-react";
@@ -13,10 +12,9 @@ import { UploadedImage } from "../../types/UploadedImage";
 
 function Home() {
   const [postModalOpened, setPostModalOpened] = useState(false);
-  const [files, setFiles] = useState<FileWithPath[]>([]);
+  const [files, setFiles] = useState<UploadedImage[]>([]);
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState<any>(null);
   const [posts, setPosts] = useState<Post[] | null>(null);
   const sessionToken = sessionStorage.getItem("sessionToken");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -44,10 +42,6 @@ function Home() {
       images: (value) => (value.length <= 0 ? "A post must have at least one image" : null),
     },
   });
-
-  useEffect(() => {
-    form.setFieldValue("images", files);
-  }, [files]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -102,13 +96,16 @@ function Home() {
         color: "red",
       });
     }
-    data.map((image: UploadedImage) => {
-      setUploadedImages(data);
-      form.setFieldValue("gps_lat", image.metadata.gps_latitude);
-      form.setFieldValue("gps_long", image.metadata.gps_longitude);
-      form.setFieldValue("images", [data.image]);
-      setFiles(data.image);
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
     });
+
+    form.setFieldValue("gps_lat", data.image_data.metadata.gps_latitude);
+    form.setFieldValue("gps_long", data.image_data.metadata.gps_longitude);
+    form.setFieldValue("images", [data.image_data]);
+
     return data;
   };
 
@@ -136,7 +133,7 @@ function Home() {
 
     // If form.values.images is an array of File objects, append each to formData
     form.values.images.forEach((image) => {
-      formData.append(`images`, image);
+      formData.append(`images`, image.image);
     });
 
     // Send the POST request
@@ -182,8 +179,6 @@ function Home() {
         handlePublishPost={handlePublishPost}
         files={files}
         setFiles={setFiles}
-        uploadedImages={uploadedImages}
-        setUploadedImages={setUploadedImages}
       />
       <div style={{ position: "relative" }}>
         <Map posts={posts} />
