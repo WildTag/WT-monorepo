@@ -51,7 +51,7 @@ async def create_post(session_token: str = Form(...),
     if not image_bytes: 
         raise HTTPException(
             status_code=400, detail="No image provided")
-    
+        
     post_tags = []
     for animal in animals:
         post_tags.append({"tag": animal.upper(), "tagType": "ANIMAL"})

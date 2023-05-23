@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  GoogleMap,
-  LoadScript,
-  Marker,
-  MarkerClusterer,
-  useJsApiLoader,
-} from "@react-google-maps/api";
+import { GoogleMap, Marker, MarkerClusterer, useJsApiLoader } from "@react-google-maps/api";
 import Popup from "../popup/Popup";
 import { Post } from "../../types/Post";
 

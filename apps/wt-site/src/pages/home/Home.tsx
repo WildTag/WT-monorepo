@@ -261,7 +261,14 @@ function Home() {
                     <Menu.Item icon={<Settings size={14} />}>Settings</Menu.Item>
                     <Menu.Divider />
                     <Menu.Label>Danger zone</Menu.Label>
-                    <Menu.Item color="red" icon={<Logout size={14} />}>
+                    <Menu.Item
+                      color="red"
+                      icon={<Logout size={14} />}
+                      onClick={() => {
+                        sessionStorage.removeItem("sessionToken");
+                        window.location.href = "/";
+                      }}
+                    >
                       Logout
                     </Menu.Item>
                   </Menu.Dropdown>
