@@ -36,6 +36,7 @@ model Picture {
   image       Bytes
   GPSLat      Float
   deleted     Boolean    @default(false)
+  reported    Boolean    @default(false)
   comments    Comment[]
   deletedLogs AdminLog[] @relation("DeletedPicture")
   postTags    PostTag[]
