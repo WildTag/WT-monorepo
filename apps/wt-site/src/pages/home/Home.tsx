@@ -22,11 +22,13 @@ import { notifications } from "@mantine/notifications";
 import { UploadedImage } from "../../types/UploadedImage";
 import AnimalMultiSelect from "../../components/selects/animalMultiSelect/AnimalMultiSelect";
 import { DatePickerInput } from "@mantine/dates";
+import { Account } from "../../types/Account";
+import { Role } from "../../types/Role";
 
 function Home() {
   const [postModalOpened, setPostModalOpened] = useState(false);
   const [files, setFiles] = useState<UploadedImage[]>([]);
-  const [accountInfo, setAccountInfo] = useState<any>(null);
+  const [accountInfo, setAccountInfo] = useState<Account | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [posts, setPosts] = useState<Post[] | null>(null);
   const accessToken = localStorage.getItem("sessionToken");
@@ -355,10 +357,14 @@ function Home() {
               {accountInfo ? (
                 <>
                   <Menu.Dropdown>
-                    <Menu.Label>Admin</Menu.Label>
-                    <Anchor underline={false} href="/admin">
-                      <Menu.Item icon={<Hammer size={20} />}>admin</Menu.Item>
-                    </Anchor>
+                    {accountInfo.permission === Role.ADMINISTRATOR && (
+                      <>
+                        <Menu.Label>Admin</Menu.Label>
+                        <Anchor underline={false} href="/admin">
+                          <Menu.Item icon={<Hammer size={20} />}>admin</Menu.Item>
+                        </Anchor>
+                      </>
+                    )}
                     <Menu.Label>Options</Menu.Label>
                     <Menu.Item icon={<User size={20} />}>Profile</Menu.Item>
                     <Menu.Item icon={<Settings size={20} />}>Settings</Menu.Item>

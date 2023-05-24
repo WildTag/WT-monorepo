@@ -10,7 +10,7 @@ export interface Uploader {
 }
 
 enum Permission {
-  Administrator,
+  ADMINISTRATOR,
   Moderator,
   User,
 }

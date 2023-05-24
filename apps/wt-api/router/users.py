@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/users", tags=["users"])
 async def user_list(request: Request):
-    await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+    await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.Moderator])
 
     users = await prisma.account.find_many()
     return users
@@ -24,7 +24,7 @@ async def get_user(user_id: int):
 
 @router.put("/users/{user_id}/ban", tags=["users"])
 async def ban_user(user_id: int, request: Request):
-    requester =  await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+    requester =  await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.Moderator])
 
     if requester.accountId == user_id:
         raise HTTPException(status_code=400, detail="You cannot ban yourself")
@@ -41,7 +41,7 @@ async def ban_user(user_id: int, request: Request):
 
 @router.put("/users/{user_id}/unban", tags=["users"])
 async def ban_user(user_id: int, request: Request):
-    requester =  await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+    requester =  await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.Moderator])
 
     if requester.accountId == user_id:
         raise HTTPException(status_code=400, detail="You cannot ban yourself")
@@ -78,7 +78,7 @@ async def edit_user(request: Request,
             status_code=400, detail="No image provided")
 
     if user.accountId != requester.accountId:
-        await verify_permission(access_token , [Role.Administrator, Role.Moderator])
+        await verify_permission(access_token , [Role.ADMINISTRATOR, Role.Moderator])
         await insert_admin_log(requester.accountId, LogType.EDIT_ACCOUNT, account_id=user_id)
     
     await prisma.account.update(where={"accountId": user_id}, data={

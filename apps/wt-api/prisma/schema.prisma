@@ -10,7 +10,7 @@ datasource db {
 model Account {
   accountId    Int        @id @default(autoincrement())
   created      DateTime   @default(now())
-  permission   Role       @default(User)
+  permission   Role       @default(USER)
   username     String     @unique
   email        String     @unique
   passwordHash String
@@ -68,7 +68,7 @@ model AdminLog {
   id                Int      @id @default(autoincrement())
   performedByUserId Int
   performer         Account  @relation("PerformedBy", fields: [performedByUserId], references: [accountId])
-  datetime          DateTime   @default(now())
+  datetime          DateTime @default(now())
   type              LogType
   pictureId         Int?
   picture           Picture? @relation("DeletedPicture", fields: [pictureId], references: [pictureId])
@@ -79,9 +79,9 @@ model AdminLog {
 }
 
 enum Role {
-  Administrator
-  Moderator
-  User
+  ADMINISTRATOR
+  MODERATOR
+  USER
 }
 
 enum LogType {
