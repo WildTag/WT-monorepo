@@ -101,6 +101,7 @@ export default function Map({ posts }: MapProps) {
           <Group>
             <Flex align={"center"} gap={5}>
               <Avatar
+                p={2}
                 src={
                   selectedPost?.uploader?.profilePicture
                     ? `data:image/jpeg;base64,${selectedPost?.uploader?.profilePicture || ""}`
