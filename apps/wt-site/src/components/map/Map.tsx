@@ -43,9 +43,12 @@ export default function Map({ posts }: MapProps) {
     <>
       <div>
         <Drawer
-          title={selectedPost?.title}
+          title={selectedPost?.title || ""}
           opened={openDrawer}
-          onClose={() => setOpenDrawer(false)}
+          onClose={() => {
+            setOpenDrawer(false);
+            setSelectedPost(null);
+          }}
           scrollAreaComponent={ScrollArea.Autosize}
           styles={{
             title: {
@@ -53,32 +56,17 @@ export default function Map({ posts }: MapProps) {
               fontWeight: "bold",
               position: "absolute",
             },
-      {isLoaded && (
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={position}
-          zoom={6}
-          options={{
-            minZoom: 2,
-            maxZoom: 16,
-            fullscreenControl: false,
-            styles: [
-              {
-                featureType: "poi",
-                stylers: [{ visibility: "off" }],
-              },
-            ],
           }}
         >
           <Group>
             <div>
               <Image
-                src={`data:image/jpeg;base64,${selectedPost?.image}`}
+                src={`data:image/jpeg;base64,${selectedPost?.image || ""}`}
                 width={"100%"}
                 height={"75%"}
                 fit="contain"
                 radius={10}
-              ></Image>
+              />
             </div>
             <div
               style={{
@@ -90,10 +78,10 @@ export default function Map({ posts }: MapProps) {
             >
               <h4 style={{ paddingBottom: "3px" }}>Description</h4>
               <Divider size="md" />
-              <Text>{selectedPost?.description}</Text>
+              <Text>{selectedPost?.description || ""}</Text>
             </div>
             <div title="comments">
-              <Text>{`${selectedPost?.comments}`}</Text>
+              <Text>{selectedPost?.comments || ""}</Text>
             </div>
           </Group>
         </Drawer>
@@ -110,22 +98,17 @@ export default function Map({ posts }: MapProps) {
                 maxZoom: 15,
               }}
             >
-
-            {(clusterer) => (
-              <>
-                {posts?.map((post: Post) => (
-                  <>
+              {(clusterer) => (
+                <>
+                  {posts?.map((post: Post) => (
                     <Marker
-                      key={post.pictureId} // Don't forget to provide a key when mapping!
+                      key={post.pictureId}
                       position={{ lat: post.GPSLat, lng: post.GPSLong }}
                       icon={{
                         url: markers[post.postTags[0].tag.toLowerCase()],
                         scaledSize: new window.google.maps.Size(40, 60),
                       }}
                       onClick={() => {
-                        if (selectedPost?.pictureId === post.pictureId)
-                          return setSelectedPost(null);
-
                         setSelectedPost(post);
                         setOpenDrawer(true);
                         setPosition({ lat: post.GPSLat, lng: post.GPSLong });
@@ -133,7 +116,6 @@ export default function Map({ posts }: MapProps) {
                       clusterer={clusterer}
                     />
                   ))}
-                  ;
                 </>
               )}
             </MarkerClusterer>
