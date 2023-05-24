@@ -41,6 +41,7 @@ function Home() {
     gps_lat: 0,
     gps_long: 0,
     images: files,
+    date_time_original: new Date(),
   };
 
   const form = useForm({
@@ -87,7 +88,6 @@ function Home() {
         color: "green",
       });
     };
-    if (!refetch) return;
     fetchPosts();
     setRefetch(false);
   }, [refetch]);
@@ -138,6 +138,7 @@ function Home() {
     form.setFieldValue("gps_lat", data.image_data.metadata.gps_latitude);
     form.setFieldValue("gps_long", data.image_data.metadata.gps_longitude);
     form.setFieldValue("images", [data.image_data]);
+    form.setFieldValue("date_time_original", new Date(data.image_data.metadata.date_time_original));
 
     return data;
   };
@@ -162,7 +163,8 @@ function Home() {
     formData.append("description", form.values.description);
     formData.append("gps_lat", form.values.gps_lat.toString());
     formData.append("gps_long", form.values.gps_long.toString());
-
+    formData.append("date_time_original", form.values.date_time_original.toString());
+    console.log(form.values.date_time_original);
     // If form.values.images is an array of File objects, append each to formData
     form.values.images.forEach((image) => {
       formData.append(`images`, image.image);
@@ -211,7 +213,10 @@ function Home() {
         "squirrel",
         "other",
       ],
-      dateRange: [new Date("2021-01-01T00:00:00"), new Date()],
+      dateRange: [
+        new Date("2021-01-01T00:00:00"),
+        new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
+      ],
     },
   });
 

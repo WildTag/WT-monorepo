@@ -64,7 +64,6 @@ async def user_list(animals: Optional[List[str]] = Query(None), date_range: Opti
             }
         }
     )
-    
     return posts
 
 @router.get("/posts/{post_id}", tags=["posts"])
@@ -85,12 +84,13 @@ class CreatePostData(BaseModel):
     images: List[Imagetest]
     
 @router.post("/posts/create", tags=["posts"])
-async def create_post(session_token: str = Form(...), 
-                      animals: List[str] = Form(...), 
-                      title: str = Form(...), 
-                      description: str = Form(...), 
-                      gps_lat: float = Form(...), 
-                      gps_long: float = Form(...), 
+async def create_post(session_token: str = Form(...),
+                      animals: List[str] = Form(...),
+                      title: str = Form(...),
+                      description: str = Form(...),
+                      gps_lat: float = Form(...),
+                      gps_long: float = Form(...),
+                      date_time_original: str = Form(...),
                       images: List[str] = Form(...)):
     user = await prisma.account.find_first(where={"accessToken": session_token})
     if not user:
@@ -118,7 +118,8 @@ async def create_post(session_token: str = Form(...),
         "GPSLat": gps_lat,
         "postTags": {
             "create": post_tags
-        }
+        },
+        "created": convert_to_datetime(date_time_original),
     },
     include={"uploader": True, "comments": True, "postTags": True})
 
@@ -170,7 +171,6 @@ async def create_post(post_id: int,
     return ({"detail": "Post has been updated", "post": post})
 
 
-
 @router.delete("/posts/{post_id}/delete", tags=["posts"])
 async def create_post(post_id: int,
                       request: Request):
@@ -198,5 +198,9 @@ async def create_upload_file(file: UploadFile = File(...)):
     
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)
-            
+    
+    date_time_original = data["date_time_original"]
+    data["date_time_original"] = datetime.strptime(date_time_original, "%Y:%m:%d %H:%M:%S").isoformat()
+    print(data)
+                
     return {"detail": "Image uploaded", "image_data": {"filename": file.filename, "metadata": data, "image": image}}
