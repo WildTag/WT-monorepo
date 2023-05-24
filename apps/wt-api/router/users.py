@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Form
 from pydantic import BaseModel
 from db import prisma
 from prisma.enums import Role
@@ -50,6 +50,26 @@ async def ban_user(user_id: int, request: Request):
     
     await prisma.account.update(where={"accountId": user_id}, data={"banned": False})
     return {"detail": "User has been banned", "user": user}
+
+
+@router.put("/users/{user_id}/edit", tags=["users"])
+async def edit_user(request: Request,
+                    user_id: int, 
+                    role: Role,
+                    password: str):
+    access_token = request.headers.get("Authorization")
+    requester = await prisma.account.find_first(where={"accessToken": access_token})
+    user = await prisma.account.find_first(where={"accountId": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.accountId != requester.accountId:
+        return await verify_permission(access_token , [Role.Administrator, Role.Moderator])
+    
+    await prisma.account.update(where={"accountId": user_id}, data={"Role": role, "passwordHash": password})
+
+    return {"detail": "User has been updated", "user": user}
+
 
 @router.get("/users/{user_id}", tags=["users"])
 async def get_user(user_id: int):

@@ -27,10 +27,9 @@ async def create_post(session_token: str = Form(...),
 @router.put("/comment/{comment_id}/edit", tags=["comment"])
 async def create_post(comment_id: int,
                       request: Request,
-                      session_token: str = Form(...),
                       comment_text: str = Form(...)):
     
-    user = await prisma.account.find_first(where={"accessToken": session_token})
+    user = await prisma.account.find_first(where={"accessToken": request.headers.get("Authorization")})
     comment = await prisma.comments.find_first(where={"commentId": comment_id})
 
     if user.accountId != comment.commenterAccountID:
@@ -45,10 +44,9 @@ async def create_post(comment_id: int,
 
 @router.delete("/comment/{comment_id}/delete", tags=["comment"])
 async def create_post(comment_id: int,
-                      request: Request,
-                      session_token: str = Form(...)):
+                      request: Request):
     
-    user = await prisma.account.find_first(where={"accessToken": session_token})
+    user = await prisma.account.find_first(where={"accessToken": request.headers.get("Authorization")})
     comment = await prisma.comments.find_first(where={"commentId": comment_id})
 
     if user.accountId != comment.commenterAccountID:
