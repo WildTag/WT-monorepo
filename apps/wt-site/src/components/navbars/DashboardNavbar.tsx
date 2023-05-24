@@ -78,7 +78,7 @@ export function DashboardNavbar({ opened, selected }: Props) {
       <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 250, md: 250, lg: 250 }}>
         <Navbar.Section grow>
           <Group spacing={10}>
-            <Image radius={50} src={"/animalImages/lowPolySwan.png"} width={32} height={32} />
+            <Image radius={50} src={"/animalImages/lowPolyDuck.png"} width={32} height={32} />
             <h2>WildTag</h2>
           </Group>
           <div style={{ paddingTop: "10px", paddingBottom: "10px" }}></div>
