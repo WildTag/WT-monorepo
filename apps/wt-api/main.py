@@ -4,6 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from helpers.try_int import try_int
+from helpers.create_administrator_firstrun import create_default_admin
 from router import test, users, posts, comments, admin
 from db import prisma
 
@@ -28,6 +29,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup():
     await prisma.connect()
+    await create_default_admin() # Create default administrator account if it doesn't exist
 
 
 if __name__ == "__main__":
