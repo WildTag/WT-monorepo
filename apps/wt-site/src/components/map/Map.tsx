@@ -117,17 +117,13 @@ export default function Map({ posts }: MapProps) {
                 </Text>
               </div>
             </Flex>
-            <Image
-              src={`data:image/jpeg;base64,${selectedPost?.image || ""}`}
-              fit="contain"
-              radius={10}
-            />
             <div
               style={{
                 background: theme.colors.dark[6],
                 borderRadius: theme.radius.sm,
                 padding: theme.spacing.sm,
                 width: "100%",
+                marginBottom: "10px",
               }}
             >
               <Title size={17} mb={5}>
@@ -137,12 +133,17 @@ export default function Map({ posts }: MapProps) {
               <Text>{selectedPost?.description}</Text>
             </div>
           </Group>
-          <Flex gap={5} mt={7}>
+          <Flex gap={5} mb={10}>
             <Text>Tags: </Text>
             {selectedPost?.postTags.map((tag) => {
               return <TagComponent tag={tag} theme={theme} />;
             })}
           </Flex>
+          <Image
+            src={`data:image/jpeg;base64,${selectedPost?.image || ""}`}
+            fit="contain"
+            radius={10}
+          />
           <TextInput
             style={{ userSelect: "none" }}
             onKeyDownCapture={(e) => {
