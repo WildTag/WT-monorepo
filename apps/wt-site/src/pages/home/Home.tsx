@@ -18,6 +18,8 @@ import { Loading } from "../../components/loading/Loading";
 import { Post } from "../../types/Post";
 import { notifications } from "@mantine/notifications";
 import { UploadedImage } from "../../types/UploadedImage";
+import AnimalMultiSelect from "../../components/selects/animalMultiSelect/AnimalMultiSelect";
+import { DatePickerInput } from "@mantine/dates";
 
 function Home() {
   const [postModalOpened, setPostModalOpened] = useState(false);
@@ -27,6 +29,7 @@ function Home() {
   const [posts, setPosts] = useState<Post[] | null>(null);
   const accessToken = localStorage.getItem("sessionToken");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [filterDate, setFilterDate] = useState<[Date | null, Date | null]>([null, null]);
 
   const theme = useMantineTheme();
 
@@ -173,9 +176,25 @@ function Home() {
     });
   };
 
-  if (isFetching) return <Loading />;
+  const filtersForm = useForm({
+    initialValues: {
+      animals: [
+        "duck",
+        "swan",
+        "heron",
+        "pidgeon",
+        "magpie",
+        "chaffinch",
+        "badger",
+        "stoat",
+        "squirrel",
+        "other",
+      ],
+      dateRange: 7,
+    },
+  });
 
-  console.log(accountInfo);
+  if (isFetching) return <Loading />;
 
   return (
     <>
@@ -216,7 +235,19 @@ function Home() {
             opened={drawerOpen}
             onClose={() => setDrawerOpen(false)}
             scrollAreaComponent={ScrollArea.Autosize}
-          />
+          >
+            <AnimalMultiSelect label={"Selected animals"} form={filtersForm} />
+            <DatePickerInput
+              clearable
+              type="range"
+              label="Pick dates range"
+              placeholder="Pick dates range"
+              value={filterDate}
+              onChange={setFilterDate}
+              mx="auto"
+              maw={400}
+            />
+          </Drawer>
           <Group position="center">
             {accountInfo && (
               <>

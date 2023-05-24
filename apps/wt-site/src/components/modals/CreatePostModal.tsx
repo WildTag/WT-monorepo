@@ -56,7 +56,7 @@ const CreatePostModal = ({
               placeholder={"I found this pigeon at Darley bank, it was incredible!"}
               {...form.getInputProps("description")}
             />
-            <AnimalMultiSelect form={form} />
+            <AnimalMultiSelect form={form} label={"Choose an animal"} />
           </div>
           <div
             style={{

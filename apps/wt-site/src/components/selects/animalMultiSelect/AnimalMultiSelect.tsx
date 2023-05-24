@@ -26,9 +26,10 @@ const categoriesData = [
 
 interface AnimalMultiSelectProps {
   form: any;
+  label: string;
 }
 
-const AnimalMultiSelect = ({ form }: AnimalMultiSelectProps) => {
+const AnimalMultiSelect = ({ form, label }: AnimalMultiSelectProps) => {
   function Value({
     value,
     label,
@@ -87,7 +88,7 @@ const AnimalMultiSelect = ({ form }: AnimalMultiSelectProps) => {
       searchable
       defaultValue={undefined}
       placeholder="Select an animal..."
-      label="Choose an animal"
+      label={label}
       {...form.getInputProps("animals")}
     />
   );
