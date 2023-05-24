@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from helpers.try_int import try_int
-from router import test, users, posts, comments
+from router import test, users, posts, comments, admin
 from db import prisma
 
 app = FastAPI()
@@ -12,6 +12,7 @@ app.include_router(test.router)
 app.include_router(users.router)
 app.include_router(posts.router)
 app.include_router(comments.router)
+app.include_router(admin.router)
 
 
 origins = ["*"]
