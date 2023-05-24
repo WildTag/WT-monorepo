@@ -52,36 +52,33 @@ export default function Map({ posts }: MapProps) {
           scrollAreaComponent={ScrollArea.Autosize}
           styles={{
             title: {
-              fontSize: 20,
+              fontSize: theme.fontSizes.xl,
               fontWeight: "bold",
-              position: "absolute",
             },
           }}
         >
           <Group>
-            <div>
-              <Image
-                src={`data:image/jpeg;base64,${selectedPost?.image || ""}`}
-                width={"100%"}
-                height={"75%"}
-                fit="contain"
-                radius={10}
-              />
-            </div>
+            <Image
+              src={`data:image/jpeg;base64,${selectedPost?.image || ""}`}
+              fit="contain"
+              radius={10}
+            />
             <div
               style={{
-                position: "relative",
                 background: theme.colors.dark[6],
-                borderRadius: 5,
-                padding: "5px",
+                borderRadius: theme.radius.sm,
+                padding: theme.spacing.sm,
+                width: "100%",
               }}
             >
-              <h4 style={{ paddingBottom: "3px" }}>Description</h4>
+              <Text pb={3} weight={500}>
+                Description
+              </Text>
               <Divider size="md" />
-              <Text>{selectedPost?.description || ""}</Text>
+              <Text>{selectedPost?.description}</Text>
             </div>
             <div title="comments">
-              <Text>{selectedPost?.comments || ""}</Text>
+              <Text>{selectedPost?.comments}</Text>
             </div>
           </Group>
         </Drawer>
