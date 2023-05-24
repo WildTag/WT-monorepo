@@ -1,7 +1,6 @@
 import base64
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from io import BytesIO
-
 from db import prisma
 from pydantic import BaseModel
 from PIL import Image

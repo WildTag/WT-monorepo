@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Post } from "../../types/Post";
 import ms from "ms";
 import { Calendar } from "tabler-icons-react";
+import { useSearchParams } from "react-router-dom";
 
 const PostManagement = () => {
   const [showImages, setShowImages] = useState(true);
@@ -25,7 +26,12 @@ const PostManagement = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [searchParams] = useSearchParams();
   const theme = useMantineTheme();
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("accountId") || "");
+  }, [searchParams]);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -80,6 +86,7 @@ const PostManagement = () => {
         onChange={(element) => {
           setSearchQuery(element.currentTarget.value);
         }}
+        value={searchQuery}
       />
       <Accordion defaultValue="customization" variant="contained">
         <Accordion.Item value="customization">

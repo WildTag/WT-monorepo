@@ -75,8 +75,8 @@ const UserManagement = () => {
     });
   };
 
-  // TODO: add unbanning a user tomorrow
-  const handleUserUnBan = async (userId: number) => {};
+  // TODO: add unbanning a user
+  const handleUserUnban = async (userId: number) => {};
 
   return (
     <CustomAppShell selected={1}>
@@ -111,12 +111,14 @@ const UserManagement = () => {
               </div>
             </Flex>
             <Flex gap={10}>
-              <Button>Posts</Button>
+              <Button component="a" href={`/admin/post_management?accountId=${user.accountId}`}>
+                Posts
+              </Button>
               <Button
                 color={!user.banned ? "red" : "green"}
                 onClick={() => {
                   if (!user.banned) return handleUserBan(user.accountId);
-                  handleUserUnBan(user.accountId);
+                  handleUserUnban(user.accountId);
                 }}
               >
                 Ban
