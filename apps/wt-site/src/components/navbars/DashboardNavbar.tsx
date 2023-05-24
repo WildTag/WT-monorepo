@@ -27,19 +27,16 @@ export function DashboardNavbar({ opened, selected }: Props) {
   const [active, setActive] = useState(selected);
   const [user, setUser] = useState<any>();
   const [fetched, setFetched] = useState(false);
-  const sessionToken = sessionStorage.getItem("sessionToken");
+  const accessToken = localStorage.getItem("sessionToken");
 
   useEffect(() => {
     async function fetchAccountInfo() {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/account/${sessionToken}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/account/${accessToken}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await response.json();
       setUser(data);
@@ -49,7 +46,7 @@ export function DashboardNavbar({ opened, selected }: Props) {
     setFetched(false);
   }, []);
 
-  if (!sessionToken) return <h1>No permissions</h1>;
+  if (!accessToken) return <h1>No permissions</h1>;
   if (!fetched) return <Loading />;
 
   const links = data.map((item, index) => {

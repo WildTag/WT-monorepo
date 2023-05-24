@@ -25,13 +25,13 @@ function Home() {
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [posts, setPosts] = useState<Post[] | null>(null);
-  const sessionToken = sessionStorage.getItem("sessionToken");
+  const accessToken = localStorage.getItem("sessionToken");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const theme = useMantineTheme();
 
   const initialValues = {
-    session_token: sessionToken,
+    session_token: accessToken,
     animals: [],
     title: "",
     description: "",
@@ -68,15 +68,13 @@ function Home() {
 
   useEffect(() => {
     async function getAccountInfo() {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/account/${sessionToken}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/account/get`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: accessToken || "",
+        },
+      });
       const data = await response.json();
       setAccountInfo(data);
       setIsFetching(false);
@@ -177,6 +175,8 @@ function Home() {
 
   if (isFetching) return <Loading />;
 
+  console.log(accountInfo);
+
   return (
     <>
       <CreatePostModal
@@ -274,7 +274,7 @@ function Home() {
                       color="red"
                       icon={<Logout size={14} />}
                       onClick={() => {
-                        sessionStorage.removeItem("sessionToken");
+                        localStorage.removeItem("sessionToken");
                         window.location.href = "/";
                       }}
                     >

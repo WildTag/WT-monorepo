@@ -3,14 +3,14 @@ import {
   Badge,
   Checkbox,
   Flex,
-  SimpleGrid,
   Title,
   useMantineTheme,
   Text,
   MantineTheme,
   Image,
   Button,
-  Skeleton,
+  TextInput,
+  Group,
 } from "@mantine/core";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { useEffect, useMemo, useState } from "react";
@@ -19,10 +19,12 @@ import ms from "ms";
 import { Calendar } from "tabler-icons-react";
 
 const PostManagement = () => {
-  const [showImages, setShowImages] = useState(false);
+  const [showImages, setShowImages] = useState(true);
   const [sortByNewest, setSortByNewest] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const theme = useMantineTheme();
 
   useEffect(() => {
@@ -56,8 +58,29 @@ const PostManagement = () => {
     });
   }, [sortByNewest]);
 
+  useMemo(() => {
+    if (!searchQuery) return setFilteredPosts(posts);
+    setFilteredPosts(
+      posts.filter((post) => {
+        return (
+          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.uploader?.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.uploader?.email.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      })
+    );
+  }, [searchQuery, isFetched, posts]);
+
   return (
     <CustomAppShell selected={2}>
+      <TextInput
+        mb={10}
+        label={"Search..."}
+        placeholder="Search for a post title, email or account name"
+        onChange={(element) => {
+          setSearchQuery(element.currentTarget.value);
+        }}
+      />
       <Accordion defaultValue="customization" variant="contained">
         <Accordion.Item value="customization">
           <Accordion.Control>
@@ -72,7 +95,7 @@ const PostManagement = () => {
         </Accordion.Item>
       </Accordion>
       <Flex wrap="wrap" gap={40} mt={20}>
-        {posts.map((post) => {
+        {filteredPosts.map((post) => {
           return <PostComponent post={post} theme={theme} showImages={showImages} />;
         })}
       </Flex>
@@ -123,6 +146,10 @@ const PostComponent = ({ post, theme, showImages }: PostProps) => {
               <Text>{secondsPassed} ago</Text>
             </Flex>
           </Badge>
+          <Group>
+            <Text>{post.uploader?.username}</Text>
+            <Text>{post.uploader?.email}</Text>
+          </Group>
           <Title>{post.title}</Title>
           <Text>{post.description}</Text>
           {showImages && (
@@ -133,6 +160,16 @@ const PostComponent = ({ post, theme, showImages }: PostProps) => {
             />
           )}
         </div>
+        <Flex gap={5} mt={5}>
+          <Text>Tags:</Text>
+          {post.postTags.map((tag) => {
+            return (
+              <Badge p={theme.spacing.sm} radius={theme.radius.md} color={"blue"}>
+                {tag.tag}
+              </Badge>
+            );
+          })}
+        </Flex>
         <Flex gap={10} mt={10}>
           <Button color={"yellow"}>Delete</Button>
           <Button color={"red"}>Ban</Button>

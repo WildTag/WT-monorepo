@@ -12,9 +12,7 @@ const UserManagement = () => {
   const [filteredUsers, setFilteredUsers] = useState<Account[]>([]);
   const [isFetched, setIsFetched] = useState(false);
 
-  const sessionToken = sessionStorage.getItem("sessionToken");
-
-  console.log(sessionToken);
+  const accessToken = localStorage.getItem("sessionToken");
 
   useEffect(() => {
     async function fetchUsers() {
@@ -22,7 +20,7 @@ const UserManagement = () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: sessionToken || "",
+          Authorization: accessToken || "",
         },
       });
       const data = await response.json();
@@ -58,7 +56,7 @@ const UserManagement = () => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: sessionToken || "",
+        Authorization: accessToken || "",
       },
     });
 

@@ -29,7 +29,7 @@ async def get_user(user_id: int):
     return user
 
 @router.put("/users/{user_id}/ban", tags=["users"])
-async def get_user(user_id: int, request: Request):
+async def ban_user(user_id: int, request: Request):
     requester =  await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
 
     if requester.accountId == user_id:
@@ -44,7 +44,12 @@ async def get_user(user_id: int, request: Request):
     await prisma.account.update(where={"accountId": user_id}, data={"banned": True})
     return {"detail": "User has been banned", "user": user}
 
-@router.get("/users/account", tags=["users"])
+@router.get("/users/{user_id}", tags=["users"])
+async def get_user(user_id: int):
+    user = await prisma.account.find_first(where={"accountId": user_id})
+    return user
+
+@router.get("/users/account/get", tags=["users"])
 async def get_account_info(request: Request):
     authorization_token = request.headers.get("Authorization")
     user = await prisma.account.find_first(where={"accessToken": authorization_token})

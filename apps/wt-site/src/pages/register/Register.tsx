@@ -45,7 +45,7 @@ const Register = () => {
       color: "green",
     });
 
-    sessionStorage.setItem("sessionToken", data.access_token);
+    localStorage.setItem("sessionToken", data.access_token);
     return (window.location.href = "/");
   };
 
