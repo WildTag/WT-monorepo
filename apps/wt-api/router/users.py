@@ -2,8 +2,11 @@ import uuid
 from fastapi import APIRouter, HTTPException, Request, Form
 from pydantic import BaseModel
 from db import prisma
-from prisma.enums import Role
+from prisma.enums import Role, LogType
+from helpers.log_admin_action import insert_admin_log
 from helpers.auth import verify_permission
+import base64
+
 
 router = APIRouter()
 
@@ -33,6 +36,7 @@ async def ban_user(user_id: int, request: Request):
         raise HTTPException(status_code=400, detail="User is already banned")
     
     await prisma.account.update(where={"accountId": user_id}, data={"banned": True})
+    insert_admin_log(requester.accountId, LogType.BAN_ACCOUNT, account_id=user_id)
     return {"detail": "User has been banned", "user": user}
 
 @router.put("/users/{user_id}/unban", tags=["users"])
@@ -49,6 +53,7 @@ async def ban_user(user_id: int, request: Request):
         raise HTTPException(status_code=400, detail="User is not banned.")
     
     await prisma.account.update(where={"accountId": user_id}, data={"banned": False, "accessToken": None})
+    insert_admin_log(requester.accountId, LogType.UNBAN_ACCOUNT, account_id=user_id)
     return {"detail": "User has been unbanned", "user": user}
 
 
@@ -56,17 +61,30 @@ async def ban_user(user_id: int, request: Request):
 async def edit_user(request: Request,
                     user_id: int, 
                     role: Role,
-                    password: str):
+                    password: str,
+                    profile_image: str = Form(...)):
+    
     access_token = request.headers.get("Authorization")
     requester = await prisma.account.find_first(where={"accessToken": access_token})
     user = await prisma.account.find_first(where={"accountId": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    image_bytes = None
+    image_bytes = base64.b64decode(profile_image)
+
+    if not image_bytes: 
+        raise HTTPException(
+            status_code=400, detail="No image provided")
 
     if user.accountId != requester.accountId:
-        return await verify_permission(access_token , [Role.Administrator, Role.Moderator])
+        await verify_permission(access_token , [Role.Administrator, Role.Moderator])
+        insert_admin_log(requester.accountId, LogType.EDIT_ACCOUNT, account_id=user_id)
     
-    await prisma.account.update(where={"accountId": user_id}, data={"Role": role, "passwordHash": password})
+    await prisma.account.update(where={"accountId": user_id}, data={
+        "Role": role,
+        "passwordHash": password,
+        "profileImage": base64.b64encode(image_bytes).decode()})
 
     return {"detail": "User has been updated", "user": user}
 
@@ -87,6 +105,7 @@ class RegisterUserData(BaseModel):
     username: str
     password: str
     email: str
+    profile_image: str = Form(...)
 
 @router.post("/users/register", tags=["users"])
 async def create_user(user_payload: RegisterUserData):
@@ -96,7 +115,6 @@ async def create_user(user_payload: RegisterUserData):
     if len(user_payload.password) < 6:
         raise HTTPException(
             status_code=400, detail="Password length has to be >= 6")
-
     check_user = await prisma.account.find_first(
         where={
             "username": user_payload.username
@@ -114,12 +132,19 @@ async def create_user(user_payload: RegisterUserData):
     if check_email:
         raise HTTPException(
             status_code=400, detail="Email already exists")
+    
+    image_bytes = None
+    image_bytes = base64.b64decode(user_payload.profile_image)
+    if not image_bytes: 
+        raise HTTPException(
+            status_code=400, detail="No image provided")
 
     user = await prisma.account.create(data={
         "username": user_payload.username,
         "email": user_payload.email,
         "passwordHash": user_payload.password,
-        "accessToken": str(uuid.uuid4())
+        "accessToken": str(uuid.uuid4()),
+        "profileImage": base64.b64encode(image_bytes).decode()
     })
 
     return ({"detail": "Registration Confirmed",
