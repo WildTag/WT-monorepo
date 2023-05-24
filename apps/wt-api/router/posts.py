@@ -140,6 +140,25 @@ async def create_post(session_token: str = Form(...),
 
     return ({"detail": "Post has been created", "post": post})
 
+
+@router.put("/posts/{post_id}/report", tags=["posts"])
+async def create_post(post_id: int):
+    post = await prisma.picture.find_first(where={"pictureId": post_id})
+
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    if post.deleted:
+        raise HTTPException(status_code=400, detail="Post already deleted")
+    
+    if post.reported:
+        raise HTTPException(status_code=400, detail="Post already reported")
+    
+    await prisma.picture.update(where={"pictureId": post_id}, data={"reported": True})
+
+    return ({"detail": "Post has been reported"})
+    
+
 @router.put("/posts/{post_id}/edit", tags=["posts"])
 async def create_post(post_id: int,
                       request: Request,
