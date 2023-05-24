@@ -3,6 +3,7 @@ import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { useEffect, useMemo, useState } from "react";
 import { Account } from "../../types/Account";
 import { Loading } from "../../components/loading/Loading";
+import { notifications } from "@mantine/notifications";
 
 const UserManagement = () => {
   const theme = useMantineTheme();
@@ -52,6 +53,33 @@ const UserManagement = () => {
 
   if (!isFetched) return <Loading />;
 
+  const handleUserBan = async (userId: number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}/ban`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: sessionToken || "",
+      },
+    });
+
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+  };
+
+  // TODO: add unbanning a user tomorrow
+  const handleUserUnBan = async (userId: number) => {};
+
   return (
     <CustomAppShell selected={1}>
       <Title>User list</Title>
@@ -86,7 +114,15 @@ const UserManagement = () => {
             </Flex>
             <Flex gap={10}>
               <Button>Posts</Button>
-              <Button color="red">Ban</Button>
+              <Button
+                color={!user.banned ? "red" : "green"}
+                onClick={() => {
+                  if (!user.banned) return handleUserBan(user.accountId);
+                  handleUserUnBan(user.accountId);
+                }}
+              >
+                Ban
+              </Button>
             </Flex>
           </div>
         );

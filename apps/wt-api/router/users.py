@@ -14,6 +14,7 @@ async def verify_permission(authorization_token: str, required_permissions: List
         raise HTTPException(status_code=401, detail="Invalid session token")
     if user.permission not in required_permissions:
         raise HTTPException(status_code=401, detail="Invalid session token")
+    return user
 
 @router.get("/users", tags=["users"])
 async def user_list(request: Request):
@@ -27,18 +28,21 @@ async def get_user(user_id: int):
     user = await prisma.account.find_first(where={"accountId": user_id})
     return user
 
-@router.get("/users/{user_id}/ban", tags=["users"])
+@router.put("/users/{user_id}/ban", tags=["users"])
 async def get_user(user_id: int, request: Request):
-    await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+    requester =  await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
 
+    if requester.accountId == user_id:
+        raise HTTPException(status_code=400, detail="You cannot ban yourself")
+    
     user = await prisma.account.find_first(where={"accountId": user_id})
-
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if user.banned == True:
+        raise HTTPException(status_code=400, detail="User is already banned")
     
     await prisma.account.update(where={"accountId": user_id}, data={"banned": True})
-
-    return user
+    return {"detail": "User has been banned", "user": user}
 
 @router.get("/users/account", tags=["users"])
 async def get_account_info(request: Request):
