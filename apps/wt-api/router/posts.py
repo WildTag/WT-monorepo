@@ -140,7 +140,7 @@ async def create_post(post_id: int,
 
     if post.accountId != user.accountId:
         await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
-        insert_admin_log(user.accountId, LogType.POST_EDIT, picture_id=post_id)
+        await insert_admin_log(user.accountId, LogType.POST_EDIT, picture_id=post_id)
     
     image_bytes = None
     for image in images:
@@ -180,7 +180,7 @@ async def create_post(post_id: int,
 
     if post.accountId != user.accountId:
         await verify_permission(access_token , [Role.Administrator, Role.Moderator])
-        insert_admin_log(user.accountId, LogType.POST_DELETE, picture_id=post_id)
+        await insert_admin_log(user.accountId, LogType.POST_DELETE, picture_id=post_id)
 
     post = await prisma.picture.update(where={"pictureId": post_id}, data={"deleted": True})
 
