@@ -1,6 +1,17 @@
-import { Anchor, Button, Center, Flex, PasswordInput, TextInput, Title } from "@mantine/core";
+import {
+  Anchor,
+  Button,
+  Center,
+  Flex,
+  Group,
+  PasswordInput,
+  TextInput,
+  Title,
+  useMantineTheme,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
+import { At, Lock, User } from "tabler-icons-react";
 
 interface RegisterCredentials {
   username: string;
@@ -9,6 +20,7 @@ interface RegisterCredentials {
 }
 
 const Register = () => {
+  const theme = useMantineTheme();
   const form = useForm({
     initialValues: {
       username: "",
@@ -51,36 +63,52 @@ const Register = () => {
 
   return (
     <>
-      <Center>
+      <Center style={{ paddingTop: "10%" }}>
         <form
           onSubmit={form.onSubmit((credentials: RegisterCredentials) =>
             handleRegister(credentials)
           )}
         >
-          <div>
-            <Flex direction={"column"} gap={5}>
+          <div
+            style={{
+              width: "300px",
+              background: theme.colors.dark[6],
+              borderRadius: theme.radius.sm,
+              padding: theme.spacing.sm,
+              marginBottom: "10px",
+            }}
+          >
+            <Flex direction={"column"} gap={10}>
               <Title>Register</Title>
               <TextInput
+                icon={<User size={15}></User>}
                 withAsterisk
                 label="Username"
                 placeholder="Username"
                 {...form.getInputProps("username")}
+                sx={{ label: { marginBottom: 5, fontWeight: "bold" } }}
               />
               <TextInput
                 withAsterisk
                 label="Email"
+                icon={<At size={15}></At>}
                 placeholder="Email"
                 {...form.getInputProps("email")}
+                sx={{ label: { marginBottom: 5, fontWeight: "bold" } }}
               />
               <PasswordInput
+                icon={<Lock size={15}></Lock>}
                 withAsterisk
                 label="Password"
                 placeholder="Password"
                 {...form.getInputProps("password")}
+                sx={{ label: { marginBottom: 5, fontWeight: "bold" } }}
               />
-              <Button type="submit">Register</Button>
+              <Group spacing={20}>
+                <Button type="submit">Register</Button>
+                <Anchor href="/login">Or login...</Anchor>
+              </Group>
             </Flex>
-            <Anchor href="/login">Or login...</Anchor>
           </div>
         </form>
       </Center>

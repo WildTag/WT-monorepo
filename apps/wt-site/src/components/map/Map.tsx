@@ -175,7 +175,6 @@ export default function Map({ posts }: MapProps) {
                   style={{ backgroundColor: theme.colors.blue[5] }}
                 />
                 <div>
-                  <Title size={20}>foo</Title>
                   <Text size={10} color={theme.colors.gray[6]}>
                     {new Date(comment.created).toDateString()} (
                     {ms(new Date().getTime() - new Date(comment.created).getTime())} ago)
