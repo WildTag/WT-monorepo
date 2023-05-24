@@ -1,5 +1,5 @@
 import base64
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Request
 from io import BytesIO
 from db import prisma
 from pydantic import BaseModel
@@ -7,6 +7,8 @@ from PIL import Image
 from pillow_heif import register_heif_opener    # HEIF support
 from helpers.image_processing import get_exif
 from typing import List
+from helpers.auth import verify_permission
+from prisma.enums import Role
 
 router = APIRouter()
 
@@ -71,6 +73,50 @@ async def create_post(session_token: str = Form(...),
     include={"uploader": True, "comments": True, "postTags": True})
 
     return ({"detail": "Post has been created", "post": post})
+
+@router.put("/posts/edit/{post_id}", tags=["users"])
+async def create_post(post_id: int,
+                      request: Request,
+                      session_token: str = Form(...), 
+                      animals: List[str] = Form(...), 
+                      title: str = Form(...), 
+                      description: str = Form(...), 
+                      gps_lat: float = Form(...), 
+                      gps_long: float = Form(...), 
+                      images: List[str] = Form(...)):
+    
+    user = await prisma.account.find_first(where={"accessToken": session_token})
+    post = await prisma.picture.find_first(where={"pictureId": post_id})
+
+    if post.accountId != user.accountId:
+        await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+    
+    image_bytes = None
+    for image in images:
+        image_bytes = base64.b64decode(image)
+        # image_bytes = await image.read()
+    if not image_bytes: 
+        raise HTTPException(
+            status_code=400, detail="No image provided")
+        
+    post_tags = []
+    for animal in animals:
+        post_tags.append({"tag": animal.upper(), "tagType": "ANIMAL"})
+    
+    post = await prisma.picture.update(data={
+        "image": base64.b64encode(image_bytes).decode(),
+        "accountId": user.accountId,
+        "title": title,
+        "description": description,
+        "GPSLong": gps_long,
+        "GPSLat": gps_lat,
+        "postTags": {
+            "create": post_tags
+        }
+    },
+    include={"uploader": True, "comments": True, "postTags": True})
+
+    return ({"detail": "Post has been updated", "post": post})
 
 @router.post("/posts/upload_image")
 async def create_upload_file(file: UploadFile = File(...)):
