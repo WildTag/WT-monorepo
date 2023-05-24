@@ -1,17 +1,17 @@
-import json
 import os
 import uvicorn
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from helpers.try_int import try_int
-from router import test, users, posts
+from router import test, users, posts, comments
 from db import prisma
 
 app = FastAPI()
 app.include_router(test.router)
 app.include_router(users.router)
 app.include_router(posts.router)
+app.include_router(comments.router)
 
 
 origins = ["*"]

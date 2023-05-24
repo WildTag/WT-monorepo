@@ -59,14 +59,22 @@ export default function Map({ posts }: MapProps) {
   });
 
   const handlePostComment = async () => {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/comments/`, {
+    if (!selectedPost || !selectedPost.pictureId) {
+      return notifications.show({
+        title: "Error",
+        message: "Invalid postId",
+        color: "red",
+      });
+    }
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/comments/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: localStorage.getItem("sessionToken") || "",
       },
       body: JSON.stringify({
-        comment: commentText,
+        picture_id: selectedPost.pictureId,
+        comment_text: commentText,
       }),
     });
 
@@ -78,6 +86,12 @@ export default function Map({ posts }: MapProps) {
         color: "red",
       });
     }
+
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
   };
 
   return (
@@ -145,19 +159,15 @@ export default function Map({ posts }: MapProps) {
           />
           <TextInput
             label="Add Comment"
-            sx={{ label: { marginBottom: 5, fontWeight: "bold" } }}
             style={{
               userSelect: "none",
               background: theme.colors.dark[6],
-              borderRadius: theme.radius.sm,
               padding: theme.spacing.sm,
-              width: "100%",
+              borderRadius: theme.radius.sm,
               marginTop: "10px",
             }}
             onKeyDownCapture={(e) => {
-              if (e.key === "Enter") {
-                handlePostComment();
-              }
+              if (e.key === "Enter") handlePostComment();
             }}
             placeholder="How does this post make you feel?"
             onChange={(element) => {
@@ -175,12 +185,12 @@ export default function Map({ posts }: MapProps) {
                   style={{ backgroundColor: theme.colors.blue[5] }}
                 />
                 <div>
-                  <Title size={20}>foo</Title>
+                  <Title size={20}>{comment.commenter.username}</Title>
+                  <Text>{comment.commentText}</Text>
                   <Text size={10} color={theme.colors.gray[6]}>
                     {new Date(comment.created).toDateString()} (
                     {ms(new Date().getTime() - new Date(comment.created).getTime())} ago)
                   </Text>
-                  <Text>{comment.commentText}</Text>
                 </div>
               </Flex>
             </Group>

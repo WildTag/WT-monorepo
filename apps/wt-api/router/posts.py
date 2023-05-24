@@ -14,7 +14,12 @@ router = APIRouter()
 
 @router.get("/posts", tags=["posts"])
 async def user_list():
-    posts = await prisma.picture.find_many(where={"deleted": False},include={"uploader": True, "comments": True, "postTags": True})
+    posts = await prisma.picture.find_many(where={"deleted": False}, include={"uploader": True, "postTags": True,                                                                 
+            "comments": {
+                "include": {
+                    "commenter": True
+                }
+            }})
     return posts
 
 @router.get("/posts/{post_id}", tags=["posts"])
