@@ -84,7 +84,6 @@ export default function Map({ posts }: MapProps) {
     <>
       <div>
         <Drawer
-          title={`${selectedPost?.uploader?.username}'s post` || "Unknown poster"}
           opened={openDrawer}
           onClose={() => {
             setOpenDrawer(false);
@@ -108,7 +107,7 @@ export default function Map({ posts }: MapProps) {
                     : getRandomProfilePicture()
                 }
                 radius={theme.radius.md}
-                style={{ backgroundColor: theme.colors.blue[5] }}
+                style={{ backgroundColor: theme.colors.blue[5], paddingTop: "" }}
               />
               <div>
                 <Title size={20}>{selectedPost?.uploader?.username}</Title>
@@ -135,7 +134,6 @@ export default function Map({ posts }: MapProps) {
             </div>
           </Group>
           <Flex gap={5} mb={10}>
-            <Text>Tags: </Text>
             {selectedPost?.postTags.map((tag) => {
               return <TagComponent tag={tag} theme={theme} />;
             })}
@@ -146,19 +144,28 @@ export default function Map({ posts }: MapProps) {
             radius={10}
           />
           <TextInput
-            style={{ userSelect: "none" }}
+            label="Add Comment"
+            sx={{ label: { marginBottom: 5, fontWeight: "bold" } }}
+            style={{
+              userSelect: "none",
+              background: theme.colors.dark[6],
+              borderRadius: theme.radius.sm,
+              padding: theme.spacing.sm,
+              width: "100%",
+              marginTop: "10px",
+            }}
             onKeyDownCapture={(e) => {
               if (e.key === "Enter") {
                 handlePostComment();
               }
             }}
-            label={"comment"}
             placeholder="How does this post make you feel?"
             onChange={(element) => {
               setCommentText(element.currentTarget.value);
             }}
             rightSection={<Send size="25" cursor={"pointer"} onClick={() => handlePostComment()} />}
           />
+
           {selectedPost?.comments?.map((comment) => (
             <Group key={comment.commentId}>
               <Flex align={"center"} gap={5}>
