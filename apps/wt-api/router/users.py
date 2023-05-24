@@ -48,8 +48,8 @@ async def ban_user(user_id: int, request: Request):
     if user.banned == False:
         raise HTTPException(status_code=400, detail="User is not banned.")
     
-    await prisma.account.update(where={"accountId": user_id}, data={"banned": False})
-    return {"detail": "User has been banned", "user": user}
+    await prisma.account.update(where={"accountId": user_id}, data={"banned": False, "accessToken": None})
+    return {"detail": "User has been unbanned", "user": user}
 
 
 @router.put("/users/{user_id}/edit", tags=["users"])
@@ -131,6 +131,7 @@ class LoginUserData(BaseModel):
 
 @router.post("/users/login", tags=["users"])
 async def create_user(login_payload: LoginUserData):
+    access_token = str(uuid.uuid4())
     user = await prisma.account.find_first(where={
         "username": login_payload.username,
         "passwordHash": login_payload.password
@@ -138,9 +139,13 @@ async def create_user(login_payload: LoginUserData):
     if not user:
         raise HTTPException(
             status_code=401, detail="Invalid login credentials")
-    print(user.banned)
+        
+    
     if user.banned:
         raise HTTPException(
             status_code=401, detail="This account has been banned")
+    await prisma.account.update(where={
+        "username": login_payload.username,
+    }, data={"accessToken": access_token})
     
-    return {"detail": "Login successful", "session_token": user.accessToken}
+    return {"detail": "Login successful", "session_token": access_token}

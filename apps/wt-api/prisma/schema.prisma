@@ -14,7 +14,7 @@ model Account {
   username     String     @unique
   email        String     @unique
   passwordHash String
-  accessToken  String
+  accessToken  String?
   banned       Boolean    @default(false)
   profileImage Bytes?
   pictures     Picture[]

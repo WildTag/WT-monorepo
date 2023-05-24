@@ -119,16 +119,16 @@ async def create_post(post_id: int,
     return ({"detail": "Post has been updated", "post": post})
 
 
+
 @router.delete("/posts/{post_id}/delete", tags=["posts"])
 async def create_post(post_id: int,
-                      request: Request,
-                      session_token: str = Form(...)):
-    
-    user = await prisma.account.find_first(where={"accessToken": session_token})
+                      request: Request):
+    access_token = request.headers.get("Authorization")
+    user = await prisma.account.find_first(where={"accessToken": access_token})
     post = await prisma.picture.find_first(where={"pictureId": post_id})
 
     if post.accountId != user.accountId:
-        await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+        await verify_permission(access_token , [Role.Administrator, Role.Moderator])
 
     post = await prisma.picture.update(where={"pictureId": post_id}, data={"deleted": True})
 
