@@ -12,7 +12,7 @@ from prisma.enums import Role, LogType
 from typing import List, Optional
 from datetime import datetime
 from helpers.log_admin_action import insert_admin_log
-
+import datetime
 
 router = APIRouter()
 
@@ -24,8 +24,19 @@ def convert_to_datetime(date_str):
     dt = datetime.strptime(date_str, '%a %b %d %Y %H:%M:%S %Z%z')
     return dt
 
+def get_season(date):
+    month = date
+    if 3 <= month < 6:
+        return "spring"
+    elif 6 <= month < 9:
+        return "summer"
+    elif 9 <= month < 12:
+        return "autumn"
+    else:
+        return "winter"
+
 @router.get("/posts", tags=["posts"])
-async def user_list(animals: Optional[List[str]] = Query(None), date_range: Optional[List[str]] = Query(None)):
+async def user_list(animals: Optional[List[str]] = Query(None), date_range: Optional[List[str]] = Query(None), season: Optional[str] = Query(None)):
     if animals:
         animals = [animal.strip() for animal in animals[0].split(",")]
     if date_range:
@@ -35,7 +46,7 @@ async def user_list(animals: Optional[List[str]] = Query(None), date_range: Opti
     animals = [animal.upper() for animal in animals]
         
     where_clause = {"deleted": False}
-    
+ 
     if animals and animals[0]:
         where_clause["postTags"] = {
             "some": {
@@ -64,6 +75,10 @@ async def user_list(animals: Optional[List[str]] = Query(None), date_range: Opti
             }
         }
     )
+
+    if season:
+        posts = [post for post in posts if get_season(post.created) == season]
+
     return posts
 
 @router.get("/posts/{post_id}", tags=["posts"])
