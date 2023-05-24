@@ -43,7 +43,7 @@ async def create_post(comment_id: int,
     comment = await prisma.comments.find_first(where={"commentId": comment_id})
 
     if user.accountId != comment.commenterAccountID:
-        await verify_permission(access_token, [Role.ADMINISTRATOR, Role.Moderator])
+        await verify_permission(access_token, [Role.ADMINISTRATOR, Role.MODERATOR])
         await insert_admin_log(user.accountId, LogType.EDIT_COMMENT)
     
     post = await prisma.comments.update(where={"commentId": comment_id}, data={
@@ -60,7 +60,7 @@ async def create_post(comment_id: int,
     comment = await prisma.comments.find_first(where={"commentId": comment_id})
 
     if user.accountId != comment.commenterAccountID:
-        await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.Moderator])
+        await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
         await insert_admin_log(user.accountId, LogType.DELETE_COMMENT)
 
     post = await prisma.comments.delete(where={"commentId": comment_id})
