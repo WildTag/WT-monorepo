@@ -28,12 +28,12 @@ def get_exif(img, image_type):
         gps_latitude = dms_to_dd(exif_gps[2])
         gps_longitude = dms_to_dd(exif_gps[4])
     except KeyError:
-        print("No GPS Data Found.")
+        return (404, "No GPS Data Found.", None)
 
     try:
         date_time_original = exif_basic[36867]
     except KeyError:
-        print("No Date Time Original Found.")
+        return (404, "No Date Time Original Found.", None)
     
     result = {
         "gps_latitude": gps_latitude,
