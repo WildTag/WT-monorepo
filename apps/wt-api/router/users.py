@@ -77,5 +77,9 @@ async def create_user(login_payload: LoginUserData):
     if not user:
         raise HTTPException(
             status_code=401, detail="Invalid login credentials")
+    print(user.banned)
+    if user.banned:
+        raise HTTPException(
+            status_code=401, detail="This account has been banned")
     
     return {"detail": "Login successful", "session_token": user.accessToken}
