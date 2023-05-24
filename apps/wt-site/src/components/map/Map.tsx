@@ -44,7 +44,17 @@ export default function Map({ posts }: MapProps) {
           mapContainerStyle={containerStyle}
           center={position}
           zoom={6}
-          options={{ minZoom: 2, maxZoom: 16, fullscreenControl: false }}
+          options={{
+            minZoom: 2,
+            maxZoom: 16,
+            fullscreenControl: false,
+            styles: [
+              {
+                featureType: "poi",
+                stylers: [{ visibility: "off" }],
+              },
+            ],
+          }}
         >
           <MarkerClusterer
             options={{
