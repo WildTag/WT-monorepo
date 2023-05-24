@@ -32,11 +32,11 @@ async def user_list(animals: Optional[List[str]] = Query(None), date_range: Opti
         date_range = [date.strip() for date in date_range[0].split(",")]
         date_range = [convert_to_datetime(date_str) for date_str in date_range]
     
-    animals = [animal.upper() for animal in animals]
         
     where_clause = {"deleted": False}
     
     if animals and animals[0]:
+        animals = [animal.upper() for animal in animals]
         where_clause["postTags"] = {
             "some": {
                 "tag": {

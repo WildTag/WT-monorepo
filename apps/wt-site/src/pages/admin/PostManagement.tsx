@@ -142,18 +142,18 @@ const PostManagement = () => {
     });
 
     const data = await response.json();
-    // if (response.status !== 200) {
-    //   return notifications.show({
-    //     title: "Error",
-    //     message: data.detail,
-    //     color: "red",
-    //   });
-    // }
-    // notifications.show({
-    //   title: "Success",
-    //   message: data.detail,
-    //   color: "green",
-    // });
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
     setRefetch(!refetch);
   };
 
@@ -291,9 +291,9 @@ const PostComponent = ({
               }
               return handleUserBan(post.uploader.accountId);
             }}
-            color={post.uploader.banned ? "red" : "green"}
+            color={!post.uploader.banned ? "red" : "green"}
           >
-            Ban
+            {!post.uploader.banned ? "Ban" : "Unban"}
           </Button>
         </Flex>
       </div>

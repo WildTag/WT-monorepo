@@ -8,6 +8,7 @@ import {
   Drawer,
   ScrollArea,
   Anchor,
+  MediaQuery,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
@@ -138,7 +139,6 @@ function Home() {
     form.setFieldValue("gps_long", data.image_data.metadata.gps_longitude);
     form.setFieldValue("images", [data.image_data]);
     form.setFieldValue("date_time_original", new Date(data.image_data.metadata.date_time_original));
-
     return data;
   };
 
@@ -244,7 +244,14 @@ function Home() {
             zIndex: 10,
           }}
         >
-          <Input placeholder="Search?" radius="xl" />
+          <MediaQuery
+            smallerThan="lg"
+            styles={{
+              marginTop: "100px",
+            }}
+          >
+            <Input placeholder="Search?" radius="xl" />
+          </MediaQuery>
         </div>
         <div
           style={{
