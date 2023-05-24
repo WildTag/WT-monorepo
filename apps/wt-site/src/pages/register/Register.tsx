@@ -12,6 +12,8 @@ import {
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { At, Lock, User } from "tabler-icons-react";
+import { getRandomProfilePicture } from "../../helpers/getRandomProfilePicture";
+import { useEffect, useState } from "react";
 
 interface RegisterCredentials {
   username: string;
@@ -20,12 +22,33 @@ interface RegisterCredentials {
 }
 
 const Register = () => {
+  const [profileImage, setProfileImage] = useState<any>("");
+  const fetchImage = async () => {
+    const response = await fetch(getRandomProfilePicture());
+    const blob = await response.blob();
+    const reader = new FileReader();
+
+    reader.onloadend = function () {
+      const base64data = reader.result;
+      if (!base64data || typeof base64data !== "string") return;
+      const base64string = base64data.split(",")[1];
+      form.setFieldValue("profile_image", base64string);
+      setProfileImage(base64data);
+    };
+    reader.readAsDataURL(blob);
+  };
+
+  useEffect(() => {
+    fetchImage();
+  }, []);
+
   const theme = useMantineTheme();
   const form = useForm({
     initialValues: {
       username: "",
       email: "",
       password: "",
+      profile_image: profileImage,
     },
     validate: {
       username: (value) => (value.length < 3 ? "Username is too short" : null),
@@ -65,9 +88,10 @@ const Register = () => {
     <>
       <Center style={{ paddingTop: "10%" }}>
         <form
-          onSubmit={form.onSubmit((credentials: RegisterCredentials) =>
-            handleRegister(credentials)
-          )}
+          onSubmit={form.onSubmit((credentials: RegisterCredentials) => {
+            console.log(credentials);
+            handleRegister(credentials);
+          })}
         >
           <div
             style={{

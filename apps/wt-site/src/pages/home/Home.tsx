@@ -238,6 +238,7 @@ function Home() {
           >
             <AnimalMultiSelect label={"Selected animals"} form={filtersForm} />
             <DatePickerInput
+              popoverProps={{ withinPortal: true }}
               clearable
               type="range"
               label="Pick dates range"

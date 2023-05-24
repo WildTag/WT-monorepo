@@ -115,7 +115,6 @@ async def create_user(user_payload: RegisterUserData):
     if len(user_payload.password) < 6:
         raise HTTPException(
             status_code=400, detail="Password length has to be >= 6")
-
     check_user = await prisma.account.find_first(
         where={
             "username": user_payload.username
@@ -136,7 +135,6 @@ async def create_user(user_payload: RegisterUserData):
     
     image_bytes = None
     image_bytes = base64.b64decode(user_payload.profile_image)
-
     if not image_bytes: 
         raise HTTPException(
             status_code=400, detail="No image provided")
