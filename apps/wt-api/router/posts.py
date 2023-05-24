@@ -12,7 +12,7 @@ from prisma.enums import Role, LogType
 from typing import List, Optional
 from datetime import datetime
 from helpers.log_admin_action import insert_admin_log
-import datetime
+from datetime import datetime
 
 router = APIRouter()
 
@@ -213,9 +213,17 @@ async def create_upload_file(file: UploadFile = File(...)):
     
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)
-    
-    date_time_original = data["date_time_original"]
-    data["date_time_original"] = datetime.strptime(date_time_original, "%Y:%m:%d %H:%M:%S").isoformat()
-    print(data)
+    print(1)
+    print(1)
+    print(1)
+    print(data["date_time_original"])
+    print(1)
+    print(1)
+    print(1)
+
+    if data["date_time_original"]:
+        date_time_original = data["date_time_original"]
+        data["date_time_original"] = datetime.strptime(date_time_original, "%Y:%m:%d %H:%M:%S").isoformat()
+        print(data)
                 
     return {"detail": "Image uploaded", "image_data": {"filename": file.filename, "metadata": data, "image": image}}
