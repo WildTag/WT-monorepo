@@ -14,7 +14,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       colorScheme: "dark",
     }}
   >
-    <Notifications />
+    <Notifications limit={99} />
     <ModalsProvider>
       <App />
     </ModalsProvider>
