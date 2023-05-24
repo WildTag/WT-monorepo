@@ -11,6 +11,7 @@ import {
   Button,
   TextInput,
   Group,
+  Divider,
 } from "@mantine/core";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { useEffect, useMemo, useState } from "react";
@@ -19,16 +20,19 @@ import ms from "ms";
 import { Calendar } from "tabler-icons-react";
 import { useSearchParams } from "react-router-dom";
 import TagComponent from "../../components/badges/TagComponent";
+import { notifications } from "@mantine/notifications";
 
 const PostManagement = () => {
   const [showImages, setShowImages] = useState(true);
   const [sortByNewest, setSortByNewest] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
+  const [refetch, setRefetch] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [searchParams] = useSearchParams();
   const theme = useMantineTheme();
+  const accessToken = localStorage.getItem("sessionToken");
 
   useEffect(() => {
     setSearchQuery(searchParams.get("accountId") || "");
@@ -54,7 +58,7 @@ const PostManagement = () => {
     }
     setIsFetched(false);
     fetchPosts();
-  }, []);
+  }, [refetch]);
 
   useMemo(() => {
     posts.sort((a, b) => {
@@ -77,6 +81,81 @@ const PostManagement = () => {
       })
     );
   }, [searchQuery, isFetched, posts]);
+
+  const handleUserUnban = async (userId: number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}/unban`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: accessToken || "",
+      },
+    });
+
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+    setRefetch(!refetch);
+  };
+
+  const handleUserBan = async (userId: number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}/ban`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: accessToken || "",
+      },
+    });
+
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+    setRefetch(!refetch);
+  };
+
+  const handlePostDelete = async (postId: number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/${postId}/delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: accessToken || "",
+      },
+    });
+
+    const data = await response.json();
+    // if (response.status !== 200) {
+    //   return notifications.show({
+    //     title: "Error",
+    //     message: data.detail,
+    //     color: "red",
+    //   });
+    // }
+    // notifications.show({
+    //   title: "Success",
+    //   message: data.detail,
+    //   color: "green",
+    // });
+    setRefetch(!refetch);
+  };
 
   return (
     <CustomAppShell selected={2}>
@@ -104,7 +183,16 @@ const PostManagement = () => {
       </Accordion>
       <Flex wrap="wrap" gap={40} mt={20}>
         {filteredPosts.map((post) => {
-          return <PostComponent post={post} theme={theme} showImages={showImages} />;
+          return (
+            <PostComponent
+              post={post}
+              theme={theme}
+              showImages={showImages}
+              handleUserBan={handleUserBan}
+              handleUserUnban={handleUserUnban}
+              handlePostDelete={handlePostDelete}
+            />
+          );
         })}
       </Flex>
     </CustomAppShell>
@@ -117,9 +205,19 @@ interface PostProps {
   post: Post;
   theme: MantineTheme;
   showImages: boolean;
+  handleUserBan: (accountId: number) => Promise<void>;
+  handleUserUnban: (accountId: number) => Promise<void>;
+  handlePostDelete: (postId: number) => Promise<void>;
 }
 
-const PostComponent = ({ post, theme, showImages }: PostProps) => {
+const PostComponent = ({
+  post,
+  theme,
+  showImages,
+  handleUserBan,
+  handleUserUnban,
+  handlePostDelete,
+}: PostProps) => {
   const [secondsPassed, setSecondsPassed] = useState("");
 
   useEffect(() => {
@@ -129,6 +227,8 @@ const PostComponent = ({ post, theme, showImages }: PostProps) => {
 
     return () => clearInterval(intervalId);
   }, [post.created]);
+
+  if (!post.uploader) return null;
 
   return (
     <div
@@ -144,7 +244,7 @@ const PostComponent = ({ post, theme, showImages }: PostProps) => {
         style={{
           display: "flex",
           flexDirection: "column",
-          width: "100%",
+          width: "400px",
         }}
       >
         <div>
@@ -158,7 +258,8 @@ const PostComponent = ({ post, theme, showImages }: PostProps) => {
             <Text>{post.uploader?.username}</Text>
             <Text>{post.uploader?.email}</Text>
           </Group>
-          <Title>{post.title}</Title>
+          <Title size={20}>{post.title}</Title>
+          <Divider />
           <Text>{post.description}</Text>
           {showImages && (
             <Image
@@ -169,14 +270,31 @@ const PostComponent = ({ post, theme, showImages }: PostProps) => {
           )}
         </div>
         <Flex gap={5} mt={5}>
-          <Text>Tags:</Text>
           {post.postTags.map((tag) => {
             return <TagComponent tag={tag} theme={theme} />;
           })}
         </Flex>
         <Flex gap={10} mt={10}>
-          <Button color={"yellow"}>Delete</Button>
-          <Button color={"red"}>Ban</Button>
+          <Button
+            color={"yellow"}
+            onClick={() => {
+              handlePostDelete(post.pictureId);
+            }}
+          >
+            Delete
+          </Button>
+          <Button
+            onClick={() => {
+              if (!post.uploader) return null;
+              if (post.uploader?.banned) {
+                return handleUserUnban(post.uploader.accountId);
+              }
+              return handleUserBan(post.uploader.accountId);
+            }}
+            color={post.uploader.banned ? "red" : "green"}
+          >
+            Ban
+          </Button>
         </Flex>
       </div>
     </div>

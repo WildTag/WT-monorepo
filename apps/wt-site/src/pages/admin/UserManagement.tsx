@@ -11,6 +11,7 @@ const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<Account[]>([]);
   const [isFetched, setIsFetched] = useState(false);
+  const [refetch, setRefetch] = useState(false);
 
   const accessToken = localStorage.getItem("sessionToken");
 
@@ -35,7 +36,7 @@ const UserManagement = () => {
     }
     setIsFetched(false);
     fetchUsers();
-  }, []);
+  }, [refetch]);
 
   useMemo(() => {
     if (!searchQuery) setFilteredUsers(users);
@@ -73,10 +74,34 @@ const UserManagement = () => {
       message: data.detail,
       color: "green",
     });
+    setRefetch(!refetch);
   };
 
-  // TODO: add unbanning a user
-  const handleUserUnban = async (userId: number) => {};
+  const handleUserUnban = async (userId: number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}/unban`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: accessToken || "",
+      },
+    });
+
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+
+    setRefetch(!refetch);
+  };
 
   return (
     <CustomAppShell selected={1}>
