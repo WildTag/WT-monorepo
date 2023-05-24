@@ -126,7 +126,6 @@ async def create_user(login_payload: LoginUserData):
             status_code=401, detail="This account has been banned")
     await prisma.account.update(where={
         "username": login_payload.username,
-        "passwordHash": login_payload.password
     }, data={"accessToken": access_token})
     
-    return {"detail": "Login successful", "session_token": user.accessToken}
+    return {"detail": "Login successful", "session_token": access_token}
