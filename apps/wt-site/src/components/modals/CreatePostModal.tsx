@@ -36,7 +36,7 @@ const CreatePostModal = ({
       size={"xl"}
     >
       <form onSubmit={form.onSubmit(() => handlePublishPost())}>
-        <Flex gap={20}>
+        <Flex gap={20} wrap={"wrap"}>
           <div
             style={{
               backgroundColor: theme.colors.dark[5],
