@@ -14,9 +14,10 @@ import {
   Title,
   TextInput,
   Loader,
+  Stack,
 } from "@mantine/core";
 import ms from "ms";
-import { ArrowRightCircle, BrandSublimeText, Send } from "tabler-icons-react";
+import { ArrowRightCircle, BorderRadius, BrandSublimeText, Send } from "tabler-icons-react";
 import { notifications } from "@mantine/notifications";
 import { getRandomProfilePicture } from "../../helpers/getRandomProfilePicture";
 import TagComponent from "../badges/TagComponent";
@@ -35,6 +36,8 @@ const markers = {
   badger: "/markerImages/badgerMarker.png",
   stoat: "/markerImages/stoatMarker.png",
   squirrel: "/markerImages/squirrelMarker.png",
+  hare: "/markerImages/hareMarker.png",
+  kestrel: "/markerImages/kestrelMarker.png",
   other: "/markerImages/otherMarker.png",
 };
 
@@ -175,26 +178,40 @@ export default function Map({ posts }: MapProps) {
             }}
             rightSection={<Send size="25" cursor={"pointer"} onClick={() => handlePostComment()} />}
           />
-
-          {selectedPost?.comments?.map((comment) => (
-            <Group key={comment.commentId}>
-              <Flex align={"center"} gap={5}>
-                <Avatar
-                  src={"/animalImages/lowPolyBadger.png"}
-                  radius={theme.radius.md}
-                  style={{ backgroundColor: theme.colors.blue[5] }}
-                />
-                <div>
-                  <Title size={20}>{comment.commenter.username}</Title>
-                  <Text>{comment.commentText}</Text>
-                  <Text size={10} color={theme.colors.gray[6]}>
-                    {new Date(comment.created).toDateString()} (
-                    {ms(new Date().getTime() - new Date(comment.created).getTime())} ago)
-                  </Text>
-                </div>
-              </Flex>
-            </Group>
-          ))}
+          <div style={{ paddingTop: theme.spacing.sm }}>
+            {selectedPost?.comments?.map((comment) => (
+              <Group
+                key={comment.commentId}
+                style={{
+                  marginTop: 10,
+                  padding: theme.spacing.sm,
+                  background: theme.colors.dark[6],
+                  borderRadius: 10,
+                }}
+              >
+                <Flex align={"start"} gap={10}>
+                  <Flex direction={"column"} gap={5} align={"center"}>
+                    <Avatar
+                      src={"/animalImages/lowPolyBadger.png"}
+                      radius={theme.radius.md}
+                      style={{ backgroundColor: theme.colors.blue[5] }}
+                    />
+                    <Text size={10} color={theme.colors.gray[6]}>
+                      {ms(new Date().getTime() - new Date(comment.created).getTime())} ago
+                    </Text>
+                  </Flex>
+                  <div>
+                    <Flex direction={"column"} gap={5}>
+                      <Title size={20} style={{ marginBottom: 0 }}>
+                        {comment.commenter.username}
+                      </Title>
+                      <Text>{comment.commentText}</Text>
+                    </Flex>
+                  </div>
+                </Flex>
+              </Group>
+            ))}
+          </div>
         </Drawer>
         {isLoaded && (
           <GoogleMap
