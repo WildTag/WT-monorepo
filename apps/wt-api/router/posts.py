@@ -34,7 +34,7 @@ class CreatePostData(BaseModel):
     gps_lat: float
     images: List[Imagetest]
     
-@router.post("/posts/create", tags=["users"])
+@router.post("/posts/create", tags=["posts"])
 async def create_post(session_token: str = Form(...), 
                       animals: List[str] = Form(...), 
                       title: str = Form(...), 
@@ -74,7 +74,7 @@ async def create_post(session_token: str = Form(...),
 
     return ({"detail": "Post has been created", "post": post})
 
-@router.put("/posts/edit/{post_id}", tags=["users"])
+@router.put("/posts/{post_id}/edit", tags=["posts"])
 async def create_post(post_id: int,
                       request: Request,
                       session_token: str = Form(...), 
@@ -103,7 +103,7 @@ async def create_post(post_id: int,
     for animal in animals:
         post_tags.append({"tag": animal.upper(), "tagType": "ANIMAL"})
     
-    post = await prisma.picture.update(data={
+    post = await prisma.picture.update(where={"pictureId": post_id}, data={
         "image": base64.b64encode(image_bytes).decode(),
         "accountId": user.accountId,
         "title": title,
@@ -119,7 +119,8 @@ async def create_post(post_id: int,
     return ({"detail": "Post has been updated", "post": post})
 
 
-@router.delete("/posts/{post_id}/delete", tags=["users"])
+
+@router.delete("/posts/{post_id}/delete", tags=["posts"])
 async def create_post(post_id: int,
                       request: Request):
     access_token = request.headers.get("Authorization")
