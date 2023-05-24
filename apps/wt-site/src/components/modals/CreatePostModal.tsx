@@ -1,9 +1,20 @@
-import { Button, Flex, MantineTheme, Modal, TextInput, Textarea, Text, Image } from "@mantine/core";
+import {
+  Button,
+  Flex,
+  MantineTheme,
+  Modal,
+  TextInput,
+  Textarea,
+  Text,
+  Image,
+  SimpleGrid,
+} from "@mantine/core";
 import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
 import { useRef } from "react";
 import { Trash } from "tabler-icons-react";
 import { UploadedImage } from "../../types/UploadedImage";
+import { useMediaQuery } from "@mantine/hooks";
 
 interface CreatePostModalProps {
   theme: MantineTheme;
@@ -26,6 +37,7 @@ const CreatePostModal = ({
   files,
   setFiles,
 }: CreatePostModalProps) => {
+  const matches = useMediaQuery("(min-width: 56.25em)");
   const dropzoneRef = useRef<() => void>(null);
 
   return (
@@ -36,7 +48,7 @@ const CreatePostModal = ({
       size={"xl"}
     >
       <form onSubmit={form.onSubmit(() => handlePublishPost())}>
-        <Flex gap={20} wrap={"wrap"}>
+        <SimpleGrid cols={!matches ? 1 : 2}>
           <div
             style={{
               backgroundColor: theme.colors.dark[5],
@@ -133,7 +145,7 @@ const CreatePostModal = ({
               })}
             </Dropzone>
           </div>
-        </Flex>
+        </SimpleGrid>
         <Button mt={10} type="submit">
           Post
         </Button>
