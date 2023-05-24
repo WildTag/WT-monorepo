@@ -100,6 +100,7 @@ class RegisterUserData(BaseModel):
     username: str
     password: str
     email: str
+    profile_image: str = Form(...)
 
 @router.post("/users/register", tags=["users"])
 async def create_user(user_payload: RegisterUserData):
@@ -127,12 +128,20 @@ async def create_user(user_payload: RegisterUserData):
     if check_email:
         raise HTTPException(
             status_code=400, detail="Email already exists")
+    
+    image_bytes = None
+    image_bytes = base64.b64decode(user_payload.profile_image)
+
+    if not image_bytes: 
+        raise HTTPException(
+            status_code=400, detail="No image provided")
 
     user = await prisma.account.create(data={
         "username": user_payload.username,
         "email": user_payload.email,
         "passwordHash": user_payload.password,
-        "accessToken": str(uuid.uuid4())
+        "accessToken": str(uuid.uuid4()),
+        "profileImage": base64.b64encode(image_bytes).decode()
     })
 
     return ({"detail": "Registration Confirmed",
