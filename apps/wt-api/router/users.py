@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from db import prisma
 from prisma.enums import Role
 from helpers.auth import verify_permission
+import base64
 
 router = APIRouter()
 
@@ -56,17 +57,29 @@ async def ban_user(user_id: int, request: Request):
 async def edit_user(request: Request,
                     user_id: int, 
                     role: Role,
-                    password: str):
+                    password: str,
+                    profile_image: str = Form(...)):
+    
     access_token = request.headers.get("Authorization")
     requester = await prisma.account.find_first(where={"accessToken": access_token})
     user = await prisma.account.find_first(where={"accountId": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    image_bytes = None
+    image_bytes = base64.b64decode(profile_image)
+
+    if not image_bytes: 
+        raise HTTPException(
+            status_code=400, detail="No image provided")
 
     if user.accountId != requester.accountId:
         return await verify_permission(access_token , [Role.Administrator, Role.Moderator])
     
-    await prisma.account.update(where={"accountId": user_id}, data={"Role": role, "passwordHash": password})
+    await prisma.account.update(where={"accountId": user_id}, data={
+        "Role": role,
+        "passwordHash": password,
+        "profileImage": base64.b64encode(image_bytes).decode()})
 
     return {"detail": "User has been updated", "user": user}
 
