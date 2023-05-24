@@ -1,7 +1,7 @@
 import base64
 from PIL.ExifTags import IFD
 from io import BytesIO
-from PIL import Image
+from PIL import ImageOps
 
 def dms_to_dd(dms, direction):
     degrees, minutes, seconds = dms
@@ -21,6 +21,7 @@ def get_exif(img, image_type):
     if image_type == "image/png":
         img = img.convert('RGB')
     
+    img = ImageOps.exif_transpose(img)
     exif = img.getexif()
     exif_gps = exif.get_ifd(IFD.GPSInfo)
     exif_basic = exif.get_ifd(IFD.Exif)
