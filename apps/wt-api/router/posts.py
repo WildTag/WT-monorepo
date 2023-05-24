@@ -103,7 +103,7 @@ async def create_post(post_id: int,
     for animal in animals:
         post_tags.append({"tag": animal.upper(), "tagType": "ANIMAL"})
     
-    post = await prisma.picture.update(data={
+    post = await prisma.picture.update(where={"pictureId": post_id}, data={
         "image": base64.b64encode(image_bytes).decode(),
         "accountId": user.accountId,
         "title": title,
