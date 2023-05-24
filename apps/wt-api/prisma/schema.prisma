@@ -12,7 +12,7 @@ model Account {
   created      DateTime   @default(now())
   permission   Role       @default(USER)
   username     String     @unique
-  email        String     @unique
+  email        String?    @unique
   passwordHash String
   accessToken  String?
   banned       Boolean    @default(false)
