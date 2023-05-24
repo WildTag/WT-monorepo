@@ -100,14 +100,16 @@ const CreatePostModal = ({
               styles={{ inner: { pointerEvents: "all" } }}
               {...form.getInputProps("images")}
             >
-              <Text align="center">Drop images here</Text>
-              {!files || files?.length === 0 ? (
-                <Button
-                  fullWidth
-                  onClick={() => (dropzoneRef?.current ? dropzoneRef.current() : null)}
-                >
-                  Select files
-                </Button>
+              {!form.values.images || form.values.images?.length === 0 ? (
+                <>
+                  <Text align="center">Drop images here</Text>
+                  <Button
+                    fullWidth
+                    onClick={() => (dropzoneRef?.current ? dropzoneRef.current() : null)}
+                  >
+                    Select files
+                  </Button>
+                </>
               ) : null}
               {form.values.images?.map((file: UploadedImage, index: number) => {
                 return (

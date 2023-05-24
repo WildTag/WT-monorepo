@@ -1,9 +1,7 @@
-import { Group, Navbar, Flex, Code, Title, Image } from "@mantine/core";
+import { Group, Navbar, Title, Image } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { Dashboard, Icon, Man, Users } from "tabler-icons-react";
-import { UserProfileButton } from "../profile/UserProfileButton";
+import { Dashboard, Icon } from "tabler-icons-react";
 import { useStyles } from "./dashboardNavbar.styles";
-import monitorLizardLogo from "../../../public/monitor_lizard.png";
 import { Loading } from "../loading/Loading";
 
 export interface NavBarLinks {
@@ -14,11 +12,9 @@ export interface NavBarLinks {
 }
 
 const data: NavBarLinks[] = [
-  { link: "", label: "Public", icon: null },
-  { link: "/dashboard", label: "Dashboard", icon: Dashboard },
-  { link: "", label: "Admin", icon: null, adminOnly: true },
-  { link: "/groups", label: "Client groups", icon: Man, adminOnly: true },
-  { link: "/accounts", label: "Accounts", icon: Users, adminOnly: true },
+  { link: "/admin", label: "admin", icon: Dashboard },
+  { link: "/admin/user_management", label: "User management", icon: Dashboard },
+  { link: "/admin/post_management", label: "Post management", icon: Dashboard },
 ];
 
 interface Props {
@@ -31,31 +27,32 @@ export function DashboardNavbar({ opened, selected }: Props) {
   const [active, setActive] = useState(selected);
   const [user, setUser] = useState<any>();
   const [fetched, setFetched] = useState(false);
+  const accessToken = localStorage.getItem("sessionToken");
 
   useEffect(() => {
-    async function fetchUsers() {
-      const apiURL = import.meta.env.VITE_API_URL;
-      const token = sessionStorage.getItem("token");
-      const response = await fetch(`${apiURL}/user_profile?token=${token}`);
+    async function fetchAccountInfo() {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/account/${accessToken}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await response.json();
-      if (response.status !== 200) {
-        window.location.href = "/register";
-      }
+      setUser(data);
       setFetched(true);
-      setUser(data.user);
     }
-    fetchUsers();
+    fetchAccountInfo();
+    setFetched(false);
   }, []);
 
-  if (!fetched) {
-    return <Loading />;
-  }
+  if (!accessToken) return <h1>No permissions</h1>;
+  if (!fetched) return <Loading />;
 
   const links = data.map((item, index) => {
     return (
       <>
-        {item.adminOnly && user.permission !== "ADMIN" ? null : (
+        {item.adminOnly && user?.permission !== "ADMIN" ? null : (
           <>
             {item.link && item.icon ? (
               <a
@@ -81,18 +78,11 @@ export function DashboardNavbar({ opened, selected }: Props) {
       <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 250, md: 250, lg: 250 }}>
         <Navbar.Section grow>
           <Group spacing={10}>
-            <Image radius={50} src={monitorLizardLogo} width={32} height={32} />
-            <h2>Monitor Lizard</h2>
+            <Image radius={50} src={"/animalImages/lowPolySwan.png"} width={32} height={32} />
+            <h2>WildTag</h2>
           </Group>
-          <div style={{ paddingTop: "10px", paddingBottom: "10px" }}>
-            <Flex gap={"xl"}>
-              <Code>v1.0.0</Code>
-            </Flex>
-          </div>
+          <div style={{ paddingTop: "10px", paddingBottom: "10px" }}></div>
           {links}
-        </Navbar.Section>
-        <Navbar.Section>
-          <UserProfileButton name={user.username} image={null} />
         </Navbar.Section>
       </Navbar>
     </>

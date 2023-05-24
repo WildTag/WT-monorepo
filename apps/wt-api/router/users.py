@@ -1,13 +1,25 @@
 import uuid
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from db import prisma
 from pydantic import BaseModel
+from prisma.enums import Role
+from typing import List
 
 router = APIRouter()
 
+async def verify_permission(authorization_token: str, required_permissions: List[Role]):
+    user = await prisma.account.find_first(where={"accessToken": authorization_token})
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid session token")
+    if user.permission not in required_permissions:
+        raise HTTPException(status_code=401, detail="Invalid session token")
+    return user
+
 @router.get("/users", tags=["users"])
-async def user_list():
+async def user_list(request: Request):
+    await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+
     users = await prisma.account.find_many()
     return users
 
@@ -16,9 +28,31 @@ async def get_user(user_id: int):
     user = await prisma.account.find_first(where={"accountId": user_id})
     return user
 
-@router.get("/users/account/{session_token}", tags=["users"])
-async def get_account_info(session_token: str):
-    user = await prisma.account.find_first(where={"accessToken": session_token})
+@router.put("/users/{user_id}/ban", tags=["users"])
+async def ban_user(user_id: int, request: Request):
+    requester =  await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+
+    if requester.accountId == user_id:
+        raise HTTPException(status_code=400, detail="You cannot ban yourself")
+    
+    user = await prisma.account.find_first(where={"accountId": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.banned == True:
+        raise HTTPException(status_code=400, detail="User is already banned")
+    
+    await prisma.account.update(where={"accountId": user_id}, data={"banned": True})
+    return {"detail": "User has been banned", "user": user}
+
+@router.get("/users/{user_id}", tags=["users"])
+async def get_user(user_id: int):
+    user = await prisma.account.find_first(where={"accountId": user_id})
+    return user
+
+@router.get("/users/account/get", tags=["users"])
+async def get_account_info(request: Request):
+    authorization_token = request.headers.get("Authorization")
+    user = await prisma.account.find_first(where={"accessToken": authorization_token})
     return user
     
 

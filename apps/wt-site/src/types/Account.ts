@@ -8,4 +8,5 @@ export interface Account {
   email: string;
   passwordHash: string;
   accessToken: string;
+  banned: boolean;
 }
