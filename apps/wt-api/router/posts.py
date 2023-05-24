@@ -1,10 +1,10 @@
 import base64
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from io import BytesIO
-
 from db import prisma
 from pydantic import BaseModel
 from PIL import Image
+from pillow_heif import register_heif_opener    # HEIF support
 from helpers.image_processing import get_exif
 from typing import List
 
@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/posts", tags=["posts"])
 async def user_list():
-    posts = await prisma.picture.find_many(include={"uploader": True, "comments": True, "postTags": True})
+    posts = await prisma.picture.find_many(where={"deleted": False},include={"uploader": True, "comments": True, "postTags": True})
     return posts
 
 @router.get("/posts/{post_id}", tags=["posts"])
@@ -39,7 +39,7 @@ async def create_post(session_token: str = Form(...),
                       description: str = Form(...), 
                       gps_lat: float = Form(...), 
                       gps_long: float = Form(...), 
-                      images: List[UploadFile] = Form(...)):
+                      images: List[str] = Form(...)):
     user = await prisma.account.find_first(where={"accessToken": session_token})
     if not user:
         raise HTTPException(
@@ -47,7 +47,8 @@ async def create_post(session_token: str = Form(...),
     
     image_bytes = None
     for image in images:
-        image_bytes = await image.read()
+        image_bytes = base64.b64decode(image)
+        # image_bytes = await image.read()
     if not image_bytes: 
         raise HTTPException(
             status_code=400, detail="No image provided")
@@ -74,13 +75,14 @@ async def create_post(session_token: str = Form(...),
 @router.post("/posts/upload_image")
 async def create_upload_file(file: UploadFile = File(...)):
     image_bytes = await file.read()
-    
     image_type = file.content_type
+    
+    register_heif_opener()
     image = Image.open(BytesIO(image_bytes))
 
     status_code, data, image = get_exif(image, image_type)
     
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)
-    
-    return {"filename": file.filename, "metadata": data, "image": str(image)}
+            
+    return {"detail": "Image uploaded", "image_data": {"filename": file.filename, "metadata": data, "image": image}}

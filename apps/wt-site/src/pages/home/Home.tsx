@@ -1,15 +1,5 @@
 import Map from "../../components/map/Map";
-import {
-  useMantineTheme,
-  Button,
-  Group,
-  Input,
-  Menu,
-  Flex,
-  Drawer,
-  ScrollArea,
-} from "@mantine/core";
-import { FileWithPath } from "@mantine/dropzone";
+import { useMantineTheme, Button, Group, Input, Menu, Drawer, ScrollArea } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
 import { Upload, Filter, User, Settings, Logout } from "tabler-icons-react";
@@ -18,13 +8,13 @@ import CreatePostModal from "../../components/modals/CreatePostModal";
 import { Loading } from "../../components/loading/Loading";
 import { Post } from "../../types/Post";
 import { notifications } from "@mantine/notifications";
+import { UploadedImage } from "../../types/UploadedImage";
 
 function Home() {
   const [postModalOpened, setPostModalOpened] = useState(false);
-  const [files, setFiles] = useState<FileWithPath[]>([]);
+  const [files, setFiles] = useState<UploadedImage[]>([]);
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<any>(null);
   const [posts, setPosts] = useState<Post[] | null>(null);
   const sessionToken = sessionStorage.getItem("sessionToken");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -52,10 +42,6 @@ function Home() {
       images: (value) => (value.length <= 0 ? "A post must have at least one image" : null),
     },
   });
-
-  useEffect(() => {
-    form.setFieldValue("images", files);
-  }, [files]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -102,13 +88,24 @@ function Home() {
       body: formData,
     });
 
-    if (!response.ok) {
-      throw new Error("File upload failed");
-    }
     const data = await response.json();
-    setUploadedImage(data);
-    form.setFieldValue("gps_lat", data.metadata.GPSLatitude);
-    form.setFieldValue("gps_long", data.metadata.GPSLongitude);
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+
+    form.setFieldValue("gps_lat", data.image_data.metadata.gps_latitude);
+    form.setFieldValue("gps_long", data.image_data.metadata.gps_longitude);
+    form.setFieldValue("images", [data.image_data]);
+
     return data;
   };
 
@@ -136,7 +133,7 @@ function Home() {
 
     // If form.values.images is an array of File objects, append each to formData
     form.values.images.forEach((image) => {
-      formData.append(`images`, image);
+      formData.append(`images`, image.image);
     });
 
     // Send the POST request
@@ -188,7 +185,7 @@ function Home() {
         <div
           style={{
             position: "absolute",
-            top: "5%",
+            top: "4%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             zIndex: 10,
@@ -202,16 +199,15 @@ function Home() {
             bottom: "20px",
             left: "50%",
             transform: "translateX(-50%)",
+            width: "100%",
           }}
         >
           <Drawer
             title="Filters"
             opened={drawerOpen}
-            onClose={() => {
-              setDrawerOpen(false);
-            }}
+            onClose={() => setDrawerOpen(false)}
             scrollAreaComponent={ScrollArea.Autosize}
-          ></Drawer>
+          />
           <Group position="center">
             {accountInfo && (
               <>

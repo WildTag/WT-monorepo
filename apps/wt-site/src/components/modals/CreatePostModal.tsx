@@ -3,6 +3,7 @@ import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
 import { useRef } from "react";
 import { Trash } from "tabler-icons-react";
+import { UploadedImage } from "../../types/UploadedImage";
 
 interface CreatePostModalProps {
   theme: MantineTheme;
@@ -72,7 +73,7 @@ const CreatePostModal = ({
               readOnly
               label="Images"
               {...form.getInputProps("images")}
-              value={form.values.images[0]?.path}
+              value={form.values.images?.length >= 1 ? form.values.images[0]?.filename : ""}
             />
             <Dropzone
               style={{
@@ -92,20 +93,15 @@ const CreatePostModal = ({
                 "image/heif",
               ]}
               onDrop={(files) => {
-                handleUploadFiles(files)
-                  .then((data) => {
-                    console.log("Upload successful:", data);
-                    setFiles(files);
-                  })
-                  .catch((error) => {
-                    console.log("Upload failed:", error);
-                  });
+                handleUploadFiles(files).catch((error) => {
+                  console.log("Upload failed:", error);
+                });
               }}
               styles={{ inner: { pointerEvents: "all" } }}
               {...form.getInputProps("images")}
             >
               <Text align="center">Drop images here</Text>
-              {files.length === 0 ? (
+              {!files || files?.length === 0 ? (
                 <Button
                   fullWidth
                   onClick={() => (dropzoneRef?.current ? dropzoneRef.current() : null)}
@@ -113,8 +109,7 @@ const CreatePostModal = ({
                   Select files
                 </Button>
               ) : null}
-              {files.map((file: any, index: number) => {
-                const imageUrl = URL.createObjectURL(file);
+              {form.values.images?.map((file: UploadedImage, index: number) => {
                 return (
                   <>
                     <Flex mb={5}>
@@ -124,16 +119,13 @@ const CreatePostModal = ({
                         }}
                         color="red"
                         onClick={() => {
+                          form.setFieldValue("images", []);
                           setFiles(files.filter((_: any, i: number) => i !== index));
                         }}
                       />
-                      <Text>{file.name}</Text>
+                      <Text>{file.filename}</Text>
                     </Flex>
-                    <Image
-                      key={index}
-                      src={imageUrl}
-                      imageProps={{ onLoad: () => URL.revokeObjectURL(imageUrl) }}
-                    />
+                    <Image key={index} src={`data:image/jpeg;base64,${file.image}`} />
                   </>
                 );
               })}

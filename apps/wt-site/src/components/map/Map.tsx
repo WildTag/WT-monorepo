@@ -53,6 +53,21 @@ export default function Map({ posts }: MapProps) {
               fontWeight: "bold",
               position: "absolute",
             },
+      {isLoaded && (
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={position}
+          zoom={6}
+          options={{
+            minZoom: 2,
+            maxZoom: 16,
+            fullscreenControl: false,
+            styles: [
+              {
+                featureType: "poi",
+                stylers: [{ visibility: "off" }],
+              },
+            ],
           }}
         >
           <Group>
@@ -95,10 +110,11 @@ export default function Map({ posts }: MapProps) {
                 maxZoom: 15,
               }}
             >
-              {(clusterer) => (
-                <>
-                  console.log()
-                  {posts?.map((post: Post) => (
+
+            {(clusterer) => (
+              <>
+                {posts?.map((post: Post) => (
+                  <>
                     <Marker
                       key={post.pictureId} // Don't forget to provide a key when mapping!
                       position={{ lat: post.GPSLat, lng: post.GPSLong }}
