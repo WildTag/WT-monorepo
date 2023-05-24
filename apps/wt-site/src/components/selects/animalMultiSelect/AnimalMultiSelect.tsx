@@ -9,6 +9,7 @@ import {
   Image,
 } from "@mantine/core";
 import { forwardRef } from "react";
+import { animalIcons } from "../../../constants/animalImages";
 
 const categoriesData = [
   { label: "Duck", value: "duck" },
@@ -22,19 +23,6 @@ const categoriesData = [
   { label: "Squirrel", value: "squirrel" },
   { label: "Other", value: "other" },
 ];
-
-const icons = {
-  duck: "/animalImages/lowPolyDuck.png",
-  swan: "/animalImages/lowPolySwan.png",
-  heron: "/animalImages/lowPolyHeron.png",
-  pidgeon: "/animalImages/lowPolyPidgeon.png",
-  magpie: "/animalImages/lowPolyMagpie.png",
-  chaffinch: "/animalImages/lowPolyChaffinch.png",
-  badger: "/animalImages/lowPolyBadger.png",
-  stoat: "/animalImages/lowPolyStoat.png",
-  squirrel: "/animalImages/lowPolySquirrel.png",
-  other: "/animalImages/lowPolyQuestionmark.png",
-};
 
 interface AnimalMultiSelectProps {
   form: any;
@@ -61,7 +49,7 @@ const AnimalMultiSelect = ({ form }: AnimalMultiSelectProps) => {
           })}
         >
           <Box mr={10}>
-            <Image src={icons[value]} width={24} height={24} />
+            <Image src={animalIcons[value]} width={24} height={24} />
           </Box>
           <Box sx={{ lineHeight: 1, fontSize: rem(12) }}>{label}</Box>
           <CloseButton
@@ -81,7 +69,7 @@ const AnimalMultiSelect = ({ form }: AnimalMultiSelectProps) => {
       <div ref={ref} {...others}>
         <Flex align="center">
           <Box mr={10}>
-            <Image src={icons[value]} width={24} height={24} />
+            <Image src={animalIcons[value]} width={24} height={24} />
           </Box>
           <div>{label}</div>
         </Flex>

@@ -18,6 +18,8 @@ import {
 import ms from "ms";
 import { ArrowRightCircle, BrandSublimeText, Send } from "tabler-icons-react";
 import { notifications } from "@mantine/notifications";
+import { getRandomProfilePicture } from "../../helpers/getRandomProfilePicture";
+import TagComponent from "../badges/TagComponent";
 
 interface MapProps {
   posts: Post[] | null;
@@ -99,7 +101,11 @@ export default function Map({ posts }: MapProps) {
           <Group>
             <Flex align={"center"} gap={5}>
               <Avatar
-                src={"/animalImages/lowPolyBadger.png"}
+                src={
+                  selectedPost?.uploader?.profilePicture
+                    ? `data:image/jpeg;base64,${selectedPost?.uploader?.profilePicture || ""}`
+                    : getRandomProfilePicture()
+                }
                 radius={theme.radius.md}
                 style={{ backgroundColor: theme.colors.blue[5] }}
               />
@@ -124,13 +130,19 @@ export default function Map({ posts }: MapProps) {
                 width: "100%",
               }}
             >
-              <Text pb={3} weight={500}>
-                Description
-              </Text>
+              <Title size={17} mb={5}>
+                {selectedPost?.title}
+              </Title>
               <Divider size="md" />
               <Text>{selectedPost?.description}</Text>
             </div>
           </Group>
+          <Flex gap={5} mt={7}>
+            <Text>Tags: </Text>
+            {selectedPost?.postTags.map((tag) => {
+              return <TagComponent tag={tag} theme={theme} />;
+            })}
+          </Flex>
           <TextInput
             style={{ userSelect: "none" }}
             onKeyDownCapture={(e) => {
