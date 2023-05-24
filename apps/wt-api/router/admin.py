@@ -10,5 +10,5 @@ router = APIRouter()
 async def user_list(request: Request):
     await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
 
-    logs = await prisma.adminlog.find_many()
+    logs = await prisma.adminlog.find_many(order={'id': 'desc'})
     return logs
