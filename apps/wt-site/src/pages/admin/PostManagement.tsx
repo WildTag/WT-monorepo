@@ -23,7 +23,7 @@ import TagComponent from "../../components/badges/TagComponent";
 import { notifications } from "@mantine/notifications";
 
 const PostManagement = () => {
-  const [showImages, setShowImages] = useState(true);
+  const [showImages, setShowImages] = useState(false);
   const [sortByNewest, setSortByNewest] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
   const [refetch, setRefetch] = useState(false);
@@ -263,9 +263,10 @@ const PostComponent = ({
           <Text>{post.description}</Text>
           {showImages && (
             <Image
+              fit="scale-down"
               src={`data:image/jpeg;base64,${post.image}`}
               height={256}
-              radius={theme.radius.md}
+              radius={theme.radius.xl}
             />
           )}
         </div>
