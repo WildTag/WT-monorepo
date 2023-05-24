@@ -6,6 +6,7 @@ export interface Uploader {
   username: string;
   pictures: null;
   permission: Permission;
+  profilePicture: string;
 }
 
 enum Permission {

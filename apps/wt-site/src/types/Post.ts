@@ -1,10 +1,11 @@
+import { Account } from "./Account";
 import { PostTags } from "./PostTags";
 import { Uploader } from "./Uploader";
 
 export interface Post {
   pictureId: number;
   accountId: number;
-  comments: null;
+  comments: Comment[];
   created: Date;
   deleted: boolean;
   deletedLogs: null;
@@ -15,4 +16,14 @@ export interface Post {
   GPSLat: number;
   GPSLong: number;
   postTags: PostTags[];
+}
+
+export interface Comment {
+  commentId: number;
+  pictureId: number;
+  commenterAccountId: number;
+  commenter: Account;
+  created: Date;
+  commentText: string;
+  likes: number;
 }

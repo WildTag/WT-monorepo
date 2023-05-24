@@ -18,6 +18,7 @@ import { Post } from "../../types/Post";
 import ms from "ms";
 import { Calendar } from "tabler-icons-react";
 import { useSearchParams } from "react-router-dom";
+import TagComponent from "../../components/badges/TagComponent";
 
 const PostManagement = () => {
   const [showImages, setShowImages] = useState(true);
@@ -170,11 +171,7 @@ const PostComponent = ({ post, theme, showImages }: PostProps) => {
         <Flex gap={5} mt={5}>
           <Text>Tags:</Text>
           {post.postTags.map((tag) => {
-            return (
-              <Badge p={theme.spacing.sm} radius={theme.radius.md} color={"blue"}>
-                {tag.tag}
-              </Badge>
-            );
+            return <TagComponent tag={tag} theme={theme} />;
           })}
         </Flex>
         <Flex gap={10} mt={10}>
