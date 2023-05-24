@@ -11,6 +11,7 @@ import {
   MediaQuery,
   Radio,
   Flex,
+  Center,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
@@ -313,7 +314,18 @@ function Home() {
               </Button>
             </form>
           </Drawer>
-          <Group position="center">
+          <div
+            style={{
+              position: "fixed",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "5px",
+              bottom: 1,
+              left: "50%",
+              transform: "translateX(-50%)",
+            }}
+          >
             {accountInfo && (
               <>
                 <Button
@@ -353,7 +365,6 @@ function Home() {
                   {accountInfo ? "Profile" : "Login"}
                 </Button>
               </Menu.Target>
-
               {accountInfo ? (
                 <>
                   <Menu.Dropdown>
@@ -386,7 +397,81 @@ function Home() {
                 <></>
               )}
             </Menu>
-          </Group>
+          </div>
+
+          {/* <Group position="center">
+            {accountInfo && (
+              <>
+                <Button
+                  leftIcon={<Filter size="1rem" strokeWidth={2} />}
+                  style={{ backgroundColor: theme.colors.dark[3] }}
+                  onClick={() => {
+                    setDrawerOpen(true);
+                  }}
+                >
+                  Filter
+                </Button>
+                <Button
+                  style={{
+                    padding: "0px",
+                    width: "50px",
+                    height: "50px",
+                    borderRadius: "50%",
+                    backgroundColor: theme.colors.dark[4],
+                    zIndex: 5,
+                  }}
+                  onClick={() => setPostModalOpened(!postModalOpened)}
+                >
+                  <Upload size={20} strokeWidth={3} />
+                </Button>
+              </>
+            )}
+            <Menu shadow="md" width={200} position="top-start">
+              <Menu.Target>
+                <Button
+                  rightIcon={<User size="1rem" strokeWidth={2} />}
+                  style={{ backgroundColor: theme.colors.dark[3] }}
+                  onClick={() => {
+                    if (accountInfo) return;
+                    window.location.href = "/login";
+                  }}
+                >
+                  {accountInfo ? "Profile" : "Login"}
+                </Button>
+              </Menu.Target>
+              {accountInfo ? (
+                <>
+                  <Menu.Dropdown>
+                    {accountInfo.permission === Role.ADMINISTRATOR && (
+                      <>
+                        <Menu.Label>Admin</Menu.Label>
+                        <Anchor underline={false} href="/admin">
+                          <Menu.Item icon={<Hammer size={20} />}>admin</Menu.Item>
+                        </Anchor>
+                      </>
+                    )}
+                    <Menu.Label>Options</Menu.Label>
+                    <Menu.Item icon={<User size={20} />}>Profile</Menu.Item>
+                    <Menu.Item icon={<Settings size={20} />}>Settings</Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Label>Danger zone</Menu.Label>
+                    <Menu.Item
+                      color="red"
+                      icon={<Logout size={14} />}
+                      onClick={() => {
+                        localStorage.removeItem("sessionToken");
+                        window.location.href = "/";
+                      }}
+                    >
+                      Logout
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </>
+              ) : (
+                <></>
+              )}
+            </Menu>
+          </Group> */}
         </div>
       </div>
     </>
