@@ -1,5 +1,5 @@
 import base64
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Request
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Request, Query
 from io import BytesIO
 from db import prisma
 from pydantic import BaseModel
@@ -9,18 +9,62 @@ from helpers.image_processing import get_exif
 from typing import List
 from helpers.auth import verify_permission
 from prisma.enums import Role, LogType
+from typing import List, Optional
+from datetime import datetime
 from helpers.log_admin_action import insert_admin_log
+
 
 router = APIRouter()
 
+
+def convert_to_datetime(date_str):
+    # Split the string on the opening parenthesis and keep only the first part
+    date_str = date_str.split(" (", 1)[0]
+    # Convert the string to a datetime object
+    dt = datetime.strptime(date_str, '%a %b %d %Y %H:%M:%S %Z%z')
+    return dt
+
 @router.get("/posts", tags=["posts"])
-async def user_list():
-    posts = await prisma.picture.find_many(where={"deleted": False}, include={"uploader": True, "postTags": True,                                                                 
+async def user_list(animals: Optional[List[str]] = Query(None), date_range: Optional[List[str]] = Query(None)):
+    if animals:
+        animals = [animal.strip() for animal in animals[0].split(",")]
+    if date_range:
+        date_range = [date.strip() for date in date_range[0].split(",")]
+        date_range = [convert_to_datetime(date_str) for date_str in date_range]
+    
+    animals = [animal.upper() for animal in animals]
+        
+    where_clause = {"deleted": False}
+    
+    if animals and animals[0]:
+        where_clause["postTags"] = {
+            "some": {
+                "tag": {
+                    "in": animals
+                }
+            }
+        }
+
+    if date_range and len(date_range) == 2:
+        date_range.sort()
+        where_clause["created"] = {
+            "gte": date_range[0],
+            "lte": date_range[1]
+        }
+
+    posts = await prisma.picture.find_many(
+        where=where_clause,
+        include={
+            "uploader": True, 
+            "postTags": True,                                                                 
             "comments": {
                 "include": {
                     "commenter": True
                 }
-            }})
+            }
+        }
+    )
+    
     return posts
 
 @router.get("/posts/{post_id}", tags=["posts"])

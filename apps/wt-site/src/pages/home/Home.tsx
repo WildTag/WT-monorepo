@@ -29,7 +29,7 @@ function Home() {
   const [posts, setPosts] = useState<Post[] | null>(null);
   const accessToken = localStorage.getItem("sessionToken");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [filterDate, setFilterDate] = useState<[Date | null, Date | null]>([null, null]);
+  const [refetch, setRefetch] = useState(false);
 
   const theme = useMantineTheme();
 
@@ -57,17 +57,40 @@ function Home() {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/posts`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const queryParams = new URLSearchParams({
+        animals: filtersForm.values.animals.join(","),
+        date_range: filtersForm.values.dateRange.join(","),
       });
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/posts?${queryParams.toString()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await response.json();
       setPosts(data);
+
+      if (response.status !== 200) {
+        return notifications.show({
+          title: "Error",
+          message: data.detail,
+          color: "red",
+        });
+      }
+      return notifications.show({
+        title: "Success",
+        message: `Fetched ${data.length} posts`,
+        color: "green",
+      });
     };
+    if (!refetch) return;
     fetchPosts();
-  }, []);
+    setRefetch(false);
+  }, [refetch]);
 
   useEffect(() => {
     async function getAccountInfo() {
@@ -120,7 +143,6 @@ function Home() {
   };
 
   const handlePublishPost = async () => {
-    // Create a FormData instance
     const formData = new FormData();
 
     if (!form.values.session_token) {
@@ -161,7 +183,6 @@ function Home() {
         color: "red",
       });
     }
-
     setPostModalOpened(!postModalOpened);
 
     const tmpPosts = JSON.parse(JSON.stringify(posts));
@@ -190,7 +211,7 @@ function Home() {
         "squirrel",
         "other",
       ],
-      dateRange: 7,
+      dateRange: [new Date("2021-01-01T00:00:00"), new Date()],
     },
   });
 
@@ -236,18 +257,28 @@ function Home() {
             onClose={() => setDrawerOpen(false)}
             scrollAreaComponent={ScrollArea.Autosize}
           >
-            <AnimalMultiSelect label={"Selected animals"} form={filtersForm} />
-            <DatePickerInput
-              popoverProps={{ withinPortal: true }}
-              clearable
-              type="range"
-              label="Pick dates range"
-              placeholder="Pick dates range"
-              value={filterDate}
-              onChange={setFilterDate}
-              mx="auto"
-              maw={400}
-            />
+            <form
+              onSubmit={filtersForm.onSubmit((values) => {
+                setRefetch(true);
+              })}
+            >
+              <AnimalMultiSelect label={"Selected animals"} form={filtersForm} />
+              <DatePickerInput
+                popoverProps={{ withinPortal: true }}
+                clearable
+                type="range"
+                label="Pick dates range"
+                placeholder="Pick dates range"
+                // value={filterDate}
+                // onChange={setFilterDate}
+                mx="auto"
+                maw={400}
+                {...filtersForm.getInputProps("dateRange")}
+              />
+              <Button mt={5} type="submit">
+                Filter
+              </Button>
+            </form>
           </Drawer>
           <Group position="center">
             {accountInfo && (
