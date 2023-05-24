@@ -24,8 +24,8 @@ def convert_to_datetime(date_str):
     dt = datetime.strptime(date_str, '%a %b %d %Y %H:%M:%S %Z%z')
     return dt
 
-def get_season(date):
-    month = date
+def get_season(date: datetime):
+    month = date.month
     if 3 <= month < 6:
         return "spring"
     elif 6 <= month < 9:

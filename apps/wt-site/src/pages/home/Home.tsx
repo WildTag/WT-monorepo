@@ -9,6 +9,8 @@ import {
   ScrollArea,
   Anchor,
   MediaQuery,
+  Radio,
+  Flex,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
@@ -61,6 +63,7 @@ function Home() {
       const queryParams = new URLSearchParams({
         animals: filtersForm.values.animals.join(","),
         date_range: filtersForm.values.dateRange.join(","),
+        season: filtersForm.values.season,
       });
 
       const response = await fetch(
@@ -216,6 +219,7 @@ function Home() {
         new Date("2021-01-01T00:00:00"),
         new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
       ],
+      season: "all",
     },
   });
 
@@ -275,18 +279,32 @@ function Home() {
             >
               <AnimalMultiSelect label={"Selected animals"} form={filtersForm} />
               <DatePickerInput
+                mt={20}
                 popoverProps={{ withinPortal: true }}
                 clearable
                 type="range"
-                label="Pick dates range"
-                placeholder="Pick dates range"
-                // value={filterDate}
-                // onChange={setFilterDate}
+                label="Pick a date range"
+                placeholder="Pick a date range..."
                 mx="auto"
                 maw={400}
                 {...filtersForm.getInputProps("dateRange")}
               />
-              <Button mt={5} type="submit">
+              <Radio.Group
+                name="seasonRange"
+                label="Seasons"
+                description="Choose a season to filter photos for"
+                mt={20}
+                {...filtersForm.getInputProps("season")}
+              >
+                <Group mt="xs">
+                  <Radio label="All" value="all" />
+                  <Radio label="Winter" value="winter" />
+                  <Radio label="Autumn" value="autumn" />
+                  <Radio label="Summer" value="summer" />
+                  <Radio label="Spring" value="spring" />
+                </Group>
+              </Radio.Group>
+              <Button mt={15} type="submit">
                 Filter
               </Button>
             </form>
