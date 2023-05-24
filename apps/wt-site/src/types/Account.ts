@@ -9,4 +9,5 @@ export interface Account {
   passwordHash: string;
   accessToken: string;
   banned: boolean;
+  profileImage: string;
 }

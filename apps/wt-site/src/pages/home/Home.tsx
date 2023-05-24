@@ -34,7 +34,7 @@ function Home() {
   const [posts, setPosts] = useState<Post[] | null>(null);
   const accessToken = localStorage.getItem("sessionToken");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [refetch, setRefetch] = useState(false);
+  const [refetchPosts, setRefetchPosts] = useState(false);
 
   const theme = useMantineTheme();
 
@@ -97,8 +97,8 @@ function Home() {
       });
     };
     fetchPosts();
-    setRefetch(false);
-  }, [refetch]);
+    setRefetchPosts(false);
+  }, [refetchPosts]);
 
   useEffect(() => {
     async function getAccountInfo() {
@@ -228,6 +228,68 @@ function Home() {
     },
   });
 
+  const handlePostDelete = async (postId: number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/${postId}/delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: accessToken || "",
+      },
+    });
+
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+    setRefetchPosts(!refetchPosts);
+  };
+
+  const handlePostComment = async (pictureId: number, commentText: string) => {
+    if (!pictureId) {
+      return notifications.show({
+        title: "Error",
+        message: "Invalid postId",
+        color: "red",
+      });
+    }
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/comments/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: localStorage.getItem("sessionToken") || "",
+      },
+      body: JSON.stringify({
+        picture_id: pictureId,
+        comment_text: commentText,
+      }),
+    });
+
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+    setRefetchPosts(!refetchPosts);
+  };
+
   if (isFetching) return <Loading />;
 
   return (
@@ -243,7 +305,12 @@ function Home() {
         setFiles={setFiles}
       />
       <div style={{ position: "relative" }}>
-        <Map posts={posts} />
+        <Map
+          posts={posts}
+          account={accountInfo}
+          handlePostDelete={handlePostDelete}
+          handlePostComment={handlePostComment}
+        />
         <div
           style={{
             position: "absolute",
@@ -278,8 +345,8 @@ function Home() {
             scrollAreaComponent={ScrollArea.Autosize}
           >
             <form
-              onSubmit={filtersForm.onSubmit((values) => {
-                setRefetch(true);
+              onSubmit={filtersForm.onSubmit(() => {
+                setRefetchPosts(true);
               })}
             >
               <AnimalMultiSelect label={"Selected animals"} form={filtersForm} />

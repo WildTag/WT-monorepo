@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GoogleMap, Marker, MarkerClusterer, useJsApiLoader } from "@react-google-maps/api";
 import { Post } from "../../types/Post";
 import {
@@ -13,16 +13,15 @@ import {
   Flex,
   Title,
   Textarea,
+  Menu,
+  UnstyledButton,
 } from "@mantine/core";
 import ms from "ms";
-import { Send } from "tabler-icons-react";
-import { notifications } from "@mantine/notifications";
+import { AlertCircle, ChevronDown, Pencil, Send, Trash } from "tabler-icons-react";
 import { getRandomProfilePicture } from "../../helpers/getRandomProfilePicture";
 import TagComponent from "../badges/TagComponent";
-
-interface MapProps {
-  posts: Post[] | null;
-}
+import { Account } from "../../types/Account";
+import { Role } from "../../types/Role";
 
 const markers = {
   duck: "/markerImages/duckMarker.png",
@@ -39,7 +38,14 @@ const markers = {
   other: "/markerImages/otherMarker.png",
 };
 
-export default function Map({ posts }: MapProps) {
+interface MapProps {
+  posts: Post[] | null;
+  account: Account | null;
+  handlePostDelete: (postId: number) => void;
+  handlePostComment: (postId: number, commentText: string) => void;
+}
+
+export default function Map({ posts, account, handlePostDelete, handlePostComment }: MapProps) {
   const theme = useMantineTheme();
   const [selectedPost, setSelectedPost] = useState<Post | null>();
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -59,41 +65,11 @@ export default function Map({ posts }: MapProps) {
     googleMapsApiKey: import.meta.env.VITE_API_GOOGLEMAP,
   });
 
-  const handlePostComment = async () => {
-    if (!selectedPost || !selectedPost.pictureId) {
-      return notifications.show({
-        title: "Error",
-        message: "Invalid postId",
-        color: "red",
-      });
-    }
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/comments/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: localStorage.getItem("sessionToken") || "",
-      },
-      body: JSON.stringify({
-        picture_id: selectedPost.pictureId,
-        comment_text: commentText,
-      }),
-    });
-
-    const data = await response.json();
-    if (response.status !== 200) {
-      return notifications.show({
-        title: "Error",
-        message: data.detail,
-        color: "red",
-      });
-    }
-
-    notifications.show({
-      title: "Success",
-      message: data.detail,
-      color: "green",
-    });
-  };
+  useEffect(() => {
+    if (!selectedPost || !posts) return;
+    const newSelectedPost = posts.find((post) => post.pictureId === selectedPost.pictureId);
+    setSelectedPost(newSelectedPost);
+  }, [posts]);
 
   return (
     <>
@@ -112,13 +88,13 @@ export default function Map({ posts }: MapProps) {
             },
           }}
         >
-          <Group>
-            <Flex align={"center"} gap={5}>
+          <Flex align={"center"} gap={5} justify={"space-between"}>
+            <Flex gap={10}>
               <Avatar
                 p={2}
                 src={
-                  selectedPost?.uploader?.profilePicture
-                    ? `data:image/jpeg;base64,${selectedPost?.uploader?.profilePicture || ""}`
+                  selectedPost?.uploader?.profileImage
+                    ? `data:image/jpeg;base64,${selectedPost?.uploader.profileImage || ""}`
                     : getRandomProfilePicture()
                 }
                 radius={theme.radius.md}
@@ -132,22 +108,57 @@ export default function Map({ posts }: MapProps) {
                 </Text>
               </div>
             </Flex>
-            <div
-              style={{
-                background: theme.colors.dark[6],
-                borderRadius: theme.radius.sm,
-                padding: theme.spacing.sm,
-                width: "100%",
-                marginBottom: "10px",
-              }}
-            >
-              <Title size={17} mb={5}>
-                {selectedPost?.title}
-              </Title>
-              <Divider size="md" />
-              <Text>{selectedPost?.description}</Text>
-            </div>
-          </Group>
+            <Menu shadow="md" width={200} withinPortal>
+              <Menu.Target>
+                <UnstyledButton>
+                  <ChevronDown cursor={"pointer"} />
+                </UnstyledButton>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Label>Public</Menu.Label>
+                {(selectedPost?.uploader?.accountId === account?.accountId ||
+                  account?.permission === Role.ADMINISTRATOR) && (
+                  <Menu.Item icon={<Pencil size={15} />}>Edit post</Menu.Item>
+                )}
+                {selectedPost?.uploader?.accountId !== account?.accountId && (
+                  <Menu.Item icon={<AlertCircle size={15} />}>Report post</Menu.Item>
+                )}
+                {account?.permission === Role.ADMINISTRATOR && (
+                  <>
+                    <Menu.Divider />
+                    <Menu.Label>Moderation</Menu.Label>
+                    <Menu.Item
+                      color="red"
+                      icon={<Trash size={15} />}
+                      onClick={() => {
+                        if (!selectedPost?.pictureId) return;
+                        handlePostDelete(selectedPost.pictureId);
+                        setOpenDrawer(false);
+                      }}
+                    >
+                      Delete post
+                    </Menu.Item>
+                  </>
+                )}
+              </Menu.Dropdown>
+            </Menu>
+          </Flex>
+          <div
+            style={{
+              background: theme.colors.dark[6],
+              borderRadius: theme.radius.sm,
+              padding: theme.spacing.sm,
+              width: "100%",
+              marginBottom: "10px",
+            }}
+          >
+            <Title size={17} mb={5}>
+              {selectedPost?.title}
+            </Title>
+            <Divider size="md" />
+            <Text>{selectedPost?.description}</Text>
+          </div>
           <Flex gap={5} mb={10}>
             {selectedPost?.postTags.map((tag) => {
               return <TagComponent tag={tag} theme={theme} />;
@@ -160,7 +171,8 @@ export default function Map({ posts }: MapProps) {
           />
           <Textarea
             autosize
-            label="Add Comment"
+            label="Create comment"
+            value={commentText}
             style={{
               userSelect: "none",
               background: theme.colors.dark[6],
@@ -168,14 +180,21 @@ export default function Map({ posts }: MapProps) {
               borderRadius: theme.radius.sm,
               marginTop: "10px",
             }}
-            onKeyDownCapture={(e) => {
-              if (e.key === "Enter") handlePostComment();
-            }}
             placeholder="How does this post make you feel?"
             onChange={(element) => {
               setCommentText(element.currentTarget.value);
             }}
-            rightSection={<Send size="25" cursor={"pointer"} onClick={() => handlePostComment()} />}
+            rightSection={
+              <Send
+                size="25"
+                cursor={"pointer"}
+                onClick={() => {
+                  if (!selectedPost?.pictureId) return;
+                  handlePostComment(selectedPost.pictureId, commentText);
+                  setCommentText("");
+                }}
+              />
+            }
           />
           <div style={{ paddingTop: theme.spacing.sm }}>
             {selectedPost?.comments?.map((comment) => (
@@ -191,7 +210,11 @@ export default function Map({ posts }: MapProps) {
                 <Flex align={"start"} gap={10}>
                   <Flex direction={"column"} gap={5} align={"center"}>
                     <Avatar
-                      src={"/animalImages/lowPolyBadger.png"}
+                      src={
+                        comment.commenter.profileImage
+                          ? `data:image/jpeg;base64,${comment.commenter.profileImage || ""}`
+                          : getRandomProfilePicture()
+                      }
                       radius={theme.radius.md}
                       style={{ backgroundColor: theme.colors.blue[5] }}
                     />
