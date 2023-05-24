@@ -1,8 +1,9 @@
 from fastapi import HTTPException, Request, APIRouter
 from db import prisma
 from helpers.auth import verify_permission
-from prisma.enums import Role
+from prisma.enums import Role, LogType
 from pydantic import BaseModel
+from helpers.log_admin_action import insert_admin_log
 
 router = APIRouter()
 
@@ -43,6 +44,7 @@ async def create_post(comment_id: int,
 
     if user.accountId != comment.commenterAccountID:
         await verify_permission(access_token, [Role.Administrator, Role.Moderator])
+        insert_admin_log(user.accountId, LogType.EDIT_COMMENT)
     
     post = await prisma.comments.update(where={"commentId": comment_id}, data={
         "commentText": comment_text,
@@ -59,6 +61,7 @@ async def create_post(comment_id: int,
 
     if user.accountId != comment.commenterAccountID:
         await verify_permission(request.headers.get("Authorization") , [Role.Administrator, Role.Moderator])
+        insert_admin_log(user.accountId, LogType.DELETE_COMMENT)
 
     post = await prisma.comments.delete(where={"commentId": comment_id})
 
