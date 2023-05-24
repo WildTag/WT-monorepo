@@ -12,12 +12,10 @@ import {
   Avatar,
   Flex,
   Title,
-  TextInput,
-  Loader,
-  Stack,
+  Textarea,
 } from "@mantine/core";
 import ms from "ms";
-import { ArrowRightCircle, BorderRadius, BrandSublimeText, Send } from "tabler-icons-react";
+import { Send } from "tabler-icons-react";
 import { notifications } from "@mantine/notifications";
 import { getRandomProfilePicture } from "../../helpers/getRandomProfilePicture";
 import TagComponent from "../badges/TagComponent";
@@ -160,7 +158,8 @@ export default function Map({ posts }: MapProps) {
             fit="contain"
             radius={10}
           />
-          <TextInput
+          <Textarea
+            autosize
             label="Add Comment"
             style={{
               userSelect: "none",
