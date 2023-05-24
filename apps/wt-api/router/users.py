@@ -2,9 +2,11 @@ import uuid
 from fastapi import APIRouter, HTTPException, Request, Form
 from pydantic import BaseModel
 from db import prisma
-from prisma.enums import Role
+from prisma.enums import Role, LogType
+from helpers.log_admin_action import insert_admin_log
 from helpers.auth import verify_permission
 import base64
+
 
 router = APIRouter()
 
@@ -34,6 +36,7 @@ async def ban_user(user_id: int, request: Request):
         raise HTTPException(status_code=400, detail="User is already banned")
     
     await prisma.account.update(where={"accountId": user_id}, data={"banned": True})
+    insert_admin_log(requester.accountId, LogType.BAN_ACCOUNT, account_id=user_id)
     return {"detail": "User has been banned", "user": user}
 
 @router.put("/users/{user_id}/unban", tags=["users"])
@@ -50,6 +53,7 @@ async def ban_user(user_id: int, request: Request):
         raise HTTPException(status_code=400, detail="User is not banned.")
     
     await prisma.account.update(where={"accountId": user_id}, data={"banned": False, "accessToken": None})
+    insert_admin_log(requester.accountId, LogType.UNBAN_ACCOUNT, account_id=user_id)
     return {"detail": "User has been unbanned", "user": user}
 
 
@@ -74,7 +78,8 @@ async def edit_user(request: Request,
             status_code=400, detail="No image provided")
 
     if user.accountId != requester.accountId:
-        return await verify_permission(access_token , [Role.Administrator, Role.Moderator])
+        await verify_permission(access_token , [Role.Administrator, Role.Moderator])
+        insert_admin_log(requester.accountId, LogType.EDIT_ACCOUNT, account_id=user_id)
     
     await prisma.account.update(where={"accountId": user_id}, data={
         "Role": role,
