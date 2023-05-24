@@ -63,8 +63,10 @@ function Home() {
       const queryParams = new URLSearchParams({
         animals: filtersForm.values.animals.join(","),
         date_range: filtersForm.values.dateRange.join(","),
-        season: filtersForm.values.season,
       });
+      if (filtersForm.values.season !== "all") {
+        queryParams.append("season", filtersForm.values.season);
+      }
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/posts?${queryParams.toString()}`,
