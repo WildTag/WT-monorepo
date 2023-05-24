@@ -221,7 +221,7 @@ function Home() {
         "other",
       ],
       dateRange: [
-        new Date("2021-01-01T00:00:00"),
+        new Date("2000-01-01T00:00:00"),
         new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
       ],
       season: "all",
