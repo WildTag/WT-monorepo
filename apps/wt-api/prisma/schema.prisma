@@ -16,6 +16,7 @@ model Account {
   passwordHash String
   accessToken  String
   banned       Boolean    @default(false)
+  profileImage Bytes?
   pictures     Picture[]
   comments     Comment[]
   adminLogs    AdminLog[] @relation("PerformedBy")
