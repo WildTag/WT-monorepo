@@ -1,6 +1,17 @@
-import { Anchor, Button, Center, Flex, PasswordInput, TextInput, Title } from "@mantine/core";
+import {
+  Anchor,
+  Button,
+  Center,
+  Flex,
+  Group,
+  PasswordInput,
+  TextInput,
+  Title,
+  useMantineTheme,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
+import { Lock, User } from "tabler-icons-react";
 
 interface LoginCredentials {
   username: string;
@@ -8,6 +19,7 @@ interface LoginCredentials {
 }
 
 const Login = () => {
+  const theme = useMantineTheme();
   const form = useForm({
     initialValues: {
       username: "",
@@ -48,26 +60,40 @@ const Login = () => {
 
   return (
     <>
-      <Center>
+      <Center style={{ paddingTop: "10%" }}>
         <form onSubmit={form.onSubmit((credentials: LoginCredentials) => handleLogin(credentials))}>
-          <div>
-            <Flex direction={"column"} gap={5}>
+          <div
+            style={{
+              width: "300px",
+              background: theme.colors.dark[6],
+              borderRadius: theme.radius.sm,
+              padding: theme.spacing.sm,
+              marginBottom: "10px",
+            }}
+          >
+            <Flex direction={"column"} gap={10}>
               <Title>Login</Title>
               <TextInput
+                icon={<User size={15}></User>}
                 withAsterisk
                 label="Username or email"
                 placeholder="Username or email"
                 {...form.getInputProps("username")}
+                sx={{ label: { marginBottom: 5, fontWeight: "bold" } }}
               />
               <PasswordInput
+                icon={<Lock size={15}></Lock>}
                 withAsterisk
                 label="Password"
                 placeholder="Password"
                 {...form.getInputProps("password")}
+                sx={{ label: { marginBottom: 5, fontWeight: "bold" } }}
               />
-              <Button type="submit">Login</Button>
+              <Group spacing={20}>
+                <Button type="submit">Login</Button>
+                <Anchor href="/register">Or register an account...</Anchor>
+              </Group>
             </Flex>
-            <Anchor href="/register">Or register an account...</Anchor>
           </div>
         </form>
       </Center>
