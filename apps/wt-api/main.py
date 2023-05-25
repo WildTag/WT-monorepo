@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from helpers.try_int import try_int
 from helpers.create_administrator_firstrun import create_default_admin
-from router import test, users, posts, comments, admin
+from router import test, users, posts, comments, admin, data
 from db import prisma
 
 app = FastAPI()
@@ -14,6 +14,7 @@ app.include_router(users.router)
 app.include_router(posts.router)
 app.include_router(comments.router)
 app.include_router(admin.router)
+app.include_router(data.router)
 
 
 origins = ["*"]
