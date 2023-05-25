@@ -15,6 +15,7 @@ import { useRef } from "react";
 import { Trash } from "tabler-icons-react";
 import { UploadedImage } from "../../types/UploadedImage";
 import { useMediaQuery } from "@mantine/hooks";
+import PinPointMap from "../map/PinPointMap";
 
 interface CreatePostModalProps {
   theme: MantineTheme;
@@ -146,6 +147,7 @@ const CreatePostModal = ({
             </Dropzone>
           </div>
         </SimpleGrid>
+        <PinPointMap />
         <Button mt={10} type="submit">
           Post
         </Button>
