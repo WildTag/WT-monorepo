@@ -16,7 +16,6 @@ import {
   Menu,
   UnstyledButton,
   Modal,
-  TextInput,
   Button,
 } from "@mantine/core";
 import ms from "ms";
@@ -28,6 +27,7 @@ import { Role } from "../../types/Role";
 import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
+import { Position } from "../../types/Position";
 
 const markers = {
   duck: "/markerImages/duckMarker.png",
@@ -62,7 +62,7 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
   const [openDrawer, setOpenDrawer] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editPostModalOpened, setEditPostModalOpened] = useState(false);
-  const [position, setPosition] = useState<any>({
+  const [position, setPosition] = useState<Position>({
     lat: 53.1047,
     lng: -1.5624,
   });
@@ -150,6 +150,26 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
       color: "green",
     });
   };
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setPosition({
+          lat: coords.latitude,
+          lng: coords.longitude,
+        });
+      },
+      (error) => {
+        setPosition((prevState) => ({
+          ...prevState,
+          loaded: true,
+          error,
+        }));
+      }
+    );
+  }, []);
 
   return (
     <>

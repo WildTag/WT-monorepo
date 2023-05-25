@@ -62,7 +62,6 @@ async def user_list(animals: Optional[List[str]] = Query(None), date_range: Opti
             "gte": date_range[0],
             "lte": date_range[1]
         }
-
     posts = await prisma.picture.find_many(
         where=where_clause,
         include={

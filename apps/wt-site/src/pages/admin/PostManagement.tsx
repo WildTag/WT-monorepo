@@ -12,6 +12,8 @@ import {
   TextInput,
   Divider,
   Avatar,
+  Overlay,
+  AspectRatio,
 } from "@mantine/core";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { useEffect, useMemo, useState } from "react";
@@ -234,6 +236,7 @@ const PostComponent = ({
   handlePostDelete,
 }: PostProps) => {
   const [secondsPassed, setSecondsPassed] = useState("");
+  const [visible, setVisbile] = useState(true);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -288,9 +291,16 @@ const PostComponent = ({
           <Title size={20}>{post.title}</Title>
           <Divider />
           <Text>{post.description}</Text>
-          {showImages && (
+          <AspectRatio ratio={16 / 9} maw={400} mx="auto">
             <Image src={`data:image/jpeg;base64,${post.image}`} radius={theme.radius.md} />
-          )}
+            {!showImages && visible && (
+              <Overlay blur={15} center>
+                <Button color="red" radius="md" onClick={() => setVisbile(!visible)}>
+                  Click to reveal
+                </Button>
+              </Overlay>
+            )}
+          </AspectRatio>
         </div>
         <Flex gap={5} mt={5}>
           {post.postTags.map((tag) => {
