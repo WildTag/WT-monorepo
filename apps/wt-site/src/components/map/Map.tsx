@@ -177,6 +177,38 @@ export default function Map({
     });
   };
 
+  const handleDeleteComment = async (commentId: number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/comments/${commentId}/delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: localStorage.getItem("sessionToken") || "",
+      },
+    });
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+
+    const tmpPosts = JSON.parse(JSON.stringify(posts)) as Post[];
+    const newPosts = tmpPosts.map((post) => {
+      if (post.pictureId !== selectedPost?.pictureId) return post;
+      post.comments = post.comments.filter((comment) => comment.commentId !== commentId);
+      return post;
+    });
+    setPosts(newPosts);
+  };
+
   const handleReportPost = async (postId: number) => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/${postId}/report`, {
       method: "PUT",
@@ -462,7 +494,12 @@ export default function Map({
                           >
                             Edit
                           </Menu.Item>
-                          <Menu.Item icon={<Trash color={theme.colors.red[5]} size={14} />}>
+                          <Menu.Item
+                            onClick={() => {
+                              handleDeleteComment(comment.commentId);
+                            }}
+                            icon={<Trash color={theme.colors.red[5]} size={14} />}
+                          >
                             Delete
                           </Menu.Item>
                         </Menu.Dropdown>

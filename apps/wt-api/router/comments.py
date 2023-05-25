@@ -66,7 +66,7 @@ async def create_post(edit_comment_payload: EditCommentPayload, request: Request
 async def create_post(comment_id: int,
                       request: Request):
     user = await prisma.account.find_first(where={"accessToken": request.headers.get("Authorization")})
-    comment = await prisma.comments.find_first(where={"commentId": comment_id})
+    comment = await prisma.comment.find_first(where={"commentId": comment_id})
 
     if not user:
         raise HTTPException(
@@ -75,10 +75,10 @@ async def create_post(comment_id: int,
         raise HTTPException(
             status_code=404, detail="Comment not found.")
     
-    if user.accountId != comment.commenterAccountID:
+    if user.accountId != comment.commenterAccountId:
         await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
         await insert_admin_log(user.accountId, LogType.DELETE_COMMENT)
 
-    post = await prisma.comments.delete(where={"commentId": comment_id})
+    # comment = await prisma.comment.delete(where={"commentId": comment_id})
 
-    return ({"detail": "Comment has been deleted.", "post": post})
+    return ({"detail": "Comment has been deleted.", "comment": comment})
