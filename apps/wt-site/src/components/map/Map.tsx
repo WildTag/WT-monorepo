@@ -287,7 +287,7 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
             <Divider size="md" />
             <Text>{selectedPost?.description}</Text>
           </div>
-          <Flex gap={5} mb={10}>
+          <Flex gap={5} mb={10} wrap={"wrap"}>
             {selectedPost?.postTags.map((tag) => {
               return <TagComponent tag={tag} theme={theme} />;
             })}

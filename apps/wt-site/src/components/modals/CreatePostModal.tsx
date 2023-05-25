@@ -157,9 +157,6 @@ const CreatePostModal = ({
                   <>
                     <Flex mb={5}>
                       <Trash
-                        style={{
-                          cursor: "pointer",
-                        }}
                         color="red"
                         onClick={() => {
                           form.setFieldValue("images", []);
@@ -167,7 +164,17 @@ const CreatePostModal = ({
                           setFiles(files.filter((_: any, i: number) => i !== index));
                         }}
                       />
-                      <Text>{file.filename}</Text>
+
+                      <Text
+                        style={{
+                          maxWidth: "250px", // adjust as per requirement
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {file.filename}
+                      </Text>
                     </Flex>
                     <Image key={index} src={`data:image/jpeg;base64,${file.image}`} />
                   </>
