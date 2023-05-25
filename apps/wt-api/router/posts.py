@@ -145,18 +145,34 @@ async def create_post(post_id: int):
     post = await prisma.picture.find_first(where={"pictureId": post_id})
 
     if not post:
-        raise HTTPException(status_code=404, detail="Post not found")
+        raise HTTPException(status_code=404, detail="Post not found.")
     
     if post.deleted:
-        raise HTTPException(status_code=400, detail="Post already deleted")
+        raise HTTPException(status_code=400, detail="Post already deleted.")
     
     if post.reported:
-        raise HTTPException(status_code=400, detail="Post already reported")
+        raise HTTPException(status_code=400, detail="Post already reported.")
     
     await prisma.picture.update(where={"pictureId": post_id}, data={"reported": True})
 
     return ({"detail": "Post has been reported"})
+
+@router.put("/posts/{post_id}/report/clear", tags=["posts"])
+async def create_post(post_id: int):
+    post = await prisma.picture.find_first(where={"pictureId": post_id})
+
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found.")
     
+    if post.deleted:
+        raise HTTPException(status_code=400, detail="Post already deleted.")
+    
+    if not post.reported:
+        raise HTTPException(status_code=400, detail="Post not reported.")
+    
+    await prisma.picture.update(where={"pictureId": post_id}, data={"reported": False})
+
+    return ({"detail": "Report has been cleared."})    
 
 class EditPostPayload(BaseModel):
     post_id: int

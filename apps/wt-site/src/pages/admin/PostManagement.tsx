@@ -144,6 +144,30 @@ const PostManagement = () => {
     setRefetch(!refetch);
   };
 
+  const handlePostClearFlag = async (postId: number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/${postId}/report/clear`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: accessToken || "",
+      },
+    });
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+    setRefetch(!refetch);
+  };
+
   const handlePostDelete = async (postId: number) => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/${postId}/delete`, {
       method: "DELETE",
@@ -208,6 +232,7 @@ const PostManagement = () => {
               handleUserBan={handleUserBan}
               handleUserUnban={handleUserUnban}
               handlePostDelete={handlePostDelete}
+              handlePostClearFlag={handlePostClearFlag}
             />
           );
         })}
@@ -225,6 +250,7 @@ interface PostProps {
   handleUserBan: (accountId: number) => Promise<void>;
   handleUserUnban: (accountId: number) => Promise<void>;
   handlePostDelete: (postId: number) => Promise<void>;
+  handlePostClearFlag: (postId: number) => Promise<void>;
 }
 
 const PostComponent = ({
@@ -234,6 +260,7 @@ const PostComponent = ({
   handleUserBan,
   handleUserUnban,
   handlePostDelete,
+  handlePostClearFlag,
 }: PostProps) => {
   const [secondsPassed, setSecondsPassed] = useState("");
   const [visible, setVisbile] = useState(true);
@@ -328,6 +355,17 @@ const PostComponent = ({
           >
             {!post.uploader.banned ? "Ban" : "Unban"}
           </Button>
+
+          {post.reported && (
+            <Button
+              color={"green"}
+              onClick={() => {
+                handlePostClearFlag(post.pictureId);
+              }}
+            >
+              Clear flag
+            </Button>
+          )}
         </Flex>
       </div>
     </div>
