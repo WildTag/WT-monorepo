@@ -57,6 +57,7 @@ const PinPointMap = ({ displayPinPointMap, form }: PinPointMapProps) => {
             center={position}
             zoom={9}
             options={{
+              draggableCursor: "crosshair",
               minZoom: 2,
               maxZoom: 16,
               fullscreenControl: false,
