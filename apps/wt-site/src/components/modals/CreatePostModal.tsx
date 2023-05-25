@@ -20,7 +20,6 @@ import { UploadedImage } from "../../types/UploadedImage";
 import { useMediaQuery } from "@mantine/hooks";
 import PinPointMap from "../map/PinPointMap";
 import { DatePickerInput } from "@mantine/dates";
-import { notifications } from "@mantine/notifications";
 
 interface CreatePostModalProps {
   theme: MantineTheme;
@@ -73,8 +72,11 @@ const CreatePostModal = ({
   };
 
   const nextStep = () => {
-    if (activeStep === Object.keys(steps).length) return handlePublishPost();
-    console.log("foo: ", activeStep, steps.length);
+    if (activeStep === Object.keys(steps).length) {
+      setActiveStep(0);
+      setModalOpened(false);
+      return handlePublishPost();
+    }
     const response = validateStep[steps[activeStep]]();
     if (response) return;
 
@@ -148,6 +150,8 @@ const CreatePostModal = ({
                     console.log("Upload failed:", error);
                   });
                   if (!data) return;
+
+                  console.log(data);
 
                   if (
                     !data.image_data.metadata.gps_latitude ||

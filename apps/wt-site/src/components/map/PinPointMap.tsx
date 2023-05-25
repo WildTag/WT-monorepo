@@ -13,11 +13,14 @@ interface PinPointMapProps {
 }
 
 const PinPointMap = ({ form }: PinPointMapProps) => {
-  const [pinPoint, setPinPoint] = useState<Position>({ lat: null, lng: null });
-  const [position, setPosition] = useState({
-    lat: 53.1047,
-    lng: -1.5624,
-  });
+  const defaultPos = form.values.gps_lat
+    ? { lat: form.values.gps_lat, lng: form.values.gps_long }
+    : { lat: null, lng: null };
+  const [pinPoint, setPinPoint] = useState<Position>(defaultPos);
+  const [position, setPosition] = useState(defaultPos);
+  console.log(0, defaultPos);
+  console.log(1, pinPoint);
+  console.log(2, position);
 
   useEffect(() => {
     form.setFieldValue("gps_lat", pinPoint.lat);
@@ -26,7 +29,7 @@ const PinPointMap = ({ form }: PinPointMapProps) => {
 
   useEffect(() => {
     if (!navigator.geolocation) return;
-
+    if (position.lat || position.lng) return;
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         setPosition({
@@ -51,7 +54,7 @@ const PinPointMap = ({ form }: PinPointMapProps) => {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={position}
-        zoom={9}
+        zoom={7}
         options={{
           draggableCursor: "crosshair",
           minZoom: 2,
