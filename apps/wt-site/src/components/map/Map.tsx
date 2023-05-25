@@ -17,9 +17,19 @@ import {
   Modal,
   Button,
   TextInput,
+  MediaQuery,
 } from "@mantine/core";
 import ms from "ms";
-import { AlertCircle, ChevronDown, Pencil, Send, ThumbUp, Trash } from "tabler-icons-react";
+import {
+  AlertCircle,
+  AspectRatio,
+  ChevronDown,
+  Pencil,
+  Rotate,
+  Send,
+  ThumbUp,
+  Trash,
+} from "tabler-icons-react";
 import { getRandomProfilePicture } from "../../helpers/getRandomProfilePicture";
 import TagComponent from "../badges/TagComponent";
 import { Account } from "../../types/Account";
@@ -28,6 +38,7 @@ import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { Comment } from "../../types/Post";
+import { useFullscreen } from "@mantine/hooks";
 
 const markers = {
   duck: "/markerImages/duckMarker.png",
@@ -68,6 +79,7 @@ export default function Map({
   const [selectedPost, setSelectedPost] = useState<Post | null>();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [toggleRef, setToggleRef] = useState(false);
   const [editPostModalOpened, setEditPostModalOpened] = useState(false);
   const [position, setPosition] = useState({
     lat: 53.1047,
@@ -406,11 +418,42 @@ export default function Map({
               return <TagComponent tag={tag} theme={theme} />;
             })}
           </Flex>
-          <Image
-            src={`data:image/jpeg;base64,${selectedPost?.image || ""}`}
-            fit="contain"
-            radius={10}
-          />
+
+          <UnstyledButton
+            onClick={() => {
+              if (window.innerWidth > 757) {
+                setToggleRef(true);
+              }
+            }}
+          >
+            <Image
+              src={`data:image/jpeg;base64,${selectedPost?.image || ""}`}
+              fit="cover"
+              radius={10}
+            />
+          </UnstyledButton>
+
+          <Modal
+            transitionProps={{ transition: "fade", duration: 200 }}
+            opened={toggleRef}
+            onClose={() => setToggleRef(false)}
+            fullScreen
+            display={"block"}
+          >
+            <div style={{ maxWidth: "100%", maxHeight: "50%", objectFit: "contain" }}>
+              <Image
+                src={`data:image/jpeg;base64,${selectedPost?.image || ""}`}
+                fit="contain"
+                radius={10}
+                style={{
+                  display: "block",
+                  width: "120vh",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              />
+            </div>
+          </Modal>
           <Textarea
             autosize
             label="Create a comment"
