@@ -52,12 +52,30 @@ function Home() {
   const form = useForm({
     initialValues: initialValues,
     validate: {
-      title: (value) => (value.trim().length <= 0 ? "A post must have a title" : null),
-      description: (value) => (value.trim().length <= 0 ? "A post must have a description" : null),
-      gps_lat: (value) => !value,
-      gps_long: (value) => !value,
-      animals: (value) => (value.length <= 0 ? "A post must have at least one animal tag" : null),
-      images: (value) => (value.length <= 0 ? "A post must have at least one image" : null),
+      title: (value) => {
+        console.log(1, value);
+        return value.trim().length <= 0 ? "A post must have a title" : null;
+      },
+      description: (value) => {
+        console.log(2, value);
+        return value.trim().length <= 0 ? "A post must have a description" : null;
+      },
+      gps_lat: (value) => {
+        console.log(3, value);
+        return !value;
+      },
+      gps_long: (value) => {
+        console.log(4, value);
+        return !value;
+      },
+      animals: (value) => {
+        console.log(5, value);
+        return value.length <= 0 ? "A post must have at least one animal tag" : null;
+      },
+      images: (value) => {
+        console.log(6, value);
+        return value.length <= 0 ? "A post must have at least one image" : null;
+      },
     },
   });
 
@@ -117,7 +135,7 @@ function Home() {
     getAccountInfo();
   }, []);
 
-  const handleUploadImage = async (files: any) => {
+  const handleUploadImage = async (files: any): Promise<any> => {
     const formData = new FormData();
 
     files.forEach((file: any) => {
@@ -140,7 +158,7 @@ function Home() {
     notifications.show({
       title: "Success",
       message: data.detail,
-      color: "green",
+      color: data?.color ? data.color : "green",
     });
 
     form.setFieldValue("gps_lat", data.image_data.metadata.gps_latitude);
@@ -151,6 +169,10 @@ function Home() {
   };
 
   const handlePublishPost = async () => {
+    console.log(2);
+    console.log(2);
+    console.log(2);
+    console.log(2);
     const formData = new FormData();
 
     if (!form.values.session_token) {

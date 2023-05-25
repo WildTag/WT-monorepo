@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Trash } from "tabler-icons-react";
 import { UploadedImage } from "../../types/UploadedImage";
 import { useMediaQuery } from "@mantine/hooks";
@@ -22,7 +22,7 @@ interface CreatePostModalProps {
   modalOpened: boolean;
   setModalOpened: (modalOpened: boolean) => void;
   form: any;
-  handleUploadFiles: (files: any) => Promise<void>;
+  handleUploadFiles: (files: any) => Promise<any>;
   handlePublishPost: () => Promise<void>;
   files: any;
   setFiles: (files: any) => void;
@@ -38,8 +38,14 @@ const CreatePostModal = ({
   files,
   setFiles,
 }: CreatePostModalProps) => {
+  const [displayPinPointMap, setDisplayPinPointMap] = useState<boolean>(false);
   const matches = useMediaQuery("(min-width: 56.25em)");
   const dropzoneRef = useRef<() => void>(null);
+
+  useEffect(() => {
+    if (modalOpened) return;
+    setDisplayPinPointMap(false);
+  }, [modalOpened]);
 
   return (
     <Modal
@@ -48,7 +54,18 @@ const CreatePostModal = ({
       onClose={() => setModalOpened(!modalOpened)}
       size={"xl"}
     >
-      <form onSubmit={form.onSubmit(() => handlePublishPost())}>
+      <form
+        onSubmit={form.onSubmit(() => {
+          console.log("im here");
+          handlePublishPost();
+        })}
+        onError={() => {
+          console.log(1);
+        }}
+        onInvalid={() => {
+          console.log(2);
+        }}
+      >
         <SimpleGrid cols={!matches ? 1 : 2}>
           <div
             style={{
@@ -105,10 +122,19 @@ const CreatePostModal = ({
                 "image/heic",
                 "image/heif",
               ]}
-              onDrop={(files) => {
-                handleUploadFiles(files).catch((error) => {
+              onDrop={async (files) => {
+                const data = await handleUploadFiles(files).catch((error) => {
                   console.log("Upload failed:", error);
                 });
+                if (!data) return;
+
+                if (
+                  !data.image_data.metadata.gps_latitude ||
+                  !data.image_data.metadata.gps_longitude
+                )
+                  return setDisplayPinPointMap(true);
+
+                setDisplayPinPointMap(false);
               }}
               styles={{ inner: { pointerEvents: "all" } }}
               {...form.getInputProps("images")}
@@ -135,6 +161,7 @@ const CreatePostModal = ({
                         color="red"
                         onClick={() => {
                           form.setFieldValue("images", []);
+                          setDisplayPinPointMap(false);
                           setFiles(files.filter((_: any, i: number) => i !== index));
                         }}
                       />
@@ -147,7 +174,7 @@ const CreatePostModal = ({
             </Dropzone>
           </div>
         </SimpleGrid>
-        <PinPointMap />
+        <PinPointMap displayPinPointMap={displayPinPointMap} form={form} />
         <Button mt={10} type="submit">
           Post
         </Button>
