@@ -22,6 +22,15 @@ async def get_user(user_id: int):
     user = await prisma.account.find_first(where={"accountId": user_id})
     return user
 
+@router.get("/users/{user_id}/posts", tags=["users"])
+async def get_user_posts(user_id: int):
+    posts = await prisma.picture.find_many(where={"accountId": user_id},include={ "comments": True,})
+
+    if not posts:
+        raise HTTPException(status_code=404, detail="User has no posts or doesn't exist.")
+
+    return posts
+
 @router.put("/users/{user_id}/ban", tags=["users"])
 async def ban_user(user_id: int, request: Request):
     requester =  await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
