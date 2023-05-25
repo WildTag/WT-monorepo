@@ -38,22 +38,16 @@ async def get_post_data(post_id: int, request: Request):
 
 
 def to_csv(data):
-    # Create a memory file
-    output = io.StringIO()
 
-    # Define CSV Writer with pipe delimiter
+    output = io.StringIO()
     writer = csv.writer(output, delimiter='|')
 
-    # Write header
     writer.writerow(data[0].keys())
 
-    # Write data rows
     for row in data:
-        # Convert tags from list of dictionaries to string
         row['tags'] = ', '.join([f"{tag['tag']}" for tag in row['tags']])
         writer.writerow(row.values())
 
-    # Return CSV data
     return output.getvalue()
 
 
