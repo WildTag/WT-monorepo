@@ -16,6 +16,7 @@ import { Trash } from "tabler-icons-react";
 import { UploadedImage } from "../../types/UploadedImage";
 import { useMediaQuery } from "@mantine/hooks";
 import PinPointMap from "../map/PinPointMap";
+import { DatePickerInput } from "@mantine/dates";
 
 interface CreatePostModalProps {
   theme: MantineTheme;
@@ -59,12 +60,6 @@ const CreatePostModal = ({
           console.log("im here");
           handlePublishPost();
         })}
-        onError={() => {
-          console.log(1);
-        }}
-        onInvalid={() => {
-          console.log(2);
-        }}
       >
         <SimpleGrid cols={!matches ? 1 : 2}>
           <div
@@ -87,6 +82,13 @@ const CreatePostModal = ({
               {...form.getInputProps("description")}
             />
             <AnimalMultiSelect form={form} label={"Choose an animal"} />
+            <DatePickerInput
+              popoverProps={{ withinPortal: true }}
+              clearable
+              label="Pick a date range"
+              placeholder="Pick a date range..."
+              {...form.getInputProps("date_time_original")}
+            />
           </div>
           <div
             style={{

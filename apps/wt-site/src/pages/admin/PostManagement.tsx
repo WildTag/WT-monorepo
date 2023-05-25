@@ -80,7 +80,6 @@ const PostManagement = () => {
   }, [sortByNewest]);
 
   useMemo(() => {
-    console.log(reportedOnly);
     if (reportedOnly) return setFilteredPosts(posts.filter((post) => post.reported));
     if (!searchQuery) return setFilteredPosts(posts);
     setFilteredPosts(
