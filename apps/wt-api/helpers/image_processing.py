@@ -26,22 +26,23 @@ def get_exif(img, image_type):
     exif_gps = exif.get_ifd(IFD.GPSInfo)
     exif_basic = exif.get_ifd(IFD.Exif)
     
-    gps_latitude = None
-    gps_longitude = None
-    date_time_original = None
+    error_text = ""
 
     try:
         gps_latitude = dms_to_dd(exif_gps[2], exif_gps[1])
         gps_longitude = dms_to_dd(exif_gps[4], exif_gps[3])
     except KeyError:
-        return (404, "No GPS Data Found.", None)
+        gps_latitude = None
+        gps_longitude = None
+        error_text += "GPS information not found. "
 
     try:
         date_time_original = exif_basic[36867]
     except KeyError:
-        return (404, "No Date Time Original Found.", None)
+        date_time_original = None
+        error_text += "Date information not found. "
     
-    result = {
+    data = {
         "gps_latitude": gps_latitude,
         "gps_longitude": gps_longitude,
         "date_time_original": date_time_original
@@ -51,4 +52,4 @@ def get_exif(img, image_type):
     img.save(buffered, format="JPEG")
     returned_image = base64.b64encode(buffered.getvalue())
     
-    return (200, result, returned_image)
+    return (200, data, returned_image, error_text)
