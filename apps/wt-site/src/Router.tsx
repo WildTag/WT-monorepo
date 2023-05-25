@@ -5,6 +5,7 @@ import Register from "./pages/register/Register";
 import AdminHomePage from "./pages/admin/AdminHomePage";
 import UserManagement from "./pages/admin/UserManagement";
 import PostManagement from "./pages/admin/PostManagement";
+import Profile from "./pages/profile/Profile";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<AdminHomePage />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/admin/user_management" element={<UserManagement />} />
         <Route path="/admin/post_management" element={<PostManagement />} />
       </Routes>
