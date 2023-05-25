@@ -79,6 +79,6 @@ async def create_post(comment_id: int,
         await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
         await insert_admin_log(user.accountId, LogType.DELETE_COMMENT)
 
-    # comment = await prisma.comment.delete(where={"commentId": comment_id})
+    comment = await prisma.comment.delete(where={"commentId": comment_id})
 
     return ({"detail": "Comment has been deleted.", "comment": comment})
