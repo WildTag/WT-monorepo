@@ -159,48 +159,46 @@ async def create_post(post_id: int):
     return ({"detail": "Post has been reported"})
     
 
-@router.put("/posts/{post_id}/edit", tags=["posts"])
-async def create_post(post_id: int,
-                      request: Request,
-                      session_token: str = Form(...), 
-                      animals: List[str] = Form(...), 
-                      title: str = Form(...), 
-                      description: str = Form(...), 
-                      gps_lat: float = Form(...), 
-                      gps_long: float = Form(...), 
-                      images: List[str] = Form(...)):
-    
-    user = await prisma.account.find_first(where={"accessToken": session_token})
-    post = await prisma.picture.find_first(where={"pictureId": post_id})
+class EditPostPayload(BaseModel):
+    post_id: int
+    animals: List[str]
+    title: str
+    description: str
 
+@router.put("/posts/{post_id}/edit", tags=["posts"])
+async def create_post(edit_post_payload: EditPostPayload, request: Request):
+    access_token = request.headers.get("Authorization")
+    user = await prisma.account.find_first(where={"accessToken": access_token})
+    post = await prisma.picture.find_first(where={"pictureId": edit_post_payload.post_id})
+    
+    if not user:
+        raise HTTPException(
+            status_code=401, detail="Invalid session token")
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
     if post.accountId != user.accountId:
         await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
-        await insert_admin_log(user.accountId, LogType.POST_EDIT, picture_id=post_id)
-    
-    image_bytes = None
-    for image in images:
-        image_bytes = base64.b64decode(image)
-        # image_bytes = await image.read()
-    if not image_bytes: 
-        raise HTTPException(
-            status_code=400, detail="No image provided")
+        await insert_admin_log(user.accountId, LogType.POST_EDIT, picture_id=edit_post_payload.post_id)
         
     post_tags = []
-    for animal in animals:
+    for animal in edit_post_payload.animals:
         post_tags.append({"tag": animal.upper(), "tagType": "ANIMAL"})
+        
+    await prisma.posttag.delete_many(where={"pictureId": edit_post_payload.post_id})
     
-    post = await prisma.picture.update(where={"pictureId": post_id}, data={
-        "image": base64.b64encode(image_bytes).decode(),
+    post = await prisma.picture.update(where={"pictureId": edit_post_payload.post_id}, data={
         "accountId": user.accountId,
-        "title": title,
-        "description": description,
-        "GPSLong": gps_long,
-        "GPSLat": gps_lat,
+        "title": edit_post_payload.title,
+        "description": edit_post_payload.description,
         "postTags": {
             "create": post_tags
         }
-    },
-    include={"uploader": True, "comments": True, "postTags": True})
+    }, include={"uploader": True, "comments": {
+                "include": {
+                    "commenter": True
+                }
+    }, "postTags": True})
 
     return ({"detail": "Post has been updated", "post": post})
 
