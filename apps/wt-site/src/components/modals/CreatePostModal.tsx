@@ -8,6 +8,8 @@ import {
   Text,
   Image,
   SimpleGrid,
+  Stepper,
+  Group,
 } from "@mantine/core";
 import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
@@ -30,18 +32,16 @@ interface CreatePostModalProps {
 }
 
 const CreatePostModal = ({
-  theme,
   modalOpened,
   setModalOpened,
   form,
-  handleUploadFiles,
   handlePublishPost,
-  files,
-  setFiles,
 }: CreatePostModalProps) => {
+  const [active, setActive] = useState(1);
+  const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
+  const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
+
   const [displayPinPointMap, setDisplayPinPointMap] = useState<boolean>(false);
-  const matches = useMediaQuery("(min-width: 56.25em)");
-  const dropzoneRef = useRef<() => void>(null);
 
   useEffect(() => {
     if (modalOpened) return;
@@ -60,7 +60,33 @@ const CreatePostModal = ({
           handlePublishPost();
         })}
       >
-        <SimpleGrid cols={!matches ? 1 : 2}>
+        <Stepper
+          active={active}
+          onStepClick={setActive}
+          breakpoint="sm"
+          allowNextStepsSelect={false}
+        >
+          <Stepper.Step label="First step" description="">
+            Step 1 content: Create an account
+          </Stepper.Step>
+          <Stepper.Step label="Second step" description="Verify email">
+            Step 2 content: Verify email
+          </Stepper.Step>
+          <Stepper.Step label="Final step" description="Get full access">
+            Step 3 content: Get full access
+          </Stepper.Step>
+          <Stepper.Completed>
+            Completed, click back button to get to previous step
+          </Stepper.Completed>
+        </Stepper>
+
+        <Group position="center" mt="xl">
+          <Button variant="default" onClick={prevStep}>
+            Back
+          </Button>
+          <Button onClick={nextStep}>Next step</Button>
+        </Group>
+        {/* <SimpleGrid cols={!matches ? 1 : 2}>
           <div
             style={{
               backgroundColor: theme.colors.dark[5],
@@ -181,11 +207,11 @@ const CreatePostModal = ({
               })}
             </Dropzone>
           </div>
-        </SimpleGrid>
-        <PinPointMap displayPinPointMap={displayPinPointMap} form={form} />
-        <Button mt={10} type="submit">
+        </SimpleGrid> */}
+        {/* <PinPointMap displayPinPointMap={displayPinPointMap} form={form} /> */}
+        {/* <Button mt={10} type="submit">
           Post
-        </Button>
+        </Button> */}
       </form>
     </Modal>
   );
