@@ -444,7 +444,9 @@ function Home() {
                       </>
                     )}
                     <Menu.Label>Options</Menu.Label>
-                    <Menu.Item icon={<User size={20} />}>Profile</Menu.Item>
+                    <Menu.Item href={"/profile"} component={"a"} icon={<User size={20} />}>
+                      Profile
+                    </Menu.Item>
                     <Menu.Item icon={<Settings size={20} />}>Settings</Menu.Item>
                     <Menu.Divider />
                     <Menu.Label>Danger zone</Menu.Label>
@@ -465,80 +467,6 @@ function Home() {
               )}
             </Menu>
           </div>
-
-          {/* <Group position="center">
-            {accountInfo && (
-              <>
-                <Button
-                  leftIcon={<Filter size="1rem" strokeWidth={2} />}
-                  style={{ backgroundColor: theme.colors.dark[3] }}
-                  onClick={() => {
-                    setDrawerOpen(true);
-                  }}
-                >
-                  Filter
-                </Button>
-                <Button
-                  style={{
-                    padding: "0px",
-                    width: "50px",
-                    height: "50px",
-                    borderRadius: "50%",
-                    backgroundColor: theme.colors.dark[4],
-                    zIndex: 5,
-                  }}
-                  onClick={() => setPostModalOpened(!postModalOpened)}
-                >
-                  <Upload size={20} strokeWidth={3} />
-                </Button>
-              </>
-            )}
-            <Menu shadow="md" width={200} position="top-start">
-              <Menu.Target>
-                <Button
-                  rightIcon={<User size="1rem" strokeWidth={2} />}
-                  style={{ backgroundColor: theme.colors.dark[3] }}
-                  onClick={() => {
-                    if (accountInfo) return;
-                    window.location.href = "/login";
-                  }}
-                >
-                  {accountInfo ? "Profile" : "Login"}
-                </Button>
-              </Menu.Target>
-              {accountInfo ? (
-                <>
-                  <Menu.Dropdown>
-                    {accountInfo.permission === Role.ADMINISTRATOR && (
-                      <>
-                        <Menu.Label>Admin</Menu.Label>
-                        <Anchor underline={false} href="/admin">
-                          <Menu.Item icon={<Hammer size={20} />}>admin</Menu.Item>
-                        </Anchor>
-                      </>
-                    )}
-                    <Menu.Label>Options</Menu.Label>
-                    <Menu.Item icon={<User size={20} />}>Profile</Menu.Item>
-                    <Menu.Item icon={<Settings size={20} />}>Settings</Menu.Item>
-                    <Menu.Divider />
-                    <Menu.Label>Danger zone</Menu.Label>
-                    <Menu.Item
-                      color="red"
-                      icon={<Logout size={14} />}
-                      onClick={() => {
-                        localStorage.removeItem("sessionToken");
-                        window.location.href = "/";
-                      }}
-                    >
-                      Logout
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </>
-              ) : (
-                <></>
-              )}
-            </Menu>
-          </Group> */}
         </div>
       </div>
     </>
