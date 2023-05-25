@@ -1,14 +1,16 @@
 import { Group, Navbar, Title, Image } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { Dashboard, Icon } from "tabler-icons-react";
+import { Dashboard, Icon, FileText } from "tabler-icons-react";
 import { useStyles } from "./dashboardNavbar.styles";
 import { Loading } from "../loading/Loading";
+import FileDownload from 'js-file-download';
 
 export interface NavBarLinks {
   link: string;
   label: string;
   icon: Icon | null;
   adminOnly?: boolean;
+  onClick?: () => void;
 }
 
 const data: NavBarLinks[] = [
@@ -28,6 +30,32 @@ export function DashboardNavbar({ opened, selected }: Props) {
   const [user, setUser] = useState<any>();
   const [fetched, setFetched] = useState(false);
   const accessToken = localStorage.getItem("sessionToken");
+
+  const getCSV = async () => {
+    const accessToken = localStorage.getItem("sessionToken");
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/data`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: accessToken || "",
+      },
+    });
+  
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+  
+    const blob = await response.blob();
+  
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'data.csv');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+  
 
   useEffect(() => {
     async function fetchAccountInfo() {
@@ -49,7 +77,9 @@ export function DashboardNavbar({ opened, selected }: Props) {
   if (!accessToken) return <h1>No permissions</h1>;
   if (!fetched) return <Loading />;
 
-  const links = data.map((item, index) => {
+  const links = data.concat([
+    { link: "#", label: "Download Data CSV", icon: FileText, onClick: getCSV }
+  ]).map((item, index) => {
     return (
       <>
         {item.adminOnly && user?.permission !== "ADMIN" ? null : (
@@ -59,7 +89,14 @@ export function DashboardNavbar({ opened, selected }: Props) {
                 className={cx(classes.link, { [classes.linkActive]: index === active })}
                 href={item.link}
                 key={item.label}
-                onClick={() => setActive(index)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (item.onClick) {
+                    item.onClick();
+                  } else {
+                    setActive(index);
+                  }
+                }}
               >
                 <item.icon color={"white"} />
                 <span>{item.label}</span>
@@ -86,5 +123,7 @@ export function DashboardNavbar({ opened, selected }: Props) {
         </Navbar.Section>
       </Navbar>
     </>
-  );
+  )
+
+
 }
