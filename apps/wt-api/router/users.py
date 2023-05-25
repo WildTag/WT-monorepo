@@ -5,6 +5,7 @@ from db import prisma
 from prisma.enums import Role, LogType
 from helpers.log_admin_action import insert_admin_log
 from helpers.auth import verify_permission
+from helpers.password import generate_password_salt, hash_password
 import base64
 
 
@@ -148,10 +149,14 @@ async def create_user(user_payload: RegisterUserData):
         raise HTTPException(
             status_code=400, detail="No image provided")
 
+    salt = generate_password_salt()
+    password_hash = hash_password(user_payload.password, salt)
+
     user = await prisma.account.create(data={
         "username": user_payload.username,
         "email": user_payload.email,
-        "passwordHash": user_payload.password,
+        "passwordHash": password_hash,
+        "passwordSalt": salt,
         "accessToken": str(uuid.uuid4()),
         "profileImage": base64.b64encode(image_bytes).decode()
     })
@@ -166,14 +171,16 @@ class LoginUserData(BaseModel):
 @router.post("/users/login", tags=["users"])
 async def create_user(login_payload: LoginUserData):
     access_token = str(uuid.uuid4())
+
     user = await prisma.account.find_first(where={
         "username": login_payload.username,
-        "passwordHash": login_payload.password
     })
-    if not user:
+
+    password_hash = hash_password(login_payload.password, user.passwordSalt)
+
+    if user.passwordHash != password_hash:
         raise HTTPException(
             status_code=401, detail="Invalid login credentials")
-        
     
     if user.banned:
         raise HTTPException(

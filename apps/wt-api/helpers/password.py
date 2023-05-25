@@ -1,3 +1,15 @@
+import os
+import hashlib
+
+def generate_password_salt(): 
+    seed = os.urandom(64)
+    salt = hashlib.sha512(seed).hexdigest()
+    
+    return salt
+
+def hash_password(password, salt):
+    return hashlib.sha512(password.encode() + salt.encode()).hexdigest()
+
 def has_numbers(input_string):
     return any(char.isdigit() for char in input_string)
 
