@@ -24,7 +24,7 @@ async def get_user(user_id: int):
 
 @router.get("/users/{user_id}/posts", tags=["users"])
 async def get_user_posts(user_id: int):
-    posts = await prisma.picture.find_many(where={"accountId": user_id},include={ "comments": True,})
+    posts = await prisma.picture.find_many(where={"accountId": user_id},include={ "comments": True,},order={'pictureId': 'desc'})
 
     if not posts:
         raise HTTPException(status_code=404, detail="User has no posts or doesn't exist.")
