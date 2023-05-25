@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { Dashboard, Icon, FileText, Home2 } from "tabler-icons-react";
 import { useStyles } from "./dashboardNavbar.styles";
 import { Loading } from "../loading/Loading";
-import FileDownload from "js-file-download";
 import { Account } from "../../types/Account";
+import { notifications } from "@mantine/notifications";
 
 export interface NavBarLinks {
   link: string;
@@ -43,7 +43,14 @@ export function DashboardNavbar({ opened, selected }: Props) {
       },
     });
 
-    if (!response.ok) throw new Error("Network response was not ok");
+    const data = await response.json();
+
+    if (!response.ok)
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
 
     const blob = await response.blob();
 
@@ -58,10 +65,11 @@ export function DashboardNavbar({ opened, selected }: Props) {
 
   useEffect(() => {
     async function fetchAccountInfo() {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/account/${accessToken}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/account/get`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: accessToken || "",
         },
       });
       const data = (await response.json()) as Account;

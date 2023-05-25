@@ -488,7 +488,6 @@ function Home() {
                     <Menu.Item href={"/profile"} component={"a"} icon={<User size={20} />}>
                       Profile
                     </Menu.Item>
-                    <Menu.Item icon={<Settings size={20} />}>Settings</Menu.Item>
                     <Menu.Divider />
                     <Menu.Label>Danger zone</Menu.Label>
                     <Menu.Item

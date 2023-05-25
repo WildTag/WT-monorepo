@@ -67,36 +67,37 @@ async def ban_user(user_id: int, request: Request):
     return {"detail": "User has been unbanned", "user": user}
 
 
-@router.put("/users/{user_id}/edit", tags=["users"])
-async def edit_user(request: Request,
-                    user_id: int, 
-                    role: Role,
-                    password: str,
-                    profile_image: str = Form(...)):
+class EditUserPayload(BaseModel):
+    user_id: int
+    username: str
+    permission: Role
+    password: str
+    email: str
     
+@router.put("/users/{user_id}/edit", tags=["users"])
+async def edit_user(edit_user_payload: EditUserPayload, request: Request):
     access_token = request.headers.get("Authorization")
     requester = await prisma.account.find_first(where={"accessToken": access_token})
-    user = await prisma.account.find_first(where={"accountId": user_id})
+    user = await prisma.account.find_first(where={"accountId": edit_user_payload.user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    image_bytes = None
-    image_bytes = base64.b64decode(profile_image)
-
-    if not image_bytes: 
-        raise HTTPException(
-            status_code=400, detail="No image provided")
+    if requester.accountId == edit_user_payload.user_id:
+        raise HTTPException(status_code=400, detail="You cannot edit yourself")
 
     if user.accountId != requester.accountId:
         await verify_permission(access_token , [Role.ADMINISTRATOR, Role.MODERATOR])
-        await insert_admin_log(requester.accountId, LogType.EDIT_ACCOUNT, account_id=user_id)
+        await insert_admin_log(requester.accountId, LogType.EDIT_ACCOUNT, account_id=edit_user_payload.user_id)
 
-    password_hash = hash_password(password, user.passwordSalt)
-    
-    await prisma.account.update(where={"accountId": user_id}, data={
-        "Role": role,
+    password_hash = hash_password(edit_user_payload.password, user.passwordSalt)
+
+    user = await prisma.account.update(where={"accountId": edit_user_payload.user_id}, data={
+        "permission": edit_user_payload.permission,
         "passwordHash": password_hash,
-        "profileImage": base64.b64encode(image_bytes).decode()})
+        "email": edit_user_payload.email,
+        "username": edit_user_payload.username,
+        "accessToken": str(uuid.uuid4())
+    })
 
     return {"detail": "User has been updated", "user": user}
 

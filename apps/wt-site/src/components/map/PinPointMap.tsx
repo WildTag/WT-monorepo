@@ -15,7 +15,10 @@ interface PinPointMapProps {
 const PinPointMap = ({ form }: PinPointMapProps) => {
   const defaultPos = form.values.gps_lat
     ? { lat: form.values.gps_lat, lng: form.values.gps_long }
-    : { lat: null, lng: null };
+    : {
+        lat: null,
+        lng: null,
+      };
   const [pinPoint, setPinPoint] = useState<Position>(defaultPos);
   const [position, setPosition] = useState(defaultPos);
 
@@ -25,23 +28,37 @@ const PinPointMap = ({ form }: PinPointMapProps) => {
   }, [pinPoint]);
 
   useEffect(() => {
+    const updateGeoLocation = async () => {
+      const hasPermission = await navigator.permissions.query({ name: "geolocation" });
+      if (hasPermission.state !== "granted")
+        return setPosition({
+          lat: 53.1047,
+          lng: -1.5624,
+        });
+
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => {
+          setPosition({
+            lat: coords.latitude,
+            lng: coords.longitude,
+          });
+        },
+        (error) => {
+          setPosition((prevState) => ({
+            ...prevState,
+            loaded: true,
+            error,
+          }));
+        },
+        {
+          enableHighAccuracy: true,
+        }
+      );
+    };
+
     if (!navigator.geolocation) return;
     if (position.lat || position.lng) return;
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setPosition({
-          lat: coords.latitude,
-          lng: coords.longitude,
-        });
-      },
-      (error) => {
-        setPosition((prevState) => ({
-          ...prevState,
-          loaded: true,
-          error,
-        }));
-      }
-    );
+    updateGeoLocation();
   }, []);
 
   return (
