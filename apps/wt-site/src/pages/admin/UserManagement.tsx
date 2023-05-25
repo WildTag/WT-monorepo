@@ -27,7 +27,7 @@ const UserManagement = () => {
       const data = await response.json();
 
       if (response.status !== 200) {
-        return (window.location.href = "/login");
+        return (window.location.href = "/");
       }
 
       setUsers(data);

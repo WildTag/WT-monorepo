@@ -58,14 +58,12 @@ const PostManagement = () => {
       });
       const data = await response.json();
 
-      if (response.status !== 200) {
-        return (window.location.href = "/login");
-      }
+      if (response.status !== 200) return (window.location.href = "/");
 
       setPosts(data);
-
       setIsFetched(true);
     }
+
     setIsFetched(false);
     fetchPosts();
   }, [refetch]);

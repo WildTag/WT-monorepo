@@ -17,7 +17,7 @@ const AdminHomePage = () => {
           Authorization: accessToken || "",
         },
       });
-      if (response.status !== 200) return;
+      if (response.status !== 200) return (window.location.href = "/");
       const data = await response.json();
       setLogData(data);
       setIsFetching(false);

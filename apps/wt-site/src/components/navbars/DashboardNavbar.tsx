@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { Dashboard, Icon, FileText, Home2 } from "tabler-icons-react";
 import { useStyles } from "./dashboardNavbar.styles";
 import { Loading } from "../loading/Loading";
-import FileDownload from 'js-file-download';
+import FileDownload from "js-file-download";
+import { Account } from "../../types/Account";
 
 export interface NavBarLinks {
   link: string;
@@ -28,7 +29,7 @@ interface Props {
 export function DashboardNavbar({ opened, selected }: Props) {
   const { classes, cx } = useStyles();
   const [active, setActive] = useState(selected);
-  const [user, setUser] = useState<any>();
+  const [user, setUser] = useState<Account | null>(null);
   const [fetched, setFetched] = useState(false);
   const accessToken = localStorage.getItem("sessionToken");
 
@@ -41,22 +42,19 @@ export function DashboardNavbar({ opened, selected }: Props) {
         Authorization: accessToken || "",
       },
     });
-  
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-  
+
+    if (!response.ok) throw new Error("Network response was not ok");
+
     const blob = await response.blob();
-  
+
     const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.setAttribute('download', 'data.csv');
+    link.setAttribute("download", "data.csv");
     document.body.appendChild(link);
     link.click();
     link.remove();
   };
-  
 
   useEffect(() => {
     async function fetchAccountInfo() {
@@ -66,9 +64,9 @@ export function DashboardNavbar({ opened, selected }: Props) {
           "Content-Type": "application/json",
         },
       });
-
-      const data = await response.json();
-      setUser(data);
+      const data = (await response.json()) as Account;
+      if (data.permission !== "ADMINISTRATOR") return (window.location.href = "/");
+      if (data) setUser(data);
       setFetched(true);
     }
     fetchAccountInfo();
@@ -78,38 +76,38 @@ export function DashboardNavbar({ opened, selected }: Props) {
   if (!accessToken) return <h1>No permissions</h1>;
   if (!fetched) return <Loading />;
 
-  const links = data.concat([
-    { link: "#", label: "Download Data CSV", icon: FileText, onClick: getCSV }
-  ]).map((item, index) => {
-    return (
-      <>
-        {item.adminOnly && user?.permission !== "ADMIN" ? null : (
-          <>
-            {item.link && item.icon ? (
-              <a
-                className={cx(classes.link, { [classes.linkActive]: index === active })}
-                href={item.link}
-                key={item.label}
-                onClick={(e) => {
-                  if (item.onClick) {
-                    e.preventDefault();
-                    item.onClick();
-                  } else {
-                    setActive(index);
-                  }
-                }}
-              >
-                <item.icon color={"white"} />
-                <span>{item.label}</span>
-              </a>
-            ) : (
-              <Title size={20}>{item.label}</Title>
-            )}
-          </>
-        )}
-      </>
-    );
-  });
+  const links = data
+    .concat([{ link: "#", label: "Download Data CSV", icon: FileText, onClick: getCSV }])
+    .map((item, index) => {
+      return (
+        <>
+          {item.adminOnly && user?.permission !== "ADMINISTRATOR" ? null : (
+            <>
+              {item.link && item.icon ? (
+                <a
+                  className={cx(classes.link, { [classes.linkActive]: index === active })}
+                  href={item.link}
+                  key={item.label}
+                  onClick={(e) => {
+                    if (item.onClick) {
+                      e.preventDefault();
+                      item.onClick();
+                    } else {
+                      setActive(index);
+                    }
+                  }}
+                >
+                  <item.icon color={"white"} />
+                  <span>{item.label}</span>
+                </a>
+              ) : (
+                <Title size={20}>{item.label}</Title>
+              )}
+            </>
+          )}
+        </>
+      );
+    });
 
   return (
     <>
@@ -124,7 +122,5 @@ export function DashboardNavbar({ opened, selected }: Props) {
         </Navbar.Section>
       </Navbar>
     </>
-  )
-
-
+  );
 }

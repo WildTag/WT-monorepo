@@ -14,6 +14,7 @@ import {
 } from "@mantine/core";
 import { Account } from "../../types/Account";
 import { Post } from "../../types/Post";
+import { Loading } from "../../components/loading/Loading";
 const links = [
   {
     link: "/",
@@ -27,7 +28,6 @@ export default function Profile() {
   const [isFetching, setIsFetching] = useState(false);
   const [isFetchingPosts, setIsFetchingPosts] = useState(false);
   const [getPosts, setGetPosts] = useState<Post[]>([]);
-  const [opened, setOpened] = useState(false);
 
   useEffect(() => {
     async function getAccountInfo() {
@@ -59,6 +59,7 @@ export default function Profile() {
           },
         }
       );
+      if (response.status !== 200) return;
       const data = await response.json();
       setGetPosts(data);
       setIsFetchingPosts(false);
@@ -69,6 +70,8 @@ export default function Profile() {
     setIsFetchingPosts(true);
     getPosts();
   }, [accountInfo]);
+
+  if (!accountInfo) return <Loading />;
 
   return (
     <>
@@ -90,7 +93,7 @@ export default function Profile() {
                   display={"inline-block"}
                   src={`data:image/jpeg;base64,${accountInfo?.profileImage}`}
                   radius={theme.radius.md}
-                ></Image>
+                />
               </AspectRatio>
             </div>
             <div style={{ width: "100%", fontWeight: "bold" }}>
@@ -98,11 +101,11 @@ export default function Profile() {
               <Divider size={"md"} />
 
               <Group>
-                <Text>{`${accountInfo?.username}`}</Text>
+                <Text>{accountInfo?.username}</Text>
                 <Divider orientation="vertical" size={"md"} />
-                <Text>{`${getPosts.length}`}</Text>
+                <Text>Posts: {getPosts.length}</Text>
               </Group>
-              <Text>{new Date(accountInfo?.created).toDateString()}</Text>
+              <Text>{new Date(accountInfo.created).toDateString()}</Text>
             </div>
           </Box>
         </div>
