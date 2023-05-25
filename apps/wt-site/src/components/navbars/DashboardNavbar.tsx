@@ -1,6 +1,6 @@
 import { Group, Navbar, Title, Image } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { Dashboard, Icon, FileText } from "tabler-icons-react";
+import { Dashboard, Icon, FileText, Home2 } from "tabler-icons-react";
 import { useStyles } from "./dashboardNavbar.styles";
 import { Loading } from "../loading/Loading";
 import FileDownload from 'js-file-download';
@@ -14,9 +14,10 @@ export interface NavBarLinks {
 }
 
 const data: NavBarLinks[] = [
-  { link: "/admin", label: "admin", icon: Dashboard },
+  { link: "/", label: "Back to Map", icon: Home2 },
   { link: "/admin/user_management", label: "User management", icon: Dashboard },
   { link: "/admin/post_management", label: "Post management", icon: Dashboard },
+  { link: "/admin", label: "Audit Log", icon: Dashboard },
 ];
 
 interface Props {
@@ -90,8 +91,8 @@ export function DashboardNavbar({ opened, selected }: Props) {
                 href={item.link}
                 key={item.label}
                 onClick={(e) => {
-                  e.preventDefault();
                   if (item.onClick) {
+                    e.preventDefault();
                     item.onClick();
                   } else {
                     setActive(index);
