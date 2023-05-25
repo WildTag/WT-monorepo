@@ -4,19 +4,17 @@ import { Position } from "../../types/Position";
 import { Title, Text } from "@mantine/core";
 
 const containerStyle = {
-  display: "flex",
   width: "100%",
-  height: "100vh",
+  height: "50vh",
 };
 
 interface PinPointMapProps {
-  displayPinPointMap: boolean;
   form: any;
 }
 
-const PinPointMap = ({ displayPinPointMap, form }: PinPointMapProps) => {
-  const [pinPoint, setPinPoint] = useState<Position>({ lat: 0, lng: 0 });
-  const [position, setPosition] = useState<Position>({
+const PinPointMap = ({ form }: PinPointMapProps) => {
+  const [pinPoint, setPinPoint] = useState<Position>({ lat: null, lng: null });
+  const [position, setPosition] = useState({
     lat: 53.1047,
     lng: -1.5624,
   });
@@ -48,32 +46,35 @@ const PinPointMap = ({ displayPinPointMap, form }: PinPointMapProps) => {
 
   return (
     <>
-      {displayPinPointMap && (
-        <>
-          <Title>Where was this photo taken?</Title>
-          <Text>Please click on the position on the map where this photo was taken</Text>
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={position}
-            zoom={9}
-            options={{
-              draggableCursor: "crosshair",
-              minZoom: 2,
-              maxZoom: 16,
-              fullscreenControl: false,
-              styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }],
+      <Title>Where was this photo taken?</Title>
+      <Text>Please click on the position on the map where this photo was taken</Text>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={position}
+        zoom={9}
+        options={{
+          draggableCursor: "crosshair",
+          minZoom: 2,
+          maxZoom: 16,
+          fullscreenControl: false,
+          styles: [{ featureType: "poi", stylers: [{ visibility: "off" }] }],
+        }}
+        onClick={(e) => {
+          setPinPoint({
+            lat: e.latLng?.lat() || 0,
+            lng: e.latLng?.lng() || 0,
+          });
+        }}
+      >
+        {pinPoint.lat && pinPoint.lng && (
+          <Marker
+            position={{ lat: pinPoint.lat, lng: pinPoint.lng }}
+            onClick={() => {
+              setPinPoint({ lat: null, lng: null });
             }}
-            onClick={(e) => {
-              setPinPoint({
-                lat: e.latLng?.lat() || 0,
-                lng: e.latLng?.lng() || 0,
-              });
-            }}
-          >
-            <Marker position={{ lat: pinPoint.lat, lng: pinPoint.lng }} />
-          </GoogleMap>
-        </>
-      )}
+          />
+        )}
+      </GoogleMap>
     </>
   );
 };
