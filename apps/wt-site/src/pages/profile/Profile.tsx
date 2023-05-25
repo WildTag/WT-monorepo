@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { ProfileNavbar } from "../../components/navbars/ProfileNavbar";
-import { Container, Image, useMantineTheme, Box, Text, Center, Flex } from "@mantine/core";
+import {
+  Container,
+  Image,
+  useMantineTheme,
+  Box,
+  Text,
+  Flex,
+  AspectRatio,
+  SimpleGrid,
+  Divider,
+  Group,
+} from "@mantine/core";
 import { Account } from "../../types/Account";
 import { Post } from "../../types/Post";
 const links = [
@@ -15,7 +26,8 @@ export default function Profile() {
   const [accountInfo, setAccountInfo] = useState<Account | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [isFetchingPosts, setIsFetchingPosts] = useState(false);
-  const [getPosts, setGetPosts] = useState<Post | null>(null);
+  const [getPosts, setGetPosts] = useState<Post[]>([]);
+  const [opened, setOpened] = useState(false);
 
   useEffect(() => {
     async function getAccountInfo() {
@@ -61,30 +73,83 @@ export default function Profile() {
   return (
     <>
       <ProfileNavbar links={links}></ProfileNavbar>
-      <Box
-        style={{
-          float: "left",
-          display: "inline-block",
-          position: "relative",
-          paddingLeft: "250px",
-          width: "600px",
-        }}
-      >
-        <Flex>
-          <Image
-            display={"inline-block"}
-            width={128}
-            height={128}
-            src={`data:image/jpeg;base64,${accountInfo?.profileImage}`}
-            radius={theme.radius.md}
-          ></Image>
+      <Container>
+        <div style={{ marginBottom: "10px" }}>
+          <Box
+            style={{
+              marginRight: "10px",
+              backgroundColor: theme.colors.dark[6],
+              borderRadius: 10,
+              padding: 10,
+              width: "100%",
+            }}
+          >
+            <div style={{ marginBottom: "20px" }}>
+              <AspectRatio ratio={16 / 16} maw={400} mx="auto" style={{}}>
+                <Image
+                  display={"inline-block"}
+                  src={`data:image/jpeg;base64,${accountInfo?.profileImage}`}
+                  radius={theme.radius.md}
+                ></Image>
+              </AspectRatio>
+            </div>
+            <div style={{ width: "100%", fontWeight: "bold" }}>
+              <Text>Details</Text>
+              <Divider size={"md"} />
+
+              <Group>
+                <Text>{`${accountInfo?.username}`}</Text>
+                <Divider orientation="vertical" size={"md"} />
+                <Text>{`${getPosts.length}`}</Text>
+              </Group>
+              <Text>{new Date(accountInfo?.created).toDateString()}</Text>
+            </div>
+          </Box>
+        </div>
+        <Flex style={{ marginBottom: 10 }}>
+          <SimpleGrid>
+            <div>
+              <Flex wrap={"wrap"} gap={15}>
+                {getPosts.map((value) => {
+                  return (
+                    <>
+                      <div
+                        style={{
+                          backgroundColor: theme.colors.dark[6],
+                          padding: theme.spacing.md,
+                          borderRadius: theme.radius.md,
+                          width: "1000px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        <Text size={20} style={{ marginBottom: 10 }}>
+                          {value.title}
+                        </Text>
+
+                        <Image
+                          radius={10}
+                          fit="contain"
+                          src={`data:image/jpeg;base64,${value.image}`}
+                        ></Image>
+
+                        <Text style={{ marginTop: 4, marginBottom: 4 }}>Description</Text>
+                        <Divider size={"lg"} />
+                        <Text weight={"normal"} size={16}>
+                          {value.description}
+                        </Text>
+
+                        <Text style={{ float: "right" }}>
+                          {new Date(value.created).toDateString()}
+                        </Text>
+                      </div>
+                    </>
+                  );
+                })}
+              </Flex>
+            </div>
+          </SimpleGrid>
         </Flex>
-        <Text
-          align="left"
-          style={{ width: "100%", paddingTop: 10 }}
-        >{`@${accountInfo?.username}`}</Text>
-      </Box>
-      <Text></Text>
+      </Container>
     </>
   );
 }

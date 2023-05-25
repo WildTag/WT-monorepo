@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createStyles, Header, Container, Group, Burger, rem } from "@mantine/core";
+import { createStyles, Header, Container, Group, rem, Title, Image } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 
 const useStyles = createStyles((theme) => ({
@@ -8,18 +8,6 @@ const useStyles = createStyles((theme) => ({
     justifyContent: "space-between",
     alignItems: "center",
     height: "100%",
-  },
-
-  links: {
-    [theme.fn.smallerThan("xs")]: {
-      display: "none",
-    },
-  },
-
-  burger: {
-    [theme.fn.largerThan("xs")]: {
-      display: "none",
-    },
   },
 
   link: {
@@ -70,11 +58,11 @@ export function ProfileNavbar({ links }: ProfileNavbar) {
   return (
     <Header height={60} mb={120}>
       <Container className={classes.header}>
-        <Group spacing={5} className={classes.links}>
-          {items}
+        <Group>
+          <Image radius={50} src={"/animalImages/lowPolyDuck.png"} width={32} height={32} />
+          <Title>Wildtag</Title>
         </Group>
-
-        <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
+        <Group spacing={5}>{items}</Group>
       </Container>
     </Header>
   );
