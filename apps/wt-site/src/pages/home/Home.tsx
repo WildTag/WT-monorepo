@@ -13,7 +13,7 @@ import {
   Flex,
   Center,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "@mantine/form";
 import { Upload, Filter, User, Settings, Logout, Hammer } from "tabler-icons-react";
 import CreatePostModal from "../../components/modals/CreatePostModal";
@@ -31,10 +31,28 @@ function Home() {
   const [files, setFiles] = useState<UploadedImage[]>([]);
   const [accountInfo, setAccountInfo] = useState<Account | null>(null);
   const [isFetching, setIsFetching] = useState(false);
-  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const accessToken = localStorage.getItem("sessionToken");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [refetchPosts, setRefetchPosts] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useMemo(() => {
+    setFilteredPosts(posts);
+    if (!posts) return;
+    setFilteredPosts(
+      posts.filter((post) => {
+        if (!post) return;
+        return (
+          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.uploader?.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          post.uploader?.email?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      })
+    );
+  }, [searchQuery, posts]);
 
   const theme = useMantineTheme();
 
@@ -53,28 +71,25 @@ function Home() {
     initialValues: initialValues,
     validate: {
       title: (value) => {
-        console.log(1, value);
         return value.trim().length <= 0 ? "A post must have a title" : null;
       },
       description: (value) => {
-        console.log(2, value);
         return value.trim().length <= 0 ? "A post must have a description" : null;
       },
       gps_lat: (value) => {
-        console.log(3, value);
         return !value;
       },
       gps_long: (value) => {
-        console.log(4, value);
         return !value;
       },
       animals: (value) => {
-        console.log(5, value);
         return value.length <= 0 ? "A post must have at least one animal tag" : null;
       },
       images: (value) => {
-        console.log(6, value);
         return value.length <= 0 ? "A post must have at least one image" : null;
+      },
+      date_time_original: (value) => {
+        return !value ? "A post must have a created time" : null;
       },
     },
   });
@@ -164,15 +179,16 @@ function Home() {
     form.setFieldValue("gps_lat", data.image_data.metadata.gps_latitude);
     form.setFieldValue("gps_long", data.image_data.metadata.gps_longitude);
     form.setFieldValue("images", [data.image_data]);
-    form.setFieldValue("date_time_original", new Date(data.image_data.metadata.date_time_original));
+    form.setFieldValue(
+      "date_time_original",
+      data.image_data.metadata.date_time_original
+        ? new Date(data.image_data.metadata.date_time_original)
+        : new Date()
+    );
     return data;
   };
 
   const handlePublishPost = async () => {
-    console.log(2);
-    console.log(2);
-    console.log(2);
-    console.log(2);
     const formData = new FormData();
 
     if (!form.values.session_token) {
@@ -328,7 +344,7 @@ function Home() {
       />
       <div style={{ position: "relative" }}>
         <Map
-          posts={posts}
+          posts={filteredPosts}
           account={accountInfo}
           handlePostDelete={handlePostDelete}
           handlePostComment={handlePostComment}
@@ -348,7 +364,11 @@ function Home() {
               marginTop: "100px",
             }}
           >
-            <Input placeholder="Search?" radius="xl" />
+            <Input
+              placeholder="Search username, title or description..."
+              radius="xl"
+              onChange={(element) => setSearchQuery(element.target.value)}
+            />
           </MediaQuery>
         </div>
         <div
