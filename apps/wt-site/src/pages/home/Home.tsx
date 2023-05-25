@@ -141,7 +141,7 @@ function Home() {
         },
       });
       const data = await response.json();
-      setAccountInfo(data);
+      setAccountInfo(data.user);
       setIsFetching(false);
     }
     setIsFetching(true);

@@ -70,7 +70,7 @@ async def ban_user(user_id: int, request: Request):
 class EditUserPayload(BaseModel):
     user_id: int
     username: str
-    permission: Role
+    permission: Role = None
     password: str
     email: str
     
@@ -82,21 +82,27 @@ async def edit_user(edit_user_payload: EditUserPayload, request: Request):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    if requester.accountId == edit_user_payload.user_id:
-        raise HTTPException(status_code=400, detail="You cannot edit yourself")
+    if not requester:
+        print(access_token)
+        raise HTTPException(status_code=404, detail="Requester not found")
 
     if user.accountId != requester.accountId:
         await verify_permission(access_token , [Role.ADMINISTRATOR, Role.MODERATOR])
         await insert_admin_log(requester.accountId, LogType.EDIT_ACCOUNT, account_id=edit_user_payload.user_id)
-
+    
     password_hash = hash_password(edit_user_payload.password, user.passwordSalt)
-
+    
+    if edit_user_payload.permission and requester.permission != "ADMINISTRATOR":
+        raise HTTPException(status_code=403, detail="You cannot change user permissions")
+    
+    if not edit_user_payload.permission:
+        edit_user_payload.permission = user.permission
+    
     user = await prisma.account.update(where={"accountId": edit_user_payload.user_id}, data={
         "permission": edit_user_payload.permission,
         "passwordHash": password_hash,
         "email": edit_user_payload.email,
         "username": edit_user_payload.username,
-        "accessToken": str(uuid.uuid4())
     })
 
     return {"detail": "User has been updated", "user": user}
@@ -113,7 +119,7 @@ async def get_account_info(request: Request):
     user = await prisma.account.find_first(where={"accessToken": authorization_token})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return {"detail": "User found", "user": user}
     
 
 class RegisterUserData(BaseModel):
