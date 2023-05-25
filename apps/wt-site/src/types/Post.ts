@@ -16,6 +16,7 @@ export interface Post {
   GPSLat: number;
   GPSLong: number;
   postTags: PostTags[];
+  reported: boolean;
 }
 
 export interface Comment {

@@ -10,8 +10,8 @@ import {
   Image,
   Button,
   TextInput,
-  Group,
   Divider,
+  Avatar,
 } from "@mantine/core";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
 import { useEffect, useMemo, useState } from "react";
@@ -21,6 +21,7 @@ import { Calendar } from "tabler-icons-react";
 import { useSearchParams } from "react-router-dom";
 import TagComponent from "../../components/badges/TagComponent";
 import { notifications } from "@mantine/notifications";
+import { getRandomProfilePicture } from "../../helpers/getRandomProfilePicture";
 
 const PostManagement = () => {
   const [showImages, setShowImages] = useState(false);
@@ -30,6 +31,7 @@ const PostManagement = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [reportedOnly, setReportedOnly] = useState(true);
   const [searchParams] = useSearchParams();
   const theme = useMantineTheme();
   const accessToken = localStorage.getItem("sessionToken");
@@ -70,6 +72,8 @@ const PostManagement = () => {
   }, [sortByNewest]);
 
   useMemo(() => {
+    console.log(reportedOnly);
+    if (reportedOnly) return setFilteredPosts(posts.filter((post) => post.reported));
     if (!searchQuery) return setFilteredPosts(posts);
     setFilteredPosts(
       posts.filter((post) => {
@@ -80,7 +84,7 @@ const PostManagement = () => {
         );
       })
     );
-  }, [searchQuery, isFetched, posts]);
+  }, [searchQuery, isFetched, posts, reportedOnly, sortByNewest]);
 
   const handleUserUnban = async (userId: number) => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}/unban`, {
@@ -177,6 +181,11 @@ const PostManagement = () => {
             <Flex gap={20}>
               <Checkbox label="Show images" onChange={() => setShowImages(!showImages)} />
               <Checkbox label="Sort by newest" onChange={() => setSortByNewest(!showImages)} />
+              <Checkbox
+                label="Show reported items only"
+                checked={reportedOnly}
+                onChange={() => setReportedOnly(!reportedOnly)}
+              />
             </Flex>
           </Accordion.Panel>
         </Accordion.Item>
@@ -254,20 +263,27 @@ const PostComponent = ({
               <Text>{secondsPassed} ago</Text>
             </Flex>
           </Badge>
-          <Group>
-            <Text>{post.uploader?.username}</Text>
-            <Text>{post.uploader?.email}</Text>
-          </Group>
+          <Flex align="center" justify={"space-between"}>
+            <Flex align={"center"} gap={5}>
+              <Avatar
+                src={
+                  post.uploader.profileImage
+                    ? `data:image/jpeg;base64,${post.uploader.profileImage || ""}`
+                    : getRandomProfilePicture()
+                }
+                radius={theme.radius.md}
+                style={{ backgroundColor: theme.colors.blue[5] }}
+              />
+              <Text>{post.uploader?.username}</Text>
+              <Text>{post.uploader?.email}</Text>
+            </Flex>
+            <Badge color={"yellow"}>Post reported</Badge>
+          </Flex>
           <Title size={20}>{post.title}</Title>
           <Divider />
           <Text>{post.description}</Text>
           {showImages && (
-            <Image
-              fit="scale-down"
-              src={`data:image/jpeg;base64,${post.image}`}
-              height={256}
-              radius={theme.radius.xl}
-            />
+            <Image src={`data:image/jpeg;base64,${post.image}`} radius={theme.radius.md} />
           )}
         </div>
         <Flex gap={5} mt={5}>

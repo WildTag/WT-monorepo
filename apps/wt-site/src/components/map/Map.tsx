@@ -127,6 +127,30 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
     });
   };
 
+  const handleReportPost = async (postId: number) => {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/${postId}/report`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: localStorage.getItem("sessionToken") || "",
+      },
+    });
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+
+    return notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+  };
+
   return (
     <>
       <Modal
@@ -145,6 +169,7 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
       </Modal>
       <div>
         <Drawer
+          title="Wildtag"
           opened={openDrawer}
           onClose={() => {
             setOpenDrawer(false);
@@ -197,7 +222,15 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
                   </Menu.Item>
                 )}
                 {selectedPost?.uploader?.accountId !== account?.accountId && (
-                  <Menu.Item icon={<AlertCircle size={15} />}>Report post</Menu.Item>
+                  <Menu.Item
+                    icon={<AlertCircle size={15} />}
+                    onClick={() => {
+                      if (!selectedPost?.pictureId) return;
+                      handleReportPost(selectedPost?.pictureId);
+                    }}
+                  >
+                    Report post
+                  </Menu.Item>
                 )}
                 {account?.permission === Role.ADMINISTRATOR && (
                   <>
