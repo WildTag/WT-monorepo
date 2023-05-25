@@ -62,7 +62,7 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
   const [openDrawer, setOpenDrawer] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editPostModalOpened, setEditPostModalOpened] = useState(false);
-  const [position, setPosition] = useState<Position>({
+  const [position, setPosition] = useState({
     lat: 53.1047,
     lng: -1.5624,
   });
@@ -368,7 +368,7 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
           <GoogleMap
             mapContainerStyle={containerStyle}
             center={position}
-            zoom={6}
+            zoom={12}
             options={{
               minZoom: 2,
               maxZoom: 16,
