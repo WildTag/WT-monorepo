@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("/data/{post_id}", tags=["admin"])
 async def get_post_data(post_id: int, request: Request):
-    #await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
+    await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
 
     post = await prisma.picture.find_first(
         where={"pictureId": post_id},
@@ -59,7 +59,7 @@ def to_csv(data):
 
 @router.get("/data", tags=["admin"])
 async def get_post_data(request: Request):
-    #await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
+    await verify_permission(request.headers.get("Authorization") , [Role.ADMINISTRATOR, Role.MODERATOR])
 
     posts = await prisma.picture.find_many(
         include={
