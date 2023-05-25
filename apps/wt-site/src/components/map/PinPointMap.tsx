@@ -18,9 +18,6 @@ const PinPointMap = ({ form }: PinPointMapProps) => {
     : { lat: null, lng: null };
   const [pinPoint, setPinPoint] = useState<Position>(defaultPos);
   const [position, setPosition] = useState(defaultPos);
-  console.log(0, defaultPos);
-  console.log(1, pinPoint);
-  console.log(2, position);
 
   useEffect(() => {
     form.setFieldValue("gps_lat", pinPoint.lat);
