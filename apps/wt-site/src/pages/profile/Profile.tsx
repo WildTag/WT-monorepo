@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ProfileNavbar } from "../../components/navbars/ProfileNavbar";
 import {
   Container,
@@ -10,11 +10,14 @@ import {
   AspectRatio,
   SimpleGrid,
   Divider,
-  Group,
+  Button,
 } from "@mantine/core";
 import { Account } from "../../types/Account";
 import { Post } from "../../types/Post";
 import { Loading } from "../../components/loading/Loading";
+import { Settings } from "tabler-icons-react";
+import EditUserAccountModal from "../../components/modals/EditUserAccountModal";
+import { useForm } from "@mantine/form";
 const links = [
   {
     link: "/",
@@ -28,6 +31,7 @@ export default function Profile() {
   const [isFetching, setIsFetching] = useState(false);
   const [isFetchingPosts, setIsFetchingPosts] = useState(false);
   const [getPosts, setGetPosts] = useState<Post[]>([]);
+  const [modalOpened, setModalOpened] = useState(false);
 
   useEffect(() => {
     async function getAccountInfo() {
@@ -38,12 +42,15 @@ export default function Profile() {
           Authorization: accessToken || "",
         },
       });
+      if (response.status !== 200) {
+        localStorage.removeItem("sessionToken");
+        return (window.location.href = "/");
+      }
       const data = await response.json();
-      setAccountInfo(data);
+      setAccountInfo(data.user);
       setIsFetching(false);
     }
     setIsFetching(true);
-
     getAccountInfo();
   }, []);
 
@@ -71,10 +78,40 @@ export default function Profile() {
     getPosts();
   }, [accountInfo]);
 
+  const form = useForm({
+    initialValues: {
+      user_id: -1,
+      username: "",
+      email: "",
+      password: "",
+      profile_image: "",
+    },
+  });
+
+  useEffect(() => {
+    if (!accountInfo) return;
+    form.setValues({
+      user_id: accountInfo.accountId,
+      username: accountInfo.username,
+      email: accountInfo.email,
+      password: "",
+    });
+  }, [accountInfo]);
+
   if (!accountInfo) return <Loading />;
 
   return (
     <>
+      <EditUserAccountModal
+        form={form}
+        modalOpened={modalOpened}
+        setModalOpened={setModalOpened}
+        selectedUser={accountInfo}
+        accessToken={accessToken}
+        users={accountInfo}
+        setUsers={setAccountInfo}
+        noEditRole={true}
+      />
       <ProfileNavbar links={links}></ProfileNavbar>
       <Container>
         <div style={{ marginBottom: "10px" }}>
@@ -99,12 +136,23 @@ export default function Profile() {
             <div style={{ width: "100%", fontWeight: "bold" }}>
               <Text>Details</Text>
               <Divider size={"md"} />
+              <Flex align="center" justify={"space-between"}>
+                <Flex gap={5}>
+                  <Text>{accountInfo?.username}</Text>
+                  <Divider orientation="vertical" size={"md"} />
+                  <Text>Posts: {getPosts.length}</Text>
+                </Flex>
 
-              <Group>
-                <Text>{accountInfo?.username}</Text>
-                <Divider orientation="vertical" size={"md"} />
-                <Text>Posts: {getPosts.length}</Text>
-              </Group>
+                <Button
+                  mt={5}
+                  leftIcon={<Settings />}
+                  onClick={() => {
+                    setModalOpened(!modalOpened);
+                  }}
+                >
+                  edit
+                </Button>
+              </Flex>
               <Text>{new Date(accountInfo.created).toDateString()}</Text>
             </div>
           </Box>

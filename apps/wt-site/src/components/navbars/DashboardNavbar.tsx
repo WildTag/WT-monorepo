@@ -72,9 +72,9 @@ export function DashboardNavbar({ opened, selected }: Props) {
           Authorization: accessToken || "",
         },
       });
-      const data = (await response.json()) as Account;
-      if (data.permission !== "ADMINISTRATOR") return (window.location.href = "/");
-      if (data) setUser(data);
+      const data = await response.json();
+      if (data.user.permission !== "ADMINISTRATOR") return (window.location.href = "/");
+      if (data) setUser(data.user);
       setFetched(true);
     }
     fetchAccountInfo();

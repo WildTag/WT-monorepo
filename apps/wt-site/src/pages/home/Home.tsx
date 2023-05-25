@@ -141,7 +141,7 @@ function Home() {
         },
       });
       const data = await response.json();
-      setAccountInfo(data);
+      setAccountInfo(data.user);
       setIsFetching(false);
     }
     setIsFetching(true);
@@ -364,7 +364,7 @@ function Home() {
             }}
           >
             <Input
-              placeholder="Search username, title or description..."
+              placeholder="Search..."
               radius="xl"
               onChange={(element) => setSearchQuery(element.target.value)}
             />

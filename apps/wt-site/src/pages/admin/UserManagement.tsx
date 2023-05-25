@@ -6,8 +6,6 @@ import {
   Button,
   Flex,
   TextInput,
-  Modal,
-  Select,
   Badge,
 } from "@mantine/core";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
@@ -15,8 +13,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Account } from "../../types/Account";
 import { Loading } from "../../components/loading/Loading";
 import { notifications } from "@mantine/notifications";
-import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
+import EditUserAccountModal from "../../components/modals/EditUserAccountModal";
 
 const UserManagement = () => {
   const theme = useMantineTheme();
@@ -26,7 +24,7 @@ const UserManagement = () => {
   const [isFetched, setIsFetched] = useState(false);
   const [refetch, setRefetch] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Account>();
-  const [opened, { open, close }] = useDisclosure(false);
+  const [modalOpened, setModalOpened] = useState(false);
   const accessToken = localStorage.getItem("sessionToken");
 
   useEffect(() => {
@@ -79,8 +77,6 @@ const UserManagement = () => {
   }, [selectedUser]);
 
   useMemo(() => {
-    console.log(1);
-    // if (!searchQuery) setFilteredUsers(users);
     const tmpUsers = users.filter((user) => {
       return (
         user.username?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
@@ -142,105 +138,19 @@ const UserManagement = () => {
     setRefetch(!refetch);
   };
 
-  const handleEditUser = async () => {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/users/${selectedUser?.accountId}/edit`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: accessToken || "",
-        },
-        body: JSON.stringify(form.values),
-      }
-    );
-    const data = await response.json();
-    if (response.status !== 200) {
-      return notifications.show({
-        title: "Error",
-        message: data.detail,
-        color: "red",
-      });
-    }
-
-    const tmpUsers = JSON.parse(JSON.stringify(users));
-    const index = tmpUsers.findIndex((user: Account) => user.accountId === selectedUser?.accountId);
-    tmpUsers[index] = data.user;
-    setUsers(tmpUsers);
-
-    console.log(data.user.username);
-
-    notifications.show({
-      title: "Success",
-      message: data.detail,
-      color: "green",
-    });
-  };
-
   if (!isFetched) return <Loading />;
 
   return (
     <>
-      <Modal opened={opened} onClose={close} title={"Edit user"}>
-        <TextInput
-          label={"Username"}
-          placeholder="Enter a username..."
-          {...form.getInputProps("username")}
-        />
-        <TextInput
-          label={"email"}
-          placeholder="Enter an email..."
-          {...form.getInputProps("email")}
-        />
-        <TextInput
-          label={"Password"}
-          placeholder="Enter a password..."
-          {...form.getInputProps("password")}
-        />
-        <Select
-          label={"Permission"}
-          data={[
-            { value: "USER", label: "User" },
-            { value: "ADMINISTRATOR", label: "Administrator" },
-            { value: "MODERATOR", label: "Moderator" },
-          ]}
-          {...form.getInputProps("permission")}
-        />
-        <Button type="submit" mt={10}>
-          Edit user
-        </Button>
-      </Modal>
-      <Modal opened={opened} onClose={close} title={"Edit user"}>
-        <form onSubmit={form.onSubmit((values) => handleEditUser())}>
-          <TextInput
-            label={"Username"}
-            placeholder="Enter a username..."
-            {...form.getInputProps("username")}
-          />
-          <TextInput
-            label={"email"}
-            placeholder="Enter an email..."
-            {...form.getInputProps("email")}
-          />
-          <TextInput
-            label={"Password"}
-            placeholder="Enter a password..."
-            {...form.getInputProps("password")}
-          />
-          <Select
-            label={"Permission"}
-            data={[
-              { value: "USER", label: "User" },
-              { value: "ADMINISTRATOR", label: "Administrator" },
-              { value: "MODERATOR", label: "Moderator" },
-            ]}
-            {...form.getInputProps("permission")}
-          />
-          <Button type="submit" mt={10}>
-            Edit user
-          </Button>
-        </form>
-      </Modal>
+      <EditUserAccountModal
+        form={form}
+        modalOpened={modalOpened}
+        setModalOpened={setModalOpened}
+        selectedUser={selectedUser}
+        accessToken={accessToken}
+        users={users}
+        setUsers={setUsers}
+      />
       <CustomAppShell selected={1}>
         <Title>User list</Title>
         <TextInput
@@ -287,7 +197,7 @@ const UserManagement = () => {
                 <Button
                   onClick={() => {
                     setSelectedUser(user);
-                    open();
+                    setModalOpened(!modalOpened);
                   }}
                 >
                   Edit user

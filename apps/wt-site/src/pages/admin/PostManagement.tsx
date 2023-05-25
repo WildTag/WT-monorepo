@@ -352,7 +352,6 @@ const PostComponent = ({
           >
             {!post.uploader.banned ? "Ban" : "Unban"}
           </Button>
-
           {post.reported && (
             <Button
               color={"green"}
