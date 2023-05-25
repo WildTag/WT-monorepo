@@ -34,23 +34,30 @@ async def create_post(comment_create_payload: CommentCreatePayload, request: Req
 
     return ({"detail": "Comment has been created.", "post": post})
 
+class EditCommentPayload(BaseModel):
+    comment_text: str
+    comment_id: int
+
 @router.put("/comments/{comment_id}/edit", tags=["comment"])
-async def create_post(comment_id: int,
-                      request: Request,
-                      comment_text: str):
+async def create_post(edit_comment_payload: EditCommentPayload, request: Request):
     access_token = request.headers.get("Authorization")
     user = await prisma.account.find_first(where={"accessToken": access_token})
-    comment = await prisma.comments.find_first(where={"commentId": comment_id})
-
-    if user.accountId != comment.commenterAccountID:
+    comment = await prisma.comment.find_first(where={"commentId": edit_comment_payload.comment_id})
+    if not user:
+        raise HTTPException(
+            status_code=401, detail="Invalid session token")
+    if not comment:
+        raise HTTPException(
+            status_code=404, detail="Comment not found.")
+    if user.accountId != comment.commenterAccountId:
         await verify_permission(access_token, [Role.ADMINISTRATOR, Role.MODERATOR])
         await insert_admin_log(user.accountId, LogType.EDIT_COMMENT)
     
-    post = await prisma.comments.update(where={"commentId": comment_id}, data={
-        "commentText": comment_text,
+    comment = await prisma.comment.update(where={"commentId": edit_comment_payload.comment_id}, data={
+        "commentText": edit_comment_payload.comment_text,
     })
 
-    return ({"detail": "Comment has been updated", "post": post})
+    return ({"detail": "Comment has been updated", "comment": comment})
 
 
 @router.delete("/comments/{comment_id}/delete", tags=["comment"])

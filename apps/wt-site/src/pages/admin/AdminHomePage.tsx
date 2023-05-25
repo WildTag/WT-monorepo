@@ -17,6 +17,7 @@ const AdminHomePage = () => {
           Authorization: accessToken || "",
         },
       });
+      if (response.status !== 200) return;
       const data = await response.json();
       setLogData(data);
       setIsFetching(false);
@@ -42,7 +43,7 @@ const AdminHomePage = () => {
             </tr>
           </thead>
           <tbody>
-            {logData.map((value) => {
+            {logData?.map((value) => {
               return (
                 <>
                   <tr key={value.id}>
