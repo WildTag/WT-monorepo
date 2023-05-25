@@ -174,6 +174,7 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
   return (
     <>
       <Modal
+        zIndex={1000}
         title={"Edit post"}
         opened={editPostModalOpened}
         onClose={() => setEditPostModalOpened(false)}
@@ -299,7 +300,7 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
           />
           <Textarea
             autosize
-            label="Create comment"
+            label="Create a comment"
             value={commentText}
             style={{
               userSelect: "none",
