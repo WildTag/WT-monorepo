@@ -31,7 +31,7 @@ const PostManagement = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
-  const [reportedOnly, setReportedOnly] = useState(true);
+  const [reportedOnly, setReportedOnly] = useState(false);
   const [searchParams] = useSearchParams();
   const theme = useMantineTheme();
   const accessToken = localStorage.getItem("sessionToken");
@@ -39,6 +39,12 @@ const PostManagement = () => {
   useEffect(() => {
     setSearchQuery(searchParams.get("accountId") || "");
   }, [searchParams]);
+
+  useEffect(() => {
+    const reportedPosts = posts.filter((post) => post.reported);
+    if (reportedPosts.length === 0) return setReportedOnly(false);
+    setReportedOnly(true);
+  }, [posts]);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -277,7 +283,7 @@ const PostComponent = ({
               <Text>{post.uploader?.username}</Text>
               <Text>{post.uploader?.email}</Text>
             </Flex>
-            <Badge color={"yellow"}>Post reported</Badge>
+            {post.reported && <Badge color={"yellow"}>Post reported</Badge>}
           </Flex>
           <Title size={20}>{post.title}</Title>
           <Divider />
