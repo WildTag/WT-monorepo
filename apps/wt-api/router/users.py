@@ -90,10 +90,12 @@ async def edit_user(request: Request,
     if user.accountId != requester.accountId:
         await verify_permission(access_token , [Role.ADMINISTRATOR, Role.MODERATOR])
         await insert_admin_log(requester.accountId, LogType.EDIT_ACCOUNT, account_id=user_id)
+
+    password_hash = hash_password(password, user.passwordSalt)
     
     await prisma.account.update(where={"accountId": user_id}, data={
         "Role": role,
-        "passwordHash": password,
+        "passwordHash": password_hash,
         "profileImage": base64.b64encode(image_bytes).decode()})
 
     return {"detail": "User has been updated", "user": user}
