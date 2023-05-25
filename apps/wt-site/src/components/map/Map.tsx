@@ -15,6 +15,9 @@ import {
   Textarea,
   Menu,
   UnstyledButton,
+  Modal,
+  TextInput,
+  Button,
 } from "@mantine/core";
 import ms from "ms";
 import { AlertCircle, ChevronDown, Pencil, Send, Trash } from "tabler-icons-react";
@@ -22,6 +25,9 @@ import { getRandomProfilePicture } from "../../helpers/getRandomProfilePicture";
 import TagComponent from "../badges/TagComponent";
 import { Account } from "../../types/Account";
 import { Role } from "../../types/Role";
+import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
+import { useForm } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
 
 const markers = {
   duck: "/markerImages/duckMarker.png",
@@ -38,6 +44,11 @@ const markers = {
   other: "/markerImages/otherMarker.png",
 };
 
+const containerStyle = {
+  display: "flex",
+  width: "100%",
+  height: "100vh",
+};
 interface MapProps {
   posts: Post[] | null;
   account: Account | null;
@@ -50,19 +61,24 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
   const [selectedPost, setSelectedPost] = useState<Post | null>();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [editPostModalOpened, setEditPostModalOpened] = useState(false);
   const [position, setPosition] = useState<any>({
     lat: 53.1047,
     lng: -1.5624,
   });
-  const containerStyle = {
-    display: "flex",
-    width: "100%",
-    height: "100vh",
-  };
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_API_GOOGLEMAP,
+  });
+
+  const editPostForm = useForm({
+    initialValues: {
+      post_id: -1,
+      title: "",
+      description: "",
+      animals: [],
+    },
   });
 
   useEffect(() => {
@@ -71,8 +87,62 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
     setSelectedPost(newSelectedPost);
   }, [posts]);
 
+  useEffect(() => {
+    if (!selectedPost || !editPostModalOpened) return;
+    editPostForm.setValues({
+      post_id: selectedPost.pictureId,
+      title: selectedPost.title,
+      description: selectedPost.description,
+      animals: selectedPost.postTags.map((tag) => tag.tag.toLowerCase()),
+    });
+  }, [editPostModalOpened]);
+
+  const handleEditPost = async () => {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/posts/${selectedPost?.pictureId}/edit`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("sessionToken") || "",
+        },
+        body: JSON.stringify(editPostForm.values),
+      }
+    );
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+        color: "red",
+      });
+    }
+    setSelectedPost(data.post);
+    setEditPostModalOpened(!editPostModalOpened);
+
+    return notifications.show({
+      title: "Success",
+      message: data.detail,
+      color: "green",
+    });
+  };
+
   return (
     <>
+      <Modal
+        title={"Edit post"}
+        opened={editPostModalOpened}
+        onClose={() => setEditPostModalOpened(false)}
+      >
+        <form onSubmit={editPostForm.onSubmit(() => handleEditPost())}>
+          <Textarea autosize label={"title"} {...editPostForm.getInputProps("title")} />
+          <Textarea autosize label={"description"} {...editPostForm.getInputProps("description")} />
+          <AnimalMultiSelect form={editPostForm} label={"Edit tags"} />
+          <Button type="submit" mt={10}>
+            Edit post
+          </Button>
+        </form>
+      </Modal>
       <div>
         <Drawer
           opened={openDrawer}
@@ -119,7 +189,12 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
                 <Menu.Label>Public</Menu.Label>
                 {(selectedPost?.uploader?.accountId === account?.accountId ||
                   account?.permission === Role.ADMINISTRATOR) && (
-                  <Menu.Item icon={<Pencil size={15} />}>Edit post</Menu.Item>
+                  <Menu.Item
+                    icon={<Pencil size={15} />}
+                    onClick={() => setEditPostModalOpened(!editPostModalOpened)}
+                  >
+                    Edit post
+                  </Menu.Item>
                 )}
                 {selectedPost?.uploader?.accountId !== account?.accountId && (
                   <Menu.Item icon={<AlertCircle size={15} />}>Report post</Menu.Item>

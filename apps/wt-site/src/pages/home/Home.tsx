@@ -305,12 +305,14 @@ function Home() {
         setFiles={setFiles}
       />
       <div style={{ position: "relative" }}>
-        <Map
-          posts={posts}
-          account={accountInfo}
-          handlePostDelete={handlePostDelete}
-          handlePostComment={handlePostComment}
-        />
+        <form onSubmit={form.onSubmit((values) => console.log(254534345664567, values))}>
+          <Map
+            posts={posts}
+            account={accountInfo}
+            handlePostDelete={handlePostDelete}
+            handlePostComment={handlePostComment}
+          />
+        </form>
         <div
           style={{
             position: "absolute",
