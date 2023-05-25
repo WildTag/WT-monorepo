@@ -1,9 +1,11 @@
 from fastapi import Request, APIRouter, HTTPException
+from fastapi.responses import FileResponse
 from db import prisma
 from prisma.enums import Role
 from helpers.auth import verify_permission
 import csv
 import io
+import os
 
 router = APIRouter()
 
@@ -86,4 +88,13 @@ async def get_post_data(request: Request):
         }
         result_dictionary_array.append(result)
 
-    return to_csv(result_dictionary_array)
+    csv_data = to_csv(result_dictionary_array)
+
+    csv_filename = "WildTagData.csv"
+    with open(csv_filename, "w", newline='', encoding='utf-8') as csv_file:
+        csv_file.write(csv_data)
+
+    if not os.path.exists(csv_filename):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    return FileResponse(csv_filename, media_type="text/csv", filename=csv_filename)
