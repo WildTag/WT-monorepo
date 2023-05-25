@@ -57,7 +57,6 @@ const CreatePostModal = ({
     >
       <form
         onSubmit={form.onSubmit(() => {
-          console.log("im here");
           handlePublishPost();
         })}
       >
@@ -85,7 +84,7 @@ const CreatePostModal = ({
             <DatePickerInput
               popoverProps={{ withinPortal: true }}
               clearable
-              label="Pick a date range"
+              label="When was this picture taken?"
               placeholder="Pick a date range..."
               {...form.getInputProps("date_time_original")}
             />

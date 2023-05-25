@@ -89,7 +89,6 @@ const Register = () => {
       <Center style={{ paddingTop: "10%" }}>
         <form
           onSubmit={form.onSubmit((credentials: RegisterCredentials) => {
-            console.log(credentials);
             handleRegister(credentials);
           })}
         >

@@ -68,10 +68,6 @@ const PinPointMap = ({ displayPinPointMap, form }: PinPointMapProps) => {
                 lat: e.latLng?.lat() || 0,
                 lng: e.latLng?.lng() || 0,
               });
-              console.log({
-                lat: e.latLng?.lat() || 0,
-                lng: e.latLng?.lng() || 0,
-              });
             }}
           >
             <Marker position={{ lat: pinPoint.lat, lng: pinPoint.lng }} />

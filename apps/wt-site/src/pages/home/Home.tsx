@@ -209,7 +209,7 @@ function Home() {
     formData.append("gps_lat", form.values.gps_lat.toString());
     formData.append("gps_long", form.values.gps_long.toString());
     formData.append("date_time_original", form.values.date_time_original.toString());
-    console.log(form.values.date_time_original);
+
     // If form.values.images is an array of File objects, append each to formData
     form.values.images.forEach((image) => {
       formData.append(`images`, image.image);

@@ -24,7 +24,7 @@ const AdminHomePage = () => {
     setIsFetching(true);
     getAdminLogs();
   }, []);
-  console.log(logData);
+
   return (
     <CustomAppShell selected={0}>
       {logData.length === 0 ? (
