@@ -226,13 +226,20 @@ async def create_upload_file(file: UploadFile = File(...)):
     register_heif_opener()
     image = Image.open(BytesIO(image_bytes))
 
-    status_code, data, image = get_exif(image, image_type)
+    status_code, data, image, error_text = get_exif(image, image_type)
+
+    if not error_text:
+        detail_text = "Image uploaded."
+        toast_colour = None
+    else:
+        detail_text = error_text
+        toast_colour = "red"
     
     if status_code != 200:
         raise HTTPException(status_code=status_code, detail=data)
 
-    date_time_original = data["date_time_original"]
-    data["date_time_original"] = datetime.strptime(date_time_original, "%Y:%m:%d %H:%M:%S").isoformat()
-    print(data)
+    if data["date_time_original"]:
+        date_time_original = data["date_time_original"]
+        data["date_time_original"] = datetime.strptime(date_time_original, "%Y:%m:%d %H:%M:%S").isoformat()
                 
-    return {"detail": "Image uploaded", "image_data": {"filename": file.filename, "metadata": data, "image": image}}
+    return {"detail": detail_text, "image_data": {"filename": file.filename, "metadata": data, "image": image}, "color": toast_colour}
