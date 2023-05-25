@@ -38,6 +38,10 @@ export default function Profile() {
           Authorization: accessToken || "",
         },
       });
+      if (response.status !== 200) {
+        localStorage.removeItem("sessionToken");
+        return (window.location.href = "/");
+      }
       const data = await response.json();
       setAccountInfo(data);
       setIsFetching(false);

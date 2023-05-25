@@ -364,7 +364,7 @@ function Home() {
             }}
           >
             <Input
-              placeholder="Search username, title or description..."
+              placeholder="Search..."
               radius="xl"
               onChange={(element) => setSearchQuery(element.target.value)}
             />

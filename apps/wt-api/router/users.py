@@ -111,6 +111,8 @@ async def get_user(user_id: int):
 async def get_account_info(request: Request):
     authorization_token = request.headers.get("Authorization")
     user = await prisma.account.find_first(where={"accessToken": authorization_token})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     return user
     
 
