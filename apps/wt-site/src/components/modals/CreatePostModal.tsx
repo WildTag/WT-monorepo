@@ -10,6 +10,7 @@ import {
   Stepper,
   Group,
   AspectRatio,
+  Title,
 } from "@mantine/core";
 import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
@@ -31,10 +32,6 @@ interface CreatePostModalProps {
   files: any;
   setFiles: (files: any) => void;
 }
-interface FormValidatationResponse {
-  hasError: boolean;
-  error: string | null;
-}
 
 const CreatePostModal = ({
   theme,
@@ -49,18 +46,37 @@ const CreatePostModal = ({
   const [activeStep, setActiveStep] = useState(0);
 
   const validateStep = {
-    images: (fieldName: string): FormValidatationResponse => form.validateField(fieldName),
-    location: (fieldName: string): FormValidatationResponse => form.validateField(fieldName),
+    images: (): boolean => {
+      return form.validateField("images").hasError;
+    },
+    gps_lat: (): boolean => {
+      return form.validateField("gps_lat").hasError;
+    },
+    postData: (): boolean => {
+      const response = [
+        form.validateField("title"),
+        form.validateField("description"),
+        form.validateField("animals"),
+        form.validateField("images"),
+        form.validateField("date_time_original"),
+      ];
+
+      const hasError = response.some((res) => res.hasError);
+      return hasError;
+    },
   };
 
   const steps = {
     0: "images",
-    1: "location",
+    1: "gps_lat",
+    2: "postData",
   };
 
-  const nextStep = (stepName: number) => {
-    const response = validateStep.images(steps[stepName]);
-    if (response.hasError) return;
+  const nextStep = () => {
+    if (activeStep === Object.keys(steps).length) return handlePublishPost();
+    console.log("foo: ", activeStep, steps.length);
+    const response = validateStep[steps[activeStep]]();
+    if (response) return;
 
     setActiveStep((current) => (current < 3 ? current + 1 : current));
   };
@@ -189,6 +205,12 @@ const CreatePostModal = ({
             </div>
           </Stepper.Step>
           <Stepper.Step label="Second step" description="Pick a location">
+            <TextInput
+              label={"Select a location by clicking a position on the map"}
+              disabled
+              {...form.getInputProps("gps_lat")}
+              value={`${form.values.gps_lat || ""} ${form.values.gps_long || ""}`}
+            />
             <PinPointMap form={form} />
           </Stepper.Step>
           <Stepper.Step label="Final step" description="Create post">
@@ -222,7 +244,7 @@ const CreatePostModal = ({
             </div>
           </Stepper.Step>
           <Stepper.Completed>
-            Completed, click back button to get to previous step
+            <Title>Post is ready to be created...</Title>
           </Stepper.Completed>
         </Stepper>
 
@@ -230,7 +252,7 @@ const CreatePostModal = ({
           <Button variant="default" onClick={prevStep}>
             Back
           </Button>
-          <Button onClick={() => nextStep(activeStep)}>Next step</Button>
+          <Button onClick={nextStep}>{activeStep === 3 ? "Create post" : "Next"}</Button>
         </Group>
       </form>
     </Modal>
