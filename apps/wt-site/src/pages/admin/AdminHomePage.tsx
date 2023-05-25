@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import CustomAppShell from "../../components/appShell/CustomAppShell";
-import { Table } from "@mantine/core";
+import { Table, Title } from "@mantine/core";
 import { AdminLog } from "../../types/AdminLog";
 
 const AdminHomePage = () => {
@@ -27,34 +27,38 @@ const AdminHomePage = () => {
   console.log(logData);
   return (
     <CustomAppShell selected={0}>
-      <Table striped highlightOnHover withColumnBorders>
-        <thead>
-          <tr>
-            <th>id </th>
-            <th>performedByUserId</th>
-            <th>datetime </th>
-            <th>type </th>
-            <th>pictureId </th>
-            <th>accountId </th>
-          </tr>
-        </thead>
-        <tbody>
-          {logData.map((value) => {
-            return (
-              <>
-                <tr key={value.id}>
-                  <td>{value.id}</td>
-                  <td>{value.performedByUserId}</td>
-                  <td>{new Date(value.datetime).toDateString()} </td>
-                  <td>{value.type} </td>
-                  <td>{value.pictureId} </td>
-                  <td>{value.accountId} </td>
-                </tr>
-              </>
-            );
-          })}
-        </tbody>
-      </Table>
+      {logData.length === 0 ? (
+        <Title>There are currently no admin logs to display</Title>
+      ) : (
+        <Table striped highlightOnHover withColumnBorders>
+          <thead>
+            <tr>
+              <th>id </th>
+              <th>performedByUserId</th>
+              <th>datetime </th>
+              <th>type </th>
+              <th>pictureId </th>
+              <th>accountId </th>
+            </tr>
+          </thead>
+          <tbody>
+            {logData.map((value) => {
+              return (
+                <>
+                  <tr key={value.id}>
+                    <td>{value.id}</td>
+                    <td>{value.performedByUserId}</td>
+                    <td>{new Date(value.datetime).toDateString()} </td>
+                    <td>{value.type} </td>
+                    <td>{value.pictureId} </td>
+                    <td>{value.accountId} </td>
+                  </tr>
+                </>
+              );
+            })}
+          </tbody>
+        </Table>
+      )}
     </CustomAppShell>
   );
 };
