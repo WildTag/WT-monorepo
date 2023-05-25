@@ -77,10 +77,10 @@ function Home() {
         return value.trim().length <= 0 ? "A post must have a description" : null;
       },
       gps_lat: (value) => {
-        return !value;
+        return !value ? "You must choose a location" : null;
       },
       gps_long: (value) => {
-        return !value;
+        return !value ? "You must choose a location" : null;
       },
       animals: (value) => {
         return value.length <= 0 ? "A post must have at least one animal tag" : null;
