@@ -5,7 +5,6 @@ import {
   Drawer,
   ScrollArea,
   Image,
-  Group,
   Text,
   useMantineTheme,
   Divider,
@@ -17,9 +16,10 @@ import {
   UnstyledButton,
   Modal,
   Button,
+  TextInput,
 } from "@mantine/core";
 import ms from "ms";
-import { AlertCircle, ChevronDown, Pencil, Send, Trash } from "tabler-icons-react";
+import { AlertCircle, ChevronDown, Pencil, Send, ThumbUp, Trash } from "tabler-icons-react";
 import { getRandomProfilePicture } from "../../helpers/getRandomProfilePicture";
 import TagComponent from "../badges/TagComponent";
 import { Account } from "../../types/Account";
@@ -27,7 +27,7 @@ import { Role } from "../../types/Role";
 import AnimalMultiSelect from "../selects/animalMultiSelect/AnimalMultiSelect";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import { Position } from "../../types/Position";
+import { Comment } from "../../types/Post";
 
 const markers = {
   duck: "/markerImages/duckMarker.png",
@@ -54,9 +54,16 @@ interface MapProps {
   account: Account | null;
   handlePostDelete: (postId: number) => void;
   handlePostComment: (postId: number, commentText: string) => void;
+  setPosts: (posts: Post[]) => void;
 }
 
-export default function Map({ posts, account, handlePostDelete, handlePostComment }: MapProps) {
+export default function Map({
+  posts,
+  account,
+  handlePostDelete,
+  handlePostComment,
+  setPosts,
+}: MapProps) {
   const theme = useMantineTheme();
   const [selectedPost, setSelectedPost] = useState<Post | null>();
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -66,6 +73,8 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
     lat: 53.1047,
     lng: -1.5624,
   });
+  const [editCommentModalOpened, setEditCommentModalOpened] = useState(false);
+  const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -96,6 +105,47 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
       animals: selectedPost.postTags.map((tag) => tag.tag.toLowerCase()),
     });
   }, [editPostModalOpened]);
+
+  const handleEditComment = async () => {
+    if (!selectedComment) return;
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/comments/${selectedComment.commentId}/edit`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("sessionToken") || "",
+        },
+        body: JSON.stringify(editCommentForm.values),
+      }
+    );
+
+    const data = await response.json();
+    if (response.status !== 200) {
+      return notifications.show({
+        title: "Error",
+        message: data.detail,
+      });
+    }
+    notifications.show({
+      title: "Success",
+      message: data.detail,
+    });
+
+    const tmpPosts = JSON.parse(JSON.stringify(posts)) as Post[];
+    tmpPosts.map((post) => {
+      if (post.pictureId === selectedPost?.pictureId) {
+        post.comments.map((comment) => {
+          if (comment.commentId === selectedComment.commentId) {
+            comment.commentText = editCommentForm.values.comment_text || "";
+          }
+        });
+      }
+    });
+
+    setPosts(tmpPosts);
+    setEditCommentModalOpened(false);
+  };
 
   const handleEditPost = async () => {
     const response = await fetch(
@@ -171,8 +221,38 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
     );
   }, []);
 
+  const editCommentForm = useForm({
+    initialValues: {
+      comment_id: selectedComment?.commentId,
+      comment_text: selectedComment?.commentText,
+    },
+  });
+
+  useEffect(() => {
+    editCommentForm.setFieldValue("comment_id", selectedComment?.commentId);
+    editCommentForm.setFieldValue("comment_text", selectedComment?.commentText);
+  }, [selectedComment]);
+
   return (
     <>
+      <Modal
+        zIndex={1000}
+        title={"Upload"}
+        opened={editCommentModalOpened}
+        onClose={() => setEditCommentModalOpened(!editCommentModalOpened)}
+        size={"xl"}
+      >
+        <form
+          onSubmit={editCommentForm.onSubmit(() => {
+            handleEditComment();
+          })}
+        >
+          <TextInput label={"Comment"} {...editCommentForm.getInputProps("comment_text")} />
+          <Button mt={10} type="submit">
+            Edit comment
+          </Button>
+        </form>
+      </Modal>
       <Modal
         zIndex={1000}
         title={"Edit post"}
@@ -204,8 +284,8 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
             },
           }}
         >
-          <Flex align={"center"} gap={5} justify={"space-between"}>
-            <Flex gap={10}>
+          <Flex align={"center"} justify={"space-between"}>
+            <Flex gap={8}>
               <Avatar
                 p={2}
                 src={
@@ -279,7 +359,8 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
               borderRadius: theme.radius.sm,
               padding: theme.spacing.sm,
               width: "100%",
-              marginBottom: "10px",
+              marginBottom: theme.spacing.sm,
+              marginTop: theme.spacing.sm,
             }}
           >
             <Title size={17} mb={5}>
@@ -307,7 +388,7 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
               background: theme.colors.dark[6],
               padding: theme.spacing.sm,
               borderRadius: theme.radius.sm,
-              marginTop: "10px",
+              marginTop: theme.spacing.sm,
             }}
             placeholder="How does this post make you feel?"
             onChange={(element) => {
@@ -325,42 +406,75 @@ export default function Map({ posts, account, handlePostDelete, handlePostCommen
               />
             }
           />
-          <div style={{ paddingTop: theme.spacing.sm }}>
+          <div>
             {selectedPost?.comments?.map((comment) => (
-              <Group
-                key={comment.commentId}
-                style={{
-                  marginTop: 10,
-                  padding: theme.spacing.sm,
-                  background: theme.colors.dark[6],
-                  borderRadius: 10,
-                }}
-              >
-                <Flex align={"start"} gap={10}>
-                  <Flex direction={"column"} gap={5} align={"center"}>
-                    <Avatar
-                      src={
-                        comment.commenter.profileImage
-                          ? `data:image/jpeg;base64,${comment.commenter.profileImage || ""}`
-                          : getRandomProfilePicture()
-                      }
-                      radius={theme.radius.md}
-                      style={{ backgroundColor: theme.colors.blue[5] }}
-                    />
-                    <Text size={10} color={theme.colors.gray[6]}>
-                      {ms(new Date().getTime() - new Date(comment.created).getTime())} ago
-                    </Text>
-                  </Flex>
-                  <div>
-                    <Flex direction={"column"} gap={5}>
-                      <Title size={20} style={{ marginBottom: 0 }}>
-                        {comment.commenter.username}
-                      </Title>
-                      <Text>{comment.commentText}</Text>
+              <>
+                <Flex
+                  direction={"column"}
+                  style={{
+                    marginTop: theme.spacing.sm,
+                    background: theme.colors.dark[6],
+                    padding: theme.spacing.sm,
+                    borderRadius: theme.radius.sm,
+                  }}
+                  justify={"flex-end"}
+                >
+                  <Flex align={"center"} justify={"space-between"}>
+                    <Flex align="center" gap="sm">
+                      <Flex direction="column" align="center">
+                        <Avatar
+                          src={
+                            comment.commenter.profileImage
+                              ? `data:image/jpeg;base64,${comment.commenter.profileImage || ""}`
+                              : getRandomProfilePicture()
+                          }
+                          radius={theme.radius.md}
+                          style={{ backgroundColor: theme.colors.blue[5] }}
+                        />
+                        <Text size={10} color={theme.colors.gray[6]}>
+                          {ms(new Date().getTime() - new Date(comment.created).getTime())} ago
+                        </Text>
+                      </Flex>
+                      <div>
+                        <Title size={18}>{comment.commenter.username}</Title>
+                        <Text size={12}>{comment.commentText}</Text>
+                      </div>
                     </Flex>
-                  </div>
+                    {(comment.commenter.accountId === account?.accountId ||
+                      account?.permission === Role.ADMINISTRATOR ||
+                      account?.permission === Role.MODERATOR) && (
+                      <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                          <UnstyledButton>
+                            <ChevronDown cursor={"pointer"} />
+                          </UnstyledButton>
+                        </Menu.Target>
+
+                        <Menu.Dropdown>
+                          <Menu.Label>Application</Menu.Label>
+                          <Menu.Item
+                            onClick={() => {
+                              if (!comment) return;
+                              setSelectedComment(comment);
+                              setEditCommentModalOpened(!editCommentModalOpened);
+                            }}
+                            icon={<Pencil color={theme.colors.blue[6]} size={14} />}
+                          >
+                            Edit
+                          </Menu.Item>
+                          <Menu.Item icon={<Trash color={theme.colors.red[5]} size={14} />}>
+                            Delete
+                          </Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
+                    )}
+                  </Flex>
+                  <Flex justify={"flex-end"} align="center">
+                    <ThumbUp color={theme.colors.blue[5]} cursor={"pointer"} />
+                    <Text size={12}>{comment.likes}</Text>
+                  </Flex>
                 </Flex>
-              </Group>
+              </>
             ))}
           </div>
         </Drawer>

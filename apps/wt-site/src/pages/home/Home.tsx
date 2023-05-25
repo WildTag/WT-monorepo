@@ -10,8 +10,6 @@ import {
   Anchor,
   MediaQuery,
   Radio,
-  Flex,
-  Center,
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "@mantine/form";
@@ -345,6 +343,7 @@ function Home() {
       <div style={{ position: "relative" }}>
         <Map
           posts={filteredPosts}
+          setPosts={setPosts}
           account={accountInfo}
           handlePostDelete={handlePostDelete}
           handlePostComment={handlePostComment}

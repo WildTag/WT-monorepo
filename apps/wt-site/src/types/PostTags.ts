@@ -1,7 +1,7 @@
 export interface PostTags {
   id: number;
   pictureId: number;
-  tag: AnimalTag[];
+  tag: AnimalTag;
   tagType: TagType;
 }
 
