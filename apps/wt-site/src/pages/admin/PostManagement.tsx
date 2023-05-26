@@ -83,9 +83,9 @@ const PostManagement = () => {
     setFilteredPosts(
       posts.filter((post) => {
         return (
-          post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.uploader?.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.uploader?.email.toLowerCase().includes(searchQuery.toLowerCase())
+          post?.title?.toLowerCase()?.includes(searchQuery?.toLowerCase()) ||
+          post?.uploader?.username?.toLowerCase()?.includes(searchQuery?.toLowerCase()) ||
+          post?.uploader?.email?.toLowerCase()?.includes(searchQuery?.toLowerCase())
         );
       })
     );
@@ -312,9 +312,11 @@ const PostComponent = ({
             </Flex>
             {post.reported && <Badge color={"yellow"}>Post reported</Badge>}
           </Flex>
-          <Title size={20}>{post.title}</Title>
+          <Title size={20} style={{ wordWrap: "break-word" }}>
+            {post.title}
+          </Title>
           <Divider />
-          <Text>{post.description}</Text>
+          <Text style={{ wordWrap: "break-word" }}>{post.description}</Text>
           <AspectRatio ratio={16 / 9} maw={400} mx="auto">
             <Image src={`data:image/jpeg;base64,${post.image}`} radius={theme.radius.md} />
             {!showImages && visible && (

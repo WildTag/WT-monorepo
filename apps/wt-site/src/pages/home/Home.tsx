@@ -69,10 +69,22 @@ function Home() {
     initialValues: initialValues,
     validate: {
       title: (value) => {
-        return value.trim().length <= 0 ? "A post must have a title" : null;
+        if (value.trim().length <= 0) {
+          return "A post must have a title";
+        } else if (value.trim().length > 256) {
+          return "The title must be less than 256 characters";
+        } else {
+          return null;
+        }
       },
       description: (value) => {
-        return value.trim().length <= 0 ? "A post must have a description" : null;
+        if (value.trim().length <= 0) {
+          return "A post must have a description";
+        } else if (value.trim().length > 2048) {
+          return "The description must be less than 2048 characters";
+        } else {
+          return null;
+        }
       },
       gps_lat: (value) => {
         return !value ? "You must choose a location" : null;

@@ -422,11 +422,11 @@ RETURNS: MAP COMPONENT THAT CONTAINS THE MARKERS AND POSTS
               marginTop: theme.spacing.sm,
             }}
           >
-            <Title size={17} mb={5}>
+            <Title size={17} mb={5} style={{ wordBreak: "break-all" }}>
               {selectedPost?.title}
             </Title>
             <Divider size="md" />
-            <Text>{selectedPost?.description}</Text>
+            <Text style={{ wordBreak: "break-all" }}>{selectedPost?.description}</Text>
           </div>
           <Flex gap={5} mb={10} wrap={"wrap"}>
             {selectedPost?.postTags.map((tag) => {
