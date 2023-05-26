@@ -1,7 +1,7 @@
 import base64
 from PIL.ExifTags import IFD
 from io import BytesIO
-from PIL import ImageOps
+from PIL import ImageOps, Image
 
 def dms_to_dd(dms, direction):
     degrees, minutes, seconds = dms
@@ -13,7 +13,17 @@ def dms_to_dd(dms, direction):
         
     return decimal_degrees
 
-def get_exif(img, image_type):    
+def get_exif(img: Image, image_type: str):
+    """
+    retrieves all of the exif data from an image, and converts images to JPEG if they are not already.
+
+    Args:
+        img (Pil Image): the image to be processed
+        image_type (str): the type of image, used to determine if the image needs to be converted to JPEG
+
+    Returns:
+        tuple: (response_code, meta_data, returned_image, error_text)
+    """
     supported_file_types = ["application/octet-stream", "image/jpeg", "image/png"]    
     if image_type not in supported_file_types:
         return (422, f"Filetype not supported {image_type}.", None)

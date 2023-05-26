@@ -13,27 +13,10 @@ from typing import List, Optional
 from datetime import datetime
 from helpers.log_admin_action import insert_admin_log
 from datetime import datetime
+from helpers.convert_to_datetime import convert_to_datetime
+from helpers.get_season import get_season
 
 router = APIRouter()
-
-
-def convert_to_datetime(date_str):
-    # Split the string on the opening parenthesis and keep only the first part
-    date_str = date_str.split(" (", 1)[0]
-    # Convert the string to a datetime object
-    dt = datetime.strptime(date_str, '%a %b %d %Y %H:%M:%S %Z%z')
-    return dt
-
-def get_season(date: datetime):
-    month = date.month
-    if 3 <= month < 6:
-        return "spring"
-    elif 6 <= month < 9:
-        return "summer"
-    elif 9 <= month < 12:
-        return "autumn"
-    else:
-        return "winter"
 
 @router.get("/posts", tags=["posts"])
 async def user_list(animals: Optional[List[str]] = Query(None), date_range: Optional[List[str]] = Query(None), season: Optional[str] = Query(None)):
@@ -42,7 +25,6 @@ async def user_list(animals: Optional[List[str]] = Query(None), date_range: Opti
     if date_range:
         date_range = [date.strip() for date in date_range[0].split(",")]
         date_range = [convert_to_datetime(date_str) for date_str in date_range]
-    
         
     where_clause = {"deleted": False}
  

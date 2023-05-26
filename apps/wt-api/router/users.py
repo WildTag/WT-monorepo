@@ -89,8 +89,11 @@ async def edit_user(edit_user_payload: EditUserPayload, request: Request):
         await verify_permission(access_token , [Role.ADMINISTRATOR, Role.MODERATOR])
         await insert_admin_log(requester.accountId, LogType.EDIT_ACCOUNT, account_id=edit_user_payload.user_id)
     
-    password_hash = hash_password(edit_user_payload.password, user.passwordSalt)
-    
+    if edit_user_payload.password:
+        password_hash = hash_password(edit_user_payload.password, user.passwordSalt)
+    else:
+        password_hash = user.passwordHash
+        
     if edit_user_payload.permission and requester.permission != "ADMINISTRATOR":
         raise HTTPException(status_code=403, detail="You cannot change user permissions")
     

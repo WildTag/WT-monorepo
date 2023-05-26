@@ -2,7 +2,13 @@ from db import prisma
 from prisma.enums import Role
 from helpers.password import hash_password, generate_password_salt
 
-async def create_default_admin():
+async def create_default_admin() -> None:
+    """
+    creates a default admin account if one does not already exist
+
+    Returns:
+        None
+    """
     user = await prisma.account.find_first(where={"permission": Role.ADMINISTRATOR})
 
     default_password = "wildtag"
