@@ -38,19 +38,10 @@ export function DashboardNavbar({ opened, selected }: Props) {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/data`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "text/csv",
         Authorization: accessToken || "",
       },
     });
-
-    const data = await response.json();
-
-    if (!response.ok)
-      return notifications.show({
-        title: "Error",
-        message: data.detail,
-        color: "red",
-      });
 
     const blob = await response.blob();
 

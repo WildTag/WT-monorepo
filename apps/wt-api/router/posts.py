@@ -88,9 +88,17 @@ async def create_post(session_token: str = Form(...),
                       gps_long: float = Form(...),
                       date_time_original: str = Form(...),
                       images: List[str] = Form(...)):
-    
     title = ' '.join(title.strip().split())
     description = ' '.join(description.strip().split())
+    
+    if len(title) > 256:
+        raise HTTPException(
+            status_code=400, detail="Title must be less than 256 characters")
+        
+    if len(description) > 2048:
+        raise HTTPException(
+            status_code=400, detail="Description must be less than 2048 characters")
+    
     user = await prisma.account.find_first(where={"accessToken": session_token})
     if not user:
         raise HTTPException(
@@ -99,7 +107,7 @@ async def create_post(session_token: str = Form(...),
     image_bytes = None
     for image in images:
         image_bytes = base64.b64decode(image)
-        # image_bytes = await image.read()
+        
     if not image_bytes: 
         raise HTTPException(
             status_code=400, detail="No image provided")
@@ -167,6 +175,14 @@ class EditPostPayload(BaseModel):
 
 @router.put("/posts/{post_id}/edit", tags=["posts"])
 async def create_post(edit_post_payload: EditPostPayload, request: Request):
+    if len(edit_post_payload.title) > 256:
+        raise HTTPException(
+            status_code=400, detail="Title must be less than 256 characters")
+        
+    if len(edit_post_payload.description) > 2048:
+        raise HTTPException(
+            status_code=400, detail="Description must be less than 2048 characters")
+    
     access_token = request.headers.get("Authorization")
     user = await prisma.account.find_first(where={"accessToken": access_token})
     post = await prisma.picture.find_first(where={"pictureId": edit_post_payload.post_id})

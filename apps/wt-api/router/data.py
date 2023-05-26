@@ -22,23 +22,22 @@ async def get_post_data(post_id: int, request: Request):
     )
 
     result = {
-    "pictureId": post.pictureId,
-    "username": post.uploader.username,
-    "created": post.created,
-    "title": post.title,
-    "description": post.description,
-    "GPSLong": post.GPSLong,
-    "GPSLat": post.GPSLat,
-    "reported": post.reported,
-    "deleted": post.deleted,
-    "tags": [{ "tag": tag.tag, "tagType": tag.tagType } for tag in post.postTags]
+        "pictureId": post.pictureId,
+        "username": post.uploader.username,
+        "created": post.created,
+        "title": post.title,
+        "description": post.description,
+        "GPSLong": post.GPSLong,
+        "GPSLat": post.GPSLat,
+        "reported": post.reported,
+        "deleted": post.deleted,
+        "tags": [{ "tag": tag.tag, "tagType": tag.tagType } for tag in post.postTags]
     }
 
     return result
 
 
 def to_csv(data):
-
     output = io.StringIO()
     writer = csv.writer(output, delimiter='|')
 
@@ -69,16 +68,16 @@ async def get_post_data(request: Request):
 
     for post in posts:
         result = {
-        "pictureId": post.pictureId,
-        "username": post.uploader.username,
-        "created": post.created,
-        "title": post.title,
-        "description": post.description,
-        "GPSLong": post.GPSLong,
-        "GPSLat": post.GPSLat,
-        "reported": post.reported,
-        "deleted": post.deleted,
-        "tags": [{ "tag": tag.tag} for tag in post.postTags]
+            "pictureId": post.pictureId,
+            "username": post.uploader.username,
+            "created": post.created,
+            "title": post.title,
+            "description": post.description,
+            "GPSLong": post.GPSLong,
+            "GPSLat": post.GPSLat,
+            "reported": post.reported,
+            "deleted": post.deleted,
+            "tags": [{ "tag": tag.tag} for tag in post.postTags]
         }
         result_dictionary_array.append(result)
 

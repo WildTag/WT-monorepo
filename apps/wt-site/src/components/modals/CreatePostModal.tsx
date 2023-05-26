@@ -151,8 +151,6 @@ const CreatePostModal = ({
                   });
                   if (!data) return;
 
-                  console.log(data);
-
                   if (
                     !data.image_data.metadata.gps_latitude ||
                     !data.image_data.metadata.gps_longitude
