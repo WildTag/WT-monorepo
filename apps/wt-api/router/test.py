@@ -2,7 +2,11 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 router = APIRouter()
+"""
+THIS FILE CONTAINS A TEST ENPOINT TO CHECK REQUESTS FOR EXCEPTIONS
 
+
+"""
 
 class Request(BaseModel):
     status_code: int

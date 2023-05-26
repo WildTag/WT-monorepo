@@ -8,6 +8,14 @@ interface Props {
 }
 
 const CustomAppShell = ({ children, selected }: Props) => {
+  /*
+   *
+   * Custom appshell component that checks the current active link, and takes in children to format page
+   *
+   *ARGS: child components, selected resource 
+  
+  returns: Appshell component
+   */
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
 

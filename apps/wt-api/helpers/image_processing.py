@@ -4,6 +4,17 @@ from io import BytesIO
 from PIL import ImageOps, Image
 
 def dms_to_dd(dms, direction):
+    """
+        convert values suitable for long and lat
+
+    Args:
+        dms
+        direction
+
+    Returns:
+        float: degrees in decimal value
+    
+    """
     degrees, minutes, seconds = dms
 
     decimal_degrees = float(degrees) + float(minutes)/60 + float(seconds)/(60*60)
