@@ -15,6 +15,7 @@ async def insert_admin_log(performed_by_user_id: int, type: LogType, picture_id:
     Returns:
         None
     """
+    print(324234)
     await prisma.adminlog.create(data={
         "performedByUserId": performed_by_user_id,
         "type": type,

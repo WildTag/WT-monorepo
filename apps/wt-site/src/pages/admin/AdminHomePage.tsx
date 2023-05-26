@@ -27,7 +27,7 @@ const AdminHomePage = () => {
   }, []);
 
   return (
-    <CustomAppShell selected={0}>
+    <CustomAppShell selected={3}>
       {logData.length === 0 ? (
         <Title>There are currently no admin logs to display</Title>
       ) : (
