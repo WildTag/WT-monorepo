@@ -18,6 +18,13 @@ from helpers.get_season import get_season
 
 router = APIRouter()
 
+"""
+
+THIS FILE CONTAINS RELEVANT ENPOINTS FOR POST DATA SUBMITTED ON THE FRONT END AND TO PARSE ON THE FRONT END
+
+"""
+
+
 @router.get("/posts", tags=["posts"])
 async def user_list(animals: Optional[List[str]] = Query(None), date_range: Optional[List[str]] = Query(None), season: Optional[str] = Query(None)):
     if animals:

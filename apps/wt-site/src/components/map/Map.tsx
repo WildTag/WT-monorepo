@@ -75,6 +75,20 @@ export default function Map({
   handlePostComment,
   setPosts,
 }: MapProps) {
+  /* 
+Map is the main component that controls the map integration with the entire app it also holds all the associated data to display posts and markers 
+
+
+ARGS: POSTS- THE POSTS THAT HAVE BEEN CREATED TO DISPLAY THEM IN THE MAP, 
+ACCOUNT- THE CURRENT USER ACCOUNT TO DISPLAY ON POST DRAWER AND OTHERS, 
+HANDLEPOSTDELTE - DELETE POSTS, 
+HANDLEPOSTCOMMENT- TO POST THE COMMENTS, 
+SETPOST- UPDATES THE POSTS AFTER A NEW ONE HAS BEEN CREATED TO RERENDER THE PAGE AUTOMATICALLY
+
+RETURNS: MAP COMPONENT THAT CONTAINS THE MARKERS AND POSTS 
+
+*/
+
   const theme = useMantineTheme();
   const [selectedPost, setSelectedPost] = useState<Post | null>();
   const [openDrawer, setOpenDrawer] = useState(false);

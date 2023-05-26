@@ -9,6 +9,11 @@ from helpers.password import generate_password_salt, hash_password
 import base64
 
 
+"""
+THIS FILE CONTAINS USER ENDPOINTS TO ALLOW THE FRONT END TO PARSE USER DATA TO RELEVENT LOCATIONS
+
+"""
+
 router = APIRouter()
 
 @router.get("/users", tags=["users"])

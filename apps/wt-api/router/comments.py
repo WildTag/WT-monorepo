@@ -7,6 +7,10 @@ from helpers.log_admin_action import insert_admin_log
 
 router = APIRouter()
 
+"""
+THIS FILE CONTAINS RELEVANT ENDPOINT FOR COMMENTS MADE ON POSTS 
+"""
+
 class CommentCreatePayload(BaseModel):
     picture_id: int
     comment_text: str
