@@ -166,7 +166,7 @@ const CreatePostModal = ({
               >
                 {!form.values.images || form.values.images?.length === 0 ? (
                   <>
-                    <Text align="center">Drop images here</Text>
+                    <Text align="center">Drop image here</Text>
                     <Button
                       fullWidth
                       onClick={() => (dropzoneRef?.current ? dropzoneRef.current() : null)}
@@ -199,9 +199,7 @@ const CreatePostModal = ({
                           {file.filename}
                         </Text>
                       </Flex>
-                      <AspectRatio ratio={16 / 9} maw={400} mx="auto">
-                        <Image key={index} src={`data:image/jpeg;base64,${file.image}`} />
-                      </AspectRatio>
+                      <Image key={index} src={`data:image/jpeg;base64,${file.image}`} />
                     </>
                   );
                 })}

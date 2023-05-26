@@ -106,6 +106,9 @@ async def create_post(session_token: str = Form(...),
                       gps_long: float = Form(...),
                       date_time_original: str = Form(...),
                       images: List[str] = Form(...)):
+    
+    title = ' '.join(title.strip().split())
+    description = ' '.join(description.strip().split())
     user = await prisma.account.find_first(where={"accessToken": session_token})
     if not user:
         raise HTTPException(

@@ -13,6 +13,7 @@ class CommentCreatePayload(BaseModel):
 
 @router.post("/comments/create", tags=["comment"])
 async def create_post(comment_create_payload: CommentCreatePayload, request: Request):
+    comment_create_payload.comment_text = ' '.join(comment_create_payload.comment_text.strip().split())
     if not comment_create_payload.picture_id:
         raise HTTPException(
             status_code=400, detail="Picture ID is required.")

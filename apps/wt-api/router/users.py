@@ -83,7 +83,6 @@ async def edit_user(edit_user_payload: EditUserPayload, request: Request):
         raise HTTPException(status_code=404, detail="User not found")
     
     if not requester:
-        print(access_token)
         raise HTTPException(status_code=404, detail="Requester not found")
 
     if user.accountId != requester.accountId:
@@ -130,6 +129,11 @@ class RegisterUserData(BaseModel):
 
 @router.post("/users/register", tags=["users"])
 async def create_user(user_payload: RegisterUserData):
+    user_payload.username = ' '.join(user_payload.username.strip().split())
+    user_payload.password = ' '.join(user_payload.password.strip().split())
+    user_payload.email = ' '.join(user_payload.email.strip().split())
+    
+    
     if len(user_payload.username) < 1:
         raise HTTPException(
             status_code=400, detail="Username Length must be at least 1 character")
@@ -182,6 +186,8 @@ class LoginUserData(BaseModel):
 @router.post("/users/login", tags=["users"])
 async def create_user(login_payload: LoginUserData):
     access_token = str(uuid.uuid4())
+    login_payload.username = ' '.join(login_payload.username.strip().split())
+    login_payload.password = ' '.join(login_payload.password.strip().split())
 
     user = await prisma.account.find_first(where={
         "username": login_payload.username,

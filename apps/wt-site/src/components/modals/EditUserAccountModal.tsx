@@ -1,8 +1,6 @@
 import { Button, Modal, Select, TextInput } from "@mantine/core";
 import { handleEditUser } from "../../helpers/handleEditUser";
 import { Account } from "../../types/Account";
-import { useClickOutside } from "@mantine/hooks";
-import { useState } from "react";
 
 interface EditUserAccountModalProps {
   form: any;
@@ -25,11 +23,8 @@ const EditUserAccountModal = ({
   setUsers,
   noEditRole,
 }: EditUserAccountModalProps) => {
-  const [opened, setOpened] = useState(false);
-  const ref = useClickOutside(() => setOpened(false));
-
   return (
-    <Modal opened={modalOpened} onClose={close} title={"Edit user"}>
+    <Modal opened={modalOpened} onClose={() => setModalOpened(!modalOpened)} title={"Edit user"}>
       <form
         onSubmit={form.onSubmit(() => {
           if (!selectedUser || !accessToken) return;
