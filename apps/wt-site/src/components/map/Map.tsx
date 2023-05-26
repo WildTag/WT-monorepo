@@ -377,23 +377,24 @@ export default function Map({
                     Report post
                   </Menu.Item>
                 )}
-                {account?.permission === Role.ADMINISTRATOR && (
-                  <>
-                    <Menu.Divider />
-                    <Menu.Label>Moderation</Menu.Label>
-                    <Menu.Item
-                      color="red"
-                      icon={<Trash size={15} />}
-                      onClick={() => {
-                        if (!selectedPost?.pictureId) return;
-                        handlePostDelete(selectedPost.pictureId);
-                        setOpenDrawer(false);
-                      }}
-                    >
-                      Delete post
-                    </Menu.Item>
-                  </>
-                )}
+                {account?.permission === Role.ADMINISTRATOR ||
+                  (account?.permission === Role.MODERATOR && (
+                    <>
+                      <Menu.Divider />
+                      <Menu.Label>Moderation</Menu.Label>
+                      <Menu.Item
+                        color="red"
+                        icon={<Trash size={15} />}
+                        onClick={() => {
+                          if (!selectedPost?.pictureId) return;
+                          handlePostDelete(selectedPost.pictureId);
+                          setOpenDrawer(false);
+                        }}
+                      >
+                        Delete post
+                      </Menu.Item>
+                    </>
+                  ))}
               </Menu.Dropdown>
             </Menu>
           </Flex>
@@ -550,8 +551,8 @@ export default function Map({
                     )}
                   </Flex>
                   <Flex justify={"flex-end"} align="center">
-                    <ThumbUp color={theme.colors.blue[5]} cursor={"pointer"} />
-                    <Text size={12}>{comment.likes}</Text>
+                    {/* <ThumbUp color={theme.colors.blue[5]} cursor={"pointer"} /> */}
+                    {/* <Text size={12}>{comment.likes}</Text> */}
                   </Flex>
                 </Flex>
               </>

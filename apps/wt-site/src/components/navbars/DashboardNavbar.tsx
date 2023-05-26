@@ -15,10 +15,10 @@ export interface NavBarLinks {
 }
 
 const data: NavBarLinks[] = [
-  { link: "/", label: "Back to Map", icon: Home2 },
-  { link: "/admin/user_management", label: "User management", icon: Dashboard },
-  { link: "/admin/post_management", label: "Post management", icon: Dashboard },
-  { link: "/admin", label: "Audit Log", icon: Dashboard },
+  { link: "/", label: "Back to Map", icon: Home2, adminOnly: true },
+  { link: "/admin/user_management", label: "User management", icon: Dashboard, adminOnly: true },
+  { link: "/admin/post_management", label: "Post management", icon: Dashboard, adminOnly: false },
+  { link: "/admin", label: "Audit Log", icon: Dashboard, adminOnly: true },
 ];
 
 interface Props {
@@ -73,7 +73,9 @@ export function DashboardNavbar({ opened, selected }: Props) {
         },
       });
       const data = await response.json();
-      if (data.user.permission !== "ADMINISTRATOR") return (window.location.href = "/");
+      if (data.user.permission !== "ADMINISTRATOR" && data.user.permission !== "MODERATOR") {
+        return (window.location.href = "/");
+      }
       if (data) setUser(data.user);
       setFetched(true);
     }
